@@ -54,7 +54,7 @@ static String buildTag(releaseBuild) {
   if (System.getenv('BUILD_TIMESTAMP') != null) {
     return DateTimeFormatter.ofPattern("-yyyyMMddHHmmss").withLocale(Locale.US).withZone( ZoneId.systemDefault() ).format(Instant.now())
   }
-  return '-SNAPSHOT'
+  return '-TEST-SNAPSHOT'
 }
 
 
