@@ -173,7 +173,7 @@ jobs:
         with:
           path: "**/*.class"
           key: ${{ runner.os }}-build-${{ github.sha }}
-      - name: gradle evm:referenceTest
+      - name: ./gradlew evm:referenceTest
         env:
           GRADLE_OPTS: "-Xmx4096m"
         run: gradle evm:referenceTest
