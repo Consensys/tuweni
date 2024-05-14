@@ -3,7 +3,9 @@
 package org.apache.tuweni.discovery
 
 import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.setPeriodicAwait
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.apache.tuweni.devp2p.EthereumNodeRecord
 import org.slf4j.LoggerFactory
 
@@ -46,7 +48,15 @@ class DNSDaemon @JvmOverloads constructor(
   fun start() {
     logger.trace("Starting DNSDaemon for $enrLink")
     val task = DNSTimerTask(vertx, seq, enrLink, this::updateRecords)
-    vertx.setPeriodicAwait(period, task::run)
+    vertx.setPeriodic(period, task::run)
+  }
+  fun Vertx.setPeriodic(delay: Long, handler: suspend (Long) -> Unit): Long {
+    val coroutineScope = CoroutineScope(this.dispatcher())
+    return this.setPeriodic(0L, delay) { timerId ->
+      coroutineScope.launch {
+        handler(timerId)
+      }
+    }
   }
 
   /**
