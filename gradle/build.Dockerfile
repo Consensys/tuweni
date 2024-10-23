@@ -10,16 +10,17 @@
 # specific language governing permissions and limitations under the License.
 
 # Build image used for github actions
+# Build using: docker build --tag "consensys:tuweni-build" -f gradle/build.Dockerfile .
 FROM eclipse-temurin:21-jdk
 
 CMD ["gradle"]
 
-ENV GRADLE_HOME /opt/gradle
+ENV GRADLE_HOME=/opt/gradle
 
 RUN set -o errexit -o nounset \
     && echo "Adding gradle user and group" \
-    && groupadd --system --gid 1000 gradle \
-    && useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
+    && groupadd --force --system --gid 1000 gradle \
+    && useradd --non-unique --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
     && mkdir /home/gradle/.gradle \
     && chown --recursive gradle:gradle /home/gradle \
     \
@@ -51,7 +52,7 @@ RUN apt-get update \
     && which hg \
     && which svn
 
-ENV GRADLE_VERSION 8.10.1
+ENV GRADLE_VERSION=8.10.1
 ARG GRADLE_DOWNLOAD_SHA256=1541fa36599e12857140465f3c91a97409b4512501c26f9631fb113e392c5bd1
 RUN set -o errexit -o nounset \
     && echo "Downloading Gradle" \
