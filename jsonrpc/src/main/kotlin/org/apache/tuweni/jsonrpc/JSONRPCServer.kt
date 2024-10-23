@@ -185,17 +185,21 @@ private class JSONRPCUser(val principal: JsonObject) : User {
     return JsonObject()
   }
 
+
+  @Deprecated("Deprecated in Java")
   override fun isAuthorized(authority: Authorization?, resultHandler: Handler<AsyncResult<Boolean>>?): User {
     resultHandler?.handle(Future.succeededFuture(true))
     return this
   }
 
+  @Deprecated("Deprecated in Java")
   override fun clearCache(): User {
     return this
   }
 
   override fun principal(): JsonObject = principal
 
+  @Deprecated("Deprecated in Java")
   override fun setAuthProvider(authProvider: AuthProvider?) {
   }
 

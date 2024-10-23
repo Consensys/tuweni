@@ -40,6 +40,6 @@ dependencies {
 }
 
 application {
-  mainClassName = 'org.apache.tuweni.stratum.StratumServerAppKt'
+  mainClass = 'org.apache.tuweni.stratum.StratumServerAppKt'
   applicationName = 'stratum-proxy'
 }

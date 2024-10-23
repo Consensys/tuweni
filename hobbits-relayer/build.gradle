@@ -32,6 +32,8 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
+application {
+  mainClass = 'org.apache.tuweni.relayer.RelayerApp'
+  applicationDefaultJvmArgs = ["-Xms512m", "-Xmx1g"]
+}
 
-application { mainClassName = 'org.apache.tuweni.relayer.RelayerApp' }
-applicationDefaultJvmArgs = ["-Xms512m", "-Xmx1g"]

@@ -37,5 +37,8 @@ dependencies {
   testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 }
 
-application { mainClassName = 'org.apache.tuweni.gossip.GossipApp' }
-applicationDefaultJvmArgs = ["-Xms512m", "-Xmx1g"]
+application {
+  mainClass = 'org.apache.tuweni.gossip.GossipApp'
+  applicationDefaultJvmArgs = ["-Xms512m", "-Xmx1g"]
+}
+

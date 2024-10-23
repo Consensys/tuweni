@@ -100,7 +100,7 @@ internal enum class PacketType(
   }
 
   init {
-    require(typeId <= PacketType.MAX_VALUE) { "Packet typeId must be in range [0x00, 0x80)" }
+    require(typeId <= 0x7F) { "Packet typeId must be in range [0x00, 0x80)" }
   }
 
   abstract fun decode(

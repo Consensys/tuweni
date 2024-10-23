@@ -72,6 +72,6 @@ dependencies {
 }
 
 application {
-  mainClassName = 'org.apache.tuweni.eth.crawler.CrawlerApp'
+  mainClass = 'org.apache.tuweni.eth.crawler.CrawlerApp'
   applicationName = 'crawler'
 }

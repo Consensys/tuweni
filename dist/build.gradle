@@ -22,7 +22,7 @@ apply plugin: 'distribution'
 
 jar { enabled = false }
 
-task createBinaryLicense {
+tasks.register('createBinaryLicense') {
   description "Create a LICENSE file with all dependencies"
 
   doLast {
@@ -33,7 +33,7 @@ task createBinaryLicense {
   }
 }
 
-task createBinaryNotice {
+tasks.register('createBinaryNotice') {
   description "Create a NOTICE file with all dependencies"
 
   doLast {
@@ -52,7 +52,7 @@ static def mandatoryFiles(CopySpec spec) {
   spec.into('license-reports') { from '../build/dependency-license' }
 }
 
-task builtGradleProperties()  {
+tasks.register('builtGradleProperties') {
   doLast {
     project.buildDir.mkdirs()
     new File(project.buildDir, "gradle.properties").text = """
@@ -132,7 +132,7 @@ distributions {
         from { project(':eth-crawler').startScripts.outputs.files }
         from { project(':jsonrpc-app').startScripts.outputs.files }
         from { project(':stratum-proxy').startScripts.outputs.files }
-        fileMode = 0755
+        dirPermissions { unix(0755) }
       }
     }
   }
@@ -175,7 +175,7 @@ distributions {
   }
 }
 
-task addDependencies() {
+tasks.register('addDependencies') {
   doLast {
     def deps = []
     rootProject.subprojects.each { s ->

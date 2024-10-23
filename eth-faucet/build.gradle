@@ -22,10 +22,12 @@ bootJar {
 
 jar {
   enabled = true
-  classifier = ''
+  archiveClassifier = ''
 }
 
-mainClassName = 'org.apache.tuweni.faucet.FaucetApplicationKt'
+application {
+  mainClass = 'org.apache.tuweni.faucet.FaucetApplicationKt'
+}
 
 dependencies {
   implementation 'com.fasterxml.jackson.core:jackson-databind'

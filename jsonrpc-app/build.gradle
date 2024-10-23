@@ -65,6 +65,6 @@ dependencies {
 }
 
 application {
-  mainClassName = 'org.apache.tuweni.jsonrpc.app.JSONRPCApp'
+  mainClass = 'org.apache.tuweni.jsonrpc.app.JSONRPCApp'
   applicationName = 'jsonrpc'
 }

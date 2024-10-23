@@ -117,13 +117,13 @@ dependencyManagement {
     dependency('org.infinispan:infinispan-cachestore-rocksdb:15.0.0.Dev02')
 
 
-    dependency('org.jetbrains:annotations:23.1.0')
-    dependencySet(group: 'org.jetbrains.kotlin', version: '1.9.0-Beta') {
+    dependency('org.jetbrains:annotations:26.0.1')
+    dependencySet(group: 'org.jetbrains.kotlin', version: '2.0.21') {
       entry 'kotlin-reflect'
       entry 'kotlin-stdlib'
       entry 'kotlin-stdlib-jdk8'
     }
-    dependencySet(group: 'org.jetbrains.kotlinx', version: '1.7.3') {
+    dependencySet(group: 'org.jetbrains.kotlinx', version: '1.9.0') {
       entry 'kotlinx-coroutines-core'
       entry 'kotlinx-coroutines-jdk8'
     }

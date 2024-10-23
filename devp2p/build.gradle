@@ -31,7 +31,6 @@ dependencies {
   implementation 'org.slf4j:slf4j-api'
   implementation 'org.jetbrains.kotlin:kotlin-stdlib'
 
-
   compileOnly 'org.bouncycastle:bcprov-jdk15on'
 
   testImplementation project(':junit')
@@ -44,11 +43,11 @@ dependencies {
 }
 
 application {
-  mainClassName = 'org.apache.tuweni.devp2p.v5.ScraperApp'
+  mainClass = 'org.apache.tuweni.devp2p.v5.ScraperApp'
   applicationName = 'scraper'
 }
 
-task v4ScraperApp(type: CreateStartScripts) {
+tasks.register('v4ScraperApp', CreateStartScripts) {
   mainClass = "org.apache.tuweni.devp2p.ScraperApp"
   applicationName = "v4scraper"
 

@@ -47,6 +47,6 @@ dependencies {
 }
 
 application {
-  mainClassName = 'org.apache.tuweni.jsonrpc.downloader.DownloaderApp'
+  mainClass = 'org.apache.tuweni.jsonrpc.downloader.DownloaderApp'
   applicationName = 'jsonrpc-downloader'
 }
