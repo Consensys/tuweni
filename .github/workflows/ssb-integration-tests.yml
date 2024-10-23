@@ -46,7 +46,7 @@ jobs:
       ssb_port: 8008
       ssb_dir: /tmp/ssb
     container:
-      image: tmio/tuweni-build:1.2
+      image: consensys/tuweni-build:1.3
       volumes:
         - /tmp/ssb:/tmp/ssb
     steps:
