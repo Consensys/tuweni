@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 # Build image used for github actions
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 
 CMD ["gradle"]
 
@@ -51,8 +51,8 @@ RUN apt-get update \
     && which hg \
     && which svn
 
-ENV GRADLE_VERSION 7.6
-ARG GRADLE_DOWNLOAD_SHA256=7ba68c54029790ab444b39d7e293d3236b2632631fb5f2e012bb28b4ff669e4b
+ENV GRADLE_VERSION 8.10.1
+ARG GRADLE_DOWNLOAD_SHA256=1541fa36599e12857140465f3c91a97409b4512501c26f9631fb113e392c5bd1
 RUN set -o errexit -o nounset \
     && echo "Downloading Gradle" \
     && wget --no-verbose --output-document=gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
