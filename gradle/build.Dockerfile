@@ -10,8 +10,9 @@
 # specific language governing permissions and limitations under the License.
 
 # Build image used for github actions
-# Build using: docker build --tag "consensys:tuweni-build" -f gradle/build.Dockerfile .
-FROM eclipse-temurin:21-jdk
+# Build using: docker buildx build --platform linux/amd64 --tag "consensys/tuweni-build:1.3" -f gradle/build.Dockerfile .
+# and push:    docker push consensys/tuweni-build:1.3
+FROM --platform=linux/amd64 eclipse-temurin:21-jdk
 
 CMD ["gradle"]
 
