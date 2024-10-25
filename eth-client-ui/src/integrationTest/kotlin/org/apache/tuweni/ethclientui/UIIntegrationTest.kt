@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.nio.file.Path
 
 @ExtendWith(VertxExtension::class, BouncyCastleExtension::class, TempDirectoryExtension::class)
@@ -40,18 +40,18 @@ type="memory"""",
     client.start()
     ui.start()
     val app = ui.getBean(ClientUIApplication::class.java)
-    val url = URL("http://localhost:" + app.config.port)
+    val url = URI.create("http://localhost:" + app.config.port).toURL()
     val con = url.openConnection() as HttpURLConnection
     con.requestMethod = "GET"
     val response = con.inputStream.readAllBytes()
     assertTrue(response.isNotEmpty())
 
-    val url2 = URL("http://localhost:" + app.config.port + "/rest/config")
+    val url2 = URI.create("http://localhost:" + app.config.port + "/rest/config").toURL()
     val con2 = url2.openConnection() as HttpURLConnection
     con2.requestMethod = "GET"
     val response2 = con2.inputStream.readAllBytes()
     assertTrue(response2.isNotEmpty())
-    val url3 = URL("http://localhost:" + app.config.port + "/rest/state")
+    val url3 = URI.create("http://localhost:" + app.config.port + "/rest/state").toURL()
     val con3 = url3.openConnection() as HttpURLConnection
     con3.requestMethod = "GET"
     val response3 = con3.inputStream.readAllBytes()
