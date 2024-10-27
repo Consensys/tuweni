@@ -14,7 +14,10 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import org.gradle.crypto.checksum.Checksum
 
-plugins { id 'com.bmuschko.docker-remote-api' version '9.3.6' }
+plugins {
+  id 'application'
+  id 'com.bmuschko.docker-remote-api' version '9.4.0'
+}
 
 description = 'Tuweni distribution.'
 
@@ -26,8 +29,8 @@ tasks.register('createBinaryLicense') {
   description "Create a LICENSE file with all dependencies"
 
   doLast {
-    new File("$project.buildDir/license").mkdirs()
-    def binaryLicenseFile = new File("$project.buildDir/license/LICENSE")
+    new File("$project.layout.buildDirectory/license").mkdirs()
+    def binaryLicenseFile = new File("$project.layout.buildDirectory/license/LICENSE")
     binaryLicenseFile.write(new File("$rootProject.projectDir/LICENSE").text)
     binaryLicenseFile.append(new File("$project.projectDir/LICENSE-binary").text)
   }
@@ -37,8 +40,8 @@ tasks.register('createBinaryNotice') {
   description "Create a NOTICE file with all dependencies"
 
   doLast {
-    new File("$project.buildDir/notice").mkdirs()
-    def binaryNoticeFile = new File("$project.buildDir/notice/NOTICE")
+    new File("$project.layout.buildDirectory/notice").mkdirs()
+    def binaryNoticeFile = new File("$project.layout.buildDirectory/notice/NOTICE")
     binaryNoticeFile.write(new File("$rootProject.projectDir/NOTICE").text)
     binaryNoticeFile.append(new File("$project.projectDir/NOTICE-binary").text)
   }
@@ -54,8 +57,8 @@ static def mandatoryFiles(CopySpec spec) {
 
 tasks.register('builtGradleProperties') {
   doLast {
-    project.buildDir.mkdirs()
-    new File(project.buildDir, "gradle.properties").text = """
+    project.layout.buildDirectory.mkdirs()
+    new File(project.layout.buildDirectory, "gradle.properties").text = """
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE
 # file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file
 # to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
@@ -222,20 +225,17 @@ if (System.getenv('ENABLE_SIGNING') == 'true') {
   }
 }
 
-task createChecksums(type: Checksum, dependsOn: [
-  'distZip',
-  'distTar',
-  'sourcesDistZip',
-  'sourcesDistTar',
-]) {
-  files = distZip.outputs.files + distTar.outputs.files + sourcesDistZip.outputs.files + sourcesDistTar.outputs.files
-  outputDir = new File(project.buildDir, "distributions")
-  algorithm = Checksum.Algorithm.SHA512
+tasks.register('createChecksums', Checksum) {
+  dependsOn distZip, distTar, sourcesDistZip, sourcesDistTar
+
+  inputFiles = distZip.outputs.files + distTar.outputs.files + sourcesDistZip.outputs.files + sourcesDistTar.outputs.files
+  outputDirectory = new File(project.layout.buildDirectory, "distributions")
+  checksumAlgorithm = Checksum.Algorithm.SHA512
 }
 
 build.dependsOn('createChecksums')
 
-task buildBinImage(type: DockerBuildImage) {
+tasks.register('buildBinImage', DockerBuildImage) {
   dependsOn distTar
   inputDir = projectDir
   dockerFile = file("docker/tuweni.Dockerfile")
