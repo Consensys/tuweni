@@ -185,7 +185,6 @@ private class JSONRPCUser(val principal: JsonObject) : User {
     return JsonObject()
   }
 
-
   @Deprecated("Deprecated in Java")
   override fun isAuthorized(authority: Authorization?, resultHandler: Handler<AsyncResult<Boolean>>?): User {
     resultHandler?.handle(Future.succeededFuture(true))

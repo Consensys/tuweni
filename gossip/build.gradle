@@ -41,4 +41,3 @@ application {
   mainClass = 'org.apache.tuweni.gossip.GossipApp'
   applicationDefaultJvmArgs = ["-Xms512m", "-Xmx1g"]
 }
-

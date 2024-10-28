@@ -36,4 +36,3 @@ application {
   mainClass = 'org.apache.tuweni.relayer.RelayerApp'
   applicationDefaultJvmArgs = ["-Xms512m", "-Xmx1g"]
 }
-
