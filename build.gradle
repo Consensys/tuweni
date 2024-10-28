@@ -278,12 +278,12 @@ allprojects {
   // Artifact locations
 
   jar {
-    destinationDirectory = file("${rootProject.buildDir}/libs")
+    destinationDirectory = rootProject.layout.buildDirectory.dir("libs")
   }
 
   tasks.register('sourcesJar', Jar) {
     dependsOn classes
-    destinationDirectory = file("${rootProject.buildDir}/src")
+    destinationDirectory = rootProject.layout.buildDirectory.dir("src")
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
   }

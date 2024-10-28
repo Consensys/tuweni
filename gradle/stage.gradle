@@ -103,7 +103,7 @@ class StageTask extends DefaultTask {
 
   @TaskAction
   def stage() {
-    project.exec { commandLine "./gradlew", "stageVerify", "stageBuild", "stageGitTag" }
+    project.exec { commandLine './gradlew', 'stageVerify', 'stageBuild', 'stageGitTag' }
   }
 }
 
@@ -112,28 +112,29 @@ class StagePlugin implements Plugin<Project> {
     configureDependencies(project)
     project.plugins.apply(JavaPlugin)
 
-    Task stageTask = project.task("stage",
-    type: StageTask,
-    group: 'Build',
-    description: 'Stages Tuweni.')
+    project.tasks.register('stage', StageTask) {
+      group = 'Build'
+      description = 'Stages Tuweni.'
+    }
 
-    Task verifyStage = project.task("stageVerify",
-    type: VerifyStageTask,
-    group: "Build",
-    description: 'Verifies Tuweni can be staged.')
+    project.tasks.register('stageVerify', VerifyStageTask) {
+      group = 'Build'
+      description = 'Verifies Tuweni can be staged.'
+    }
 
-    Task buildStage = project.task("stageBuild",
-    type: StageBuildTask,
-    group: "Build",
-    description: 'Builds Tuweni to be staged.')
+    project.tasks.register('stageBuild', StageBuildTask) {
+      group = 'Build'
+      description = 'Builds Tuweni to be staged.'
+    }
 
-    Task gitStageTask = project.task("stageGitTag",
-    type: GitStageTask,
-    group: 'Build',
-    description: 'Tag in git the current stage')
+    project.tasks.register('stageGitTag', GitStageTask) {
+      group = 'Build'
+      description = 'Tag in git the current stage'
+    }
+
   }
 
-  void configureDependencies(final Project project) {
-    project.repositories { mavenCentral() }
+  static void configureDependencies(final Project project) {
+      project.repositories { mavenCentral() }
   }
 }
