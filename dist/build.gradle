@@ -29,10 +29,11 @@ tasks.register('createBinaryLicense') {
   description "Create a LICENSE file with all dependencies"
 
   doLast {
-    new File("$project.layout.buildDirectory/license").mkdirs()
-    def binaryLicenseFile = new File("$project.layout.buildDirectory/license/LICENSE")
-    binaryLicenseFile.write(new File("$rootProject.projectDir/LICENSE").text)
-    binaryLicenseFile.append(new File("$project.projectDir/LICENSE-binary").text)
+    def licenseDir = project.layout.buildDirectory.dir("license").get()
+    mkdir licenseDir
+    def binaryLicenseFile = licenseDir.file("LICENSE").asFile
+    binaryLicenseFile.write( file( rootProject.layout.projectDirectory.file("LICENSE")).text)
+    binaryLicenseFile.append( file( project.layout.projectDirectory.file("LICENSE-binary")).text)
   }
 }
 
@@ -40,8 +41,9 @@ tasks.register('createBinaryNotice') {
   description "Create a NOTICE file with all dependencies"
 
   doLast {
-    new File("$project.layout.buildDirectory/notice").mkdirs()
-    def binaryNoticeFile = new File("$project.layout.buildDirectory/notice/NOTICE")
+    def noticeDir = project.layout.buildDirectory.dir("notice").get()
+    mkdir noticeDir
+    def binaryNoticeFile = noticeDir.file("NOTICE").asFile
     binaryNoticeFile.write(new File("$rootProject.projectDir/NOTICE").text)
     binaryNoticeFile.append(new File("$project.projectDir/NOTICE-binary").text)
   }
@@ -57,8 +59,8 @@ static def mandatoryFiles(CopySpec spec) {
 
 tasks.register('builtGradleProperties') {
   doLast {
-    project.layout.buildDirectory.mkdirs()
-    new File(project.layout.buildDirectory, "gradle.properties").text = """
+    file(project.layout.buildDirectory).mkdirs()
+    file("$project.layout.buildDirectory/gradle.properties").text = """
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE
 # file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file
 # to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
@@ -229,7 +231,7 @@ tasks.register('createChecksums', Checksum) {
   dependsOn distZip, distTar, sourcesDistZip, sourcesDistTar
 
   inputFiles = distZip.outputs.files + distTar.outputs.files + sourcesDistZip.outputs.files + sourcesDistTar.outputs.files
-  outputDirectory = new File(project.layout.buildDirectory, "distributions")
+  outputDirectory = file("$project.layout.buildDirectory/distributions")
   checksumAlgorithm = Checksum.Algorithm.SHA512
 }
 
