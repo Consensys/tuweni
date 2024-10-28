@@ -16,6 +16,7 @@ import org.gradle.crypto.checksum.Checksum
 
 plugins {
   id 'application'
+  id 'distribution'
   id 'com.bmuschko.docker-remote-api' version '9.4.0'
 }
 
@@ -109,11 +110,11 @@ distributions {
         include "*"
       }
       into('') {
-        from "$project.buildDir/license"
+        from ".."
         include 'LICENSE'
       }
       into('') {
-        from "$project.buildDir/notice"
+        from ".."
         include 'NOTICE'
       }
       def libs = []

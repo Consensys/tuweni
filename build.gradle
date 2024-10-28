@@ -39,6 +39,7 @@ plugins {
   id 'maven-publish'
   id 'se.patrikerdes.use-latest-versions' version '0.2.18'
   id 'com.github.ben-manes.versions' version '0.51.0'
+  id 'com.github.jk1.dependency-license-report' version '2.9' apply false
 }
 
 description = 'A set of libraries and other tools to aid development of blockchain and other decentralized software in Java and other JVM languages'
@@ -79,7 +80,7 @@ gradle.startParameter.taskNames.each {
 gradle.startParameter.taskNames = expandedTaskList.flatten() as Iterable<String>
 
 ext {
-  gradleVersion = '7.6'
+  gradleVersion = '8.10.1'
 }
 
 apply from: "${rootDir}/gradle/wrapper.gradle"
