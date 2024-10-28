@@ -32,6 +32,7 @@ tasks.register('createBinaryLicense') {
     def licenseDir = project.layout.buildDirectory.dir("license").get()
     mkdir licenseDir
     def binaryLicenseFile = licenseDir.file("LICENSE").asFile
+    binaryLicenseFile.createNewFile()
     binaryLicenseFile.write( file(rootProject.layout.projectDirectory.file("LICENSE")).text)
     binaryLicenseFile.append( file( project.layout.projectDirectory.file("LICENSE-binary")).text)
   }
@@ -44,6 +45,7 @@ tasks.register('createBinaryNotice') {
     def noticeDir = project.layout.buildDirectory.dir("notice").get()
     mkdir noticeDir
     def binaryNoticeFile = noticeDir.file("NOTICE").asFile
+    binaryNoticeFile.createNewFile()
     binaryNoticeFile.write( file( rootProject.layout.projectDirectory.file("NOTICE")).text)
     binaryNoticeFile.append( file( project.layout.projectDirectory.file("NOTICE-binary")).text)
   }
@@ -59,7 +61,9 @@ static def mandatoryFiles(CopySpec spec) {
 
 tasks.register('builtGradleProperties') {
   doLast {
-    file( project.layout.buildDirectory.file("gradle.properties")).text = """
+    def gradlePropertiesFile = project.layout.buildDirectory.file("gradle.properties").get().asFile
+    gradlePropertiesFile.createNewFile()
+    gradlePropertiesFile.text = """
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE
 # file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file
 # to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
