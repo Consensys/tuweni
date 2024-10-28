@@ -72,11 +72,11 @@ def buildAliases = ['dev': [
     ':javadoc'
   ]]
 
-def expandedTaskList = [] as String[]
+def expandedTaskList = []
 gradle.startParameter.taskNames.each {
-  expandedTaskList << (buildAliases[it] ? buildAliases[it] : it)
+  expandedTaskList <<  (buildAliases[it] ? buildAliases[it] : it)
 }
-gradle.startParameter.taskNames = expandedTaskList.flatten()
+gradle.startParameter.taskNames = expandedTaskList.flatten() as Iterable<String>
 
 ext {
   gradleVersion = '7.6'
