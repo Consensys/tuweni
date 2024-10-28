@@ -205,7 +205,8 @@ tasks.register('addDependencies') {
 
 distZip.dependsOn addDependencies
 distTar.dependsOn addDependencies
-
+distZip.dependsOn signArchives
+distTar.dependsOn signArchives
 
 rootProject.subprojects.each {
   if (it != project) {
