@@ -32,7 +32,7 @@ tasks.register('createBinaryLicense') {
     def licenseDir = project.layout.buildDirectory.dir("license").get()
     mkdir licenseDir
     def binaryLicenseFile = licenseDir.file("LICENSE").asFile
-    binaryLicenseFile.write( file( rootProject.layout.projectDirectory.file("LICENSE")).text)
+    binaryLicenseFile.write( file(rootProject.layout.projectDirectory.file("LICENSE")).text)
     binaryLicenseFile.append( file( project.layout.projectDirectory.file("LICENSE-binary")).text)
   }
 }
@@ -44,8 +44,8 @@ tasks.register('createBinaryNotice') {
     def noticeDir = project.layout.buildDirectory.dir("notice").get()
     mkdir noticeDir
     def binaryNoticeFile = noticeDir.file("NOTICE").asFile
-    binaryNoticeFile.write(new File("$rootProject.projectDir/NOTICE").text)
-    binaryNoticeFile.append(new File("$project.projectDir/NOTICE-binary").text)
+    binaryNoticeFile.write( file( rootProject.layout.projectDirectory.file("NOTICE")).text)
+    binaryNoticeFile.append( file( project.layout.projectDirectory.file("NOTICE-binary")).text)
   }
 }
 
@@ -59,8 +59,7 @@ static def mandatoryFiles(CopySpec spec) {
 
 tasks.register('builtGradleProperties') {
   doLast {
-    file(project.layout.buildDirectory).mkdirs()
-    file("$project.layout.buildDirectory/gradle.properties").text = """
+    file( project.layout.buildDirectory.file("gradle.properties")).text = """
 # Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE
 # file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file
 # to You under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the
@@ -241,9 +240,7 @@ tasks.register('buildBinImage', DockerBuildImage) {
   dependsOn distTar
   inputDir = projectDir
   dockerFile = file("docker/tuweni.Dockerfile")
-  images = [
-    "apache-tuweni/tuweni:$project.version"
-  ]
+  images.add("apache-tuweni/tuweni:$project.version")
 }
 
 integrationTest.dependsOn build
