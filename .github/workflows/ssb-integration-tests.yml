@@ -54,13 +54,13 @@ jobs:
         with:
           submodules: true
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
           cache: gradle
       - name: Cache classes
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: "**/*.class"
           key: ${{ runner.os }}-build-${{ github.sha }}
@@ -68,7 +68,7 @@ jobs:
         run: gradle scuttlebutt-client-lib:integrationTest scuttlebutt-discovery:integrationTest scuttlebutt-handshake:integrationTest scuttlebutt-rpc:integrationTest
       - name: Archive Junit Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: junit-report
           path: '**/build/reports/tests/**'

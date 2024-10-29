@@ -34,7 +34,7 @@ jobs:
         with:
           submodules: true
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
@@ -43,7 +43,7 @@ jobs:
         run: ./gradlew.bat test
       - name: Archive Junit Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: junit-report
           path: '**/build/reports/tests/**'
