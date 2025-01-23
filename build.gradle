@@ -13,10 +13,12 @@
 import net.ltgt.gradle.errorprone.CheckSeverity
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import groovy.xml.XmlParser
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SonatypeHost
 
 buildscript {
   repositories {
@@ -36,14 +38,17 @@ plugins {
   id 'maven-publish'
   id 'se.patrikerdes.use-latest-versions' version '0.2.18'
   id 'com.github.ben-manes.versions' version '0.49.0'
+  id "java-library"
+  id "com.vanniktech.maven.publish" version "0.30.0"
 }
 
 description = 'A set of libraries and other tools to aid development of blockchain and other decentralized software in Java and other JVM languages'
+group = "io.consensys.protocols"
 
 //////
 // Version numbering
 
-def versionNumber = '2.5.0'
+def versionNumber = '24.12.0-RC1'
 def buildVersion = versionNumber + buildTag(buildRelease)
 
 static String buildTag(releaseBuild) {
@@ -314,157 +319,6 @@ allprojects {
       sign configurations.archives
     }
 
-	publishing {
-      repositories {
-        maven {
-          name = "OSSRH"
-          def isRelease = buildVersion.endsWith('SNAPSHOT')
-          def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-          def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-          url = isRelease ? snapshotsRepoUrl : releasesRepoUrl
-
-          def settingsXml = new File(System.getProperty('user.home'), '.m2/settings.xml')
-
-          def credentialsFound = false;
-          if (settingsXml.exists()) {
-            project.logger.info('Reading .m2/settings.xml')
-            def serverId = (project.properties['distMgmtServerId'] ?: isRelease
-              ? 'apache.releases.https' : 'apache.snapshots.https')
-            def m2SettingCreds = new XmlParser().parse(settingsXml).servers.server.find { server -> serverId == server.id.text() }
-            if (m2SettingCreds) {
-              project.logger.info('Found matching credentials from .m2/settings.xml')
-              credentials {
-                username m2SettingCreds.username.text()
-                password m2SettingCreds.password.text()
-              }
-              credentialsFound = true
-            }
-          }
-
-          if (!credentialsFound) {
-            project.logger.info('Reading credentials from environment')
-            project.logger.info('Username ' + nexusUsername)
-            credentials {
-              username nexusUsername
-              password nexusPassword
-            }
-          }
-        }
-
-        maven {
-          name = "GitHubPackages"
-          url = "https://maven.pkg.github.com/consensys/tuweni"
-          credentials {
-            username = System.getenv('GITHUB_ACTOR')
-            password = System.getenv('GITHUB_TOKEN')
-          }
-        }
-      }
-
-      publications {
-        create("MavenDeployment", MavenPublication) {
-          if (project != rootProject) {
-            from components.java
-            artifact sourcesJar { archiveClassifier.set('sources') }
-          }
-          
-          groupId = 'io.consensys.protocols'
-          artifactId = project == rootProject ? project.name : "${rootProject.name}-${project.name}"
-          version = project.version
-
-          pom {
-            name = project.name
-            afterEvaluate { description = project.description }
-            url = 'https://github.com/consensys/tuweni'
-            licenses {
-              license {
-                name = "The Apache License, Version 2.0"
-                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-              }
-            }
-            scm {
-              connection = 'scm:https://github.com/consensys/tuweni.git'
-              developerConnection = 'scm:git@github.com:consensys/tuweni.git'
-              url = 'https://github.com/consensys/tuweni'
-            }
-            developers {
-              developer {
-                name = 'Antoine Toulme'
-                email = 'antoine@lunar-ocean.com'
-                organization = 'The Machine Consultancy, LLC'
-                organizationUrl = 'https://themachine.io'
-              }
-            }
-            issueManagement {
-              system = "github"
-              url = "https://www.github.com/consensys/tuweni/issues"
-            }
-          
-            withXml {
-              def root = asNode()
-              
-              // Remove dependencyManagement section if it exists
-              root.dependencyManagement.each { it.parent().remove(it) }
-              
-              def dependencies = root.dependencies[0] ?: root.appendNode('dependencies')
-              dependencies.children().clear()
-              
-              // Add implementation dependencies with versions from dependency management
-              configurations.implementation.allDependencies.each { dep ->
-                if (dep.name != 'unspecified') {
-                  def node = dependencies.appendNode('dependency')
-                  node.appendNode('groupId', dep instanceof ProjectDependency ? "io.consensys.protocols" : dep.group)
-                  node.appendNode('artifactId', dep instanceof ProjectDependency ? "${rootProject.name}-${dep.name}" : dep.name)
-                  
-                  // Get version from dependency management if available
-                  def version = dep.version ?: project.dependencyManagement.managedVersions["${dep.group}:${dep.name}"]
-                  node.appendNode('version', version)
-                }
-              }
-              
-              // Add compileOnly dependencies as optional without trying to resolve them
-              configurations.compileOnly.allDependencies.each { dep ->
-                if (dep.name != 'unspecified') {
-                  def node = dependencies.appendNode('dependency')
-                  node.appendNode('groupId', dep instanceof ProjectDependency ? "io.consensys.protocols" : dep.group)
-                  node.appendNode('artifactId', dep instanceof ProjectDependency ? "${rootProject.name}-${dep.name}" : dep.name)
-                  // Get version from dependency management if available
-                  def version = dep.version ?: project.dependencyManagement.managedVersions["${dep.group}:${dep.name}"]
-                  node.appendNode('version', version)
-                  node.appendNode('optional', 'true')
-                }
-              }
-
-              if (System.getenv('ENABLE_SIGNING') == 'true') {
-                def pomFile = file("${project.buildDir}/generated-pom.xml")
-                writeTo(pomFile)
-                def pomAscFile = signing.sign(pomFile).signatureFiles[0]
-                artifact(pomAscFile) {
-                  classifier = null
-                  extension = 'pom.asc'
-                }
-              }
-            }
-
-            if (System.getenv('ENABLE_SIGNING') == 'true') {
-              // create the signed artifacts
-              tasks.signArchives.signatureFiles.each {
-                artifact(it) {
-                  def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
-                  if (matcher.find()) {
-                    classifier = matcher.group(1)
-                  } else {
-                    classifier = null
-                  }
-                  extension = 'jar.asc'
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
     tasks.withType(Sign).configureEach {
       onlyIf {
         System.getenv('ENABLE_SIGNING') == 'true'
@@ -479,6 +333,42 @@ allprojects {
     tasks.withType(PublishToMavenLocal).configureEach { publishTask ->
       publishTask.dependsOn(tasks.withType(GenerateMavenPom))
     }
+
+    apply plugin: 'com.vanniktech.maven.publish' // dist excluded
+    mavenPublishing {
+      configure(new JavaLibrary(new JavadocJar.None(), true)) // TODO SLD reenable Javadoc
+
+      pom {
+        name = "${project.name}"
+        url = "http://github.com/Consensys/tuweni"
+        description = project.description
+        licenses {
+          license {
+            name = "The Apache License, Version 2.0"
+            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+          }
+        }
+        developers {
+          developer {
+            id = "consensys"
+            name = "Protocols Team"
+            email = "devops@consensys.net"
+          }
+        }
+        scm {
+          connection = "scm:git:git://github.com/Consensys/tuweni.git"
+          developerConnection = "scm:git:ssh://github.com/Consensys/tuweni.git"
+          url = "https://github.com/Consensys/tuweni"
+        }
+      }
+
+      publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+      signAllPublications()
+    }
+
+//    // https://github.com/vanniktech/gradle-maven-publish-plugin/issues/821
+//    mavenPlainJavadocJar.archiveBaseName.set("${project.name}")
   }
 }
 
