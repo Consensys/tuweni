@@ -7,7 +7,7 @@ import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
 
 import io.vertx.core.buffer.Buffer;
 
-class BufferWrappingBytes extends AbstractBytes {
+class BufferWrappingBytes extends Bytes {
 
   protected final Buffer buffer;
 

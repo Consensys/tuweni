@@ -8,7 +8,7 @@ import java.util.Arrays;
  * A Bytes value with just one constant value throughout. Ideal to avoid allocating large byte
  * arrays filled with the same byte.
  */
-class ConstantBytes32Value extends AbstractBytes implements Bytes32 {
+class ConstantBytes32Value extends Bytes implements Bytes32 {
 
   private final byte value;
 

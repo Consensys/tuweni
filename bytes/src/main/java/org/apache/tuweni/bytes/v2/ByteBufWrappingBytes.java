@@ -8,7 +8,7 @@ import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
 
-class ByteBufWrappingBytes extends AbstractBytes {
+class ByteBufWrappingBytes extends Bytes {
 
   protected final ByteBuf byteBuf;
 

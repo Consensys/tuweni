@@ -15,7 +15,7 @@ import io.vertx.core.buffer.Buffer;
  * <p>This class may be used to create more types that represent bytes, but need a different name
  * for business logic.
  */
-public class DelegatingBytes extends AbstractBytes implements Bytes {
+public class DelegatingBytes extends Bytes {
 
   final Bytes delegate;
 

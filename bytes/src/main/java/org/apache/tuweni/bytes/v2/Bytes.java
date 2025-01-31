@@ -28,14 +28,19 @@ import io.vertx.core.buffer.Buffer;
 /**
  * A value made of bytes.
  *
- * <p>This interface makes no thread-safety guarantee, and a {@link Bytes} value is generally not
+ * <p>This class makes no thread-safety guarantee, and a {@link Bytes} value is generally not
  * thread safe. However, specific implementations may be thread-safe. For instance, the value
  * returned by {@link #copy} is guaranteed to be thread-safe as it is immutable.
  */
-public interface Bytes extends Comparable<Bytes> {
+public abstract class Bytes implements Comparable<Bytes> {
+
+  public static final String HEX_CODE_AS_STRING = "0123456789abcdef";
+  public static final char[] HEX_CODE = HEX_CODE_AS_STRING.toCharArray();
 
   /** The empty value (with 0 bytes). */
-  Bytes EMPTY = wrap(new byte[0]);
+  public static Bytes EMPTY = wrap(new byte[0]);
+
+  private Integer hashCode;
 
   /**
    * Wrap the provided byte array as a {@link Bytes} value.
@@ -46,7 +51,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param value The value to wrap.
    * @return A {@link Bytes} value wrapping {@code value}.
    */
-  static Bytes wrap(byte[] value) {
+  public static Bytes wrap(byte[] value) {
     return wrap(value, 0, value.length);
   }
 
@@ -66,7 +71,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     value.length)}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > value.length}.
    */
-  static Bytes wrap(byte[] value, int offset, int length) {
+  public static Bytes wrap(byte[] value, int offset, int length) {
     checkNotNull(value);
     if (length == 32) {
       return new ArrayWrappingBytes32(value, offset);
@@ -85,7 +90,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A value representing a view over the concatenation of all {@code values}.
    * @throws IllegalArgumentException if the result overflows an int.
    */
-  static Bytes wrap(Bytes... values) {
+  public static Bytes wrap(Bytes... values) {
     return ConcatenatedBytes.wrap(values);
   }
 
@@ -100,7 +105,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A value representing a view over the concatenation of all {@code values}.
    * @throws IllegalArgumentException if the result overflows an int.
    */
-  static Bytes wrap(List<Bytes> values) {
+  public static Bytes wrap(List<Bytes> values) {
     return ConcatenatedBytes.wrap(values);
   }
 
@@ -112,9 +117,9 @@ public interface Bytes extends Comparable<Bytes> {
    *     provided order.
    * @throws IllegalArgumentException if the result overflows an int.
    */
-  static Bytes concatenate(List<Bytes> values) {
-    if (values.size() == 0) {
-      return EMPTY;
+  public static Bytes concatenate(List<Bytes> values) {
+    if (values.isEmpty()) {
+      return Bytes.EMPTY;
     }
 
     int size;
@@ -142,7 +147,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     provided order.
    * @throws IllegalArgumentException if the result overflows an int.
    */
-  static Bytes concatenate(Bytes... values) {
+  public static Bytes concatenate(Bytes... values) {
     if (values.length == 0) {
       return EMPTY;
     }
@@ -172,7 +177,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param buffer The buffer to wrap.
    * @return A {@link Bytes} value.
    */
-  static Bytes wrapBuffer(Buffer buffer) {
+  public static Bytes wrapBuffer(Buffer buffer) {
     checkNotNull(buffer);
     if (buffer.length() == 0) {
       return EMPTY;
@@ -194,7 +199,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     buffer.length())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > buffer.length()}.
    */
-  static Bytes wrapBuffer(Buffer buffer, int offset, int size) {
+  public static Bytes wrapBuffer(Buffer buffer, int offset, int size) {
     checkNotNull(buffer);
     if (size == 0) {
       return EMPTY;
@@ -210,7 +215,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param byteBuf The {@link ByteBuf} to wrap.
    * @return A {@link Bytes} value.
    */
-  static Bytes wrapByteBuf(ByteBuf byteBuf) {
+  public static Bytes wrapByteBuf(ByteBuf byteBuf) {
     checkNotNull(byteBuf);
     if (byteBuf.capacity() == 0) {
       return EMPTY;
@@ -232,7 +237,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     byteBuf.capacity())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > byteBuf.capacity()}.
    */
-  static Bytes wrapByteBuf(ByteBuf byteBuf, int offset, int size) {
+  public static Bytes wrapByteBuf(ByteBuf byteBuf, int offset, int size) {
     checkNotNull(byteBuf);
     if (size == 0) {
       return EMPTY;
@@ -248,7 +253,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param byteBuffer The {@link ByteBuffer} to wrap.
    * @return A {@link Bytes} value.
    */
-  static Bytes wrapByteBuffer(ByteBuffer byteBuffer) {
+  public static Bytes wrapByteBuffer(ByteBuffer byteBuffer) {
     checkNotNull(byteBuffer);
     if (byteBuffer.limit() == 0) {
       return EMPTY;
@@ -270,7 +275,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     byteBuf.limit())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > byteBuffer.limit()}.
    */
-  static Bytes wrapByteBuffer(ByteBuffer byteBuffer, int offset, int size) {
+  public static Bytes wrapByteBuffer(ByteBuffer byteBuffer, int offset, int size) {
     checkNotNull(byteBuffer);
     if (size == 0) {
       return EMPTY;
@@ -284,7 +289,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param bytes The bytes that must compose the returned value.
    * @return A value containing the specified bytes.
    */
-  static Bytes of(byte... bytes) {
+  public static Bytes of(byte... bytes) {
     return wrap(bytes);
   }
 
@@ -296,7 +301,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if any of the specified would be truncated when storing as a
    *     byte.
    */
-  static Bytes of(int... bytes) {
+  public static Bytes of(int... bytes) {
     byte[] result = new byte[bytes.length];
     for (int i = 0; i < bytes.length; i++) {
       int b = bytes[i];
@@ -314,7 +319,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code value < 0} or {@code value} is too big to fit an
    *     unsigned 2-byte short (that is, if {@code value >= (1 << 16)}).
    */
-  static Bytes ofUnsignedShort(int value) {
+  public static Bytes ofUnsignedShort(int value) {
     return ofUnsignedShort(value, BIG_ENDIAN);
   }
 
@@ -327,7 +332,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code value < 0} or {@code value} is too big to fit an
    *     unsigned 2-byte short (that is, if {@code value >= (1 << 16)}).
    */
-  static Bytes ofUnsignedShort(int value, ByteOrder order) {
+  public static Bytes ofUnsignedShort(int value, ByteOrder order) {
     checkArgument(
         value >= 0 && value <= BytesValues.MAX_UNSIGNED_SHORT,
         "Value %s cannot be represented as an unsigned short (it is negative or too big)",
@@ -351,7 +356,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code value < 0} or {@code value} is too big to fit an
    *     unsigned 4-byte int (that is, if {@code value >= (1L << 32)}).
    */
-  static Bytes ofUnsignedInt(long value) {
+  public static Bytes ofUnsignedInt(long value) {
     return ofUnsignedInt(value, BIG_ENDIAN);
   }
 
@@ -364,7 +369,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code value < 0} or {@code value} is too big to fit an
    *     unsigned 4-byte int (that is, if {@code value >= (1L << 32)}).
    */
-  static Bytes ofUnsignedInt(long value, ByteOrder order) {
+  public static Bytes ofUnsignedInt(long value, ByteOrder order) {
     checkArgument(
         value >= 0 && value <= BytesValues.MAX_UNSIGNED_INT,
         "Value %s cannot be represented as an unsigned int (it is negative or too big)",
@@ -392,7 +397,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code value < 0} or {@code value} is too big to fit an
    *     unsigned 8-byte int (that is, if {@code value >= (1L << 64)}).
    */
-  static Bytes ofUnsignedLong(long value) {
+  public static Bytes ofUnsignedLong(long value) {
     return ofUnsignedLong(value, BIG_ENDIAN);
   }
 
@@ -405,7 +410,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code value < 0} or {@code value} is too big to fit an
    *     unsigned 8-byte int (that is, if {@code value >= (1L << 64)}).
    */
-  static Bytes ofUnsignedLong(long value, ByteOrder order) {
+  public static Bytes ofUnsignedLong(long value, ByteOrder order) {
     byte[] res = new byte[8];
     if (order == BIG_ENDIAN) {
       res[0] = (byte) ((value >> 56) & 0xFF);
@@ -436,7 +441,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param value The long from which to create the bytes value.
    * @return The minimal bytes representation corresponding to {@code l}.
    */
-  static Bytes minimalBytes(long value) {
+  public static Bytes minimalBytes(long value) {
     if (value == 0) {
       return Bytes.EMPTY;
     }
@@ -464,7 +469,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation.
    */
-  static Bytes fromHexStringLenient(CharSequence str) {
+  public static Bytes fromHexStringLenient(CharSequence str) {
     checkNotNull(str);
     return BytesValues.fromHexString(str, -1, true);
   }
@@ -485,7 +490,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     representation, represents more bytes than {@code destinationSize} or {@code
    *     destinationSize < 0}.
    */
-  static Bytes fromHexStringLenient(CharSequence str, int destinationSize) {
+  public static Bytes fromHexStringLenient(CharSequence str, int destinationSize) {
     checkNotNull(str);
     checkArgument(destinationSize >= 0, "Invalid negative destination size %s", destinationSize);
     return BytesValues.fromHexString(str, destinationSize, true);
@@ -501,7 +506,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation, or is of an odd length.
    */
-  static Bytes fromHexString(CharSequence str) {
+  public static Bytes fromHexString(CharSequence str) {
     checkNotNull(str);
     return BytesValues.fromHexString(str, -1, false);
   }
@@ -523,7 +528,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     representation, or is of an odd length, or represents more bytes than {@code
    *     destinationSize} or {@code destinationSize < 0}.
    */
-  static Bytes fromHexString(CharSequence str, int destinationSize) {
+  public static Bytes fromHexString(CharSequence str, int destinationSize) {
     checkNotNull(str);
     checkArgument(destinationSize >= 0, "Invalid negative destination size %s", destinationSize);
     return BytesValues.fromHexString(str, destinationSize, false);
@@ -535,7 +540,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param str The base 64 string to parse.
    * @return The value corresponding to {@code str}.
    */
-  static Bytes fromBase64String(CharSequence str) {
+  public static Bytes fromBase64String(CharSequence str) {
     return Bytes.wrap(Base64.getDecoder().decode(str.toString()));
   }
 
@@ -545,7 +550,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param size The number of bytes to generate.
    * @return A value containing the desired number of random bytes.
    */
-  static Bytes random(int size) {
+  public static Bytes random(int size) {
     return random(size, new SecureRandom());
   }
 
@@ -556,7 +561,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param generator The generator for random bytes.
    * @return A value containing the desired number of random bytes.
    */
-  static Bytes random(int size, Random generator) {
+  public static Bytes random(int size, Random generator) {
     byte[] array = new byte[size];
     generator.nextBytes(array);
     return Bytes.wrap(array);
@@ -569,7 +574,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param size the size of the object
    * @return a value filled with a fixed byte
    */
-  static Bytes repeat(byte b, int size) {
+  public static Bytes repeat(byte b, int size) {
     return new ConstantBytesValue(b, size);
   }
 
@@ -580,7 +585,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param bytes the bytes object to segment
    * @return an array of Bytes32 objects
    */
-  static Bytes32[] segment(Bytes bytes) {
+  public static Bytes32[] segment(Bytes bytes) {
     int segments = (int) Math.ceil(bytes.size() / 32.0);
     Bytes32[] result = new Bytes32[segments];
     for (int i = 0; i < segments; i++) {
@@ -594,7 +599,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return The number of bytes this value represents.
    */
-  int size();
+  public abstract int size();
 
   /**
    * Retrieve a byte in this value.
@@ -603,7 +608,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return The byte at index {@code i} in this value.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()}.
    */
-  byte get(int i);
+  public abstract byte get(int i);
 
   /**
    * Retrieve the 4 bytes starting at the provided index in this value as an integer.
@@ -613,7 +618,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return An integer whose value is the 4 bytes from this value starting at index {@code i}.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {@code i > size() - 4}.
    */
-  default int getInt(int i) {
+  public int getInt(int i) {
     return getInt(i, BIG_ENDIAN);
   }
 
@@ -626,7 +631,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return An integer whose value is the 4 bytes from this value starting at index {@code i}.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {@code i > size() - 4}.
    */
-  default int getInt(int i, ByteOrder order) {
+  public int getInt(int i, ByteOrder order) {
     int size = size();
     checkElementIndex(i, size);
     if (i > (size - 4)) {
@@ -657,7 +662,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return An value corresponding to this value interpreted as an integer.
    * @throws IllegalArgumentException if {@code size() > 4}.
    */
-  default int toInt() {
+  public int toInt() {
     return toInt(BIG_ENDIAN);
   }
 
@@ -668,7 +673,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return An value corresponding to this value interpreted as an integer.
    * @throws IllegalArgumentException if {@code size() > 4}.
    */
-  default int toInt(ByteOrder order) {
+  public int toInt(ByteOrder order) {
     int size = size();
     checkArgument(size <= 4, "Value of size %s has more than 4 bytes", size());
     if (size == 0) {
@@ -712,7 +717,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return true if the value contains no bytes
    */
-  default boolean isEmpty() {
+  public boolean isEmpty() {
     return size() == 0;
   }
 
@@ -724,7 +729,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A long whose value is the 8 bytes from this value starting at index {@code i}.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {@code i > size() - 8}.
    */
-  default long getLong(int i) {
+  public long getLong(int i) {
     return getLong(i, BIG_ENDIAN);
   }
 
@@ -737,7 +742,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A long whose value is the 8 bytes from this value starting at index {@code i}.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {@code i > size() - 8}.
    */
-  default long getLong(int i, ByteOrder order) {
+  public long getLong(int i, ByteOrder order) {
     int size = size();
     checkElementIndex(i, size);
     if (i > (size - 8)) {
@@ -776,7 +781,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return An value corresponding to this value interpreted as a long.
    * @throws IllegalArgumentException if {@code size() > 8}.
    */
-  default long toLong() {
+  public long toLong() {
     return toLong(BIG_ENDIAN);
   }
 
@@ -787,7 +792,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return An value corresponding to this value interpreted as a long.
    * @throws IllegalArgumentException if {@code size() > 8}.
    */
-  default long toLong(ByteOrder order) {
+  public long toLong(ByteOrder order) {
     int size = size();
     checkArgument(size <= 8, "Value of size %s has more than 8 bytes", size());
     if (size == 0) {
@@ -864,7 +869,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A {@link BigInteger} corresponding to interpreting these bytes as a two's-complement
    *     signed integer.
    */
-  default BigInteger toBigInteger() {
+  public BigInteger toBigInteger() {
     return toBigInteger(BIG_ENDIAN);
   }
 
@@ -875,7 +880,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A {@link BigInteger} corresponding to interpreting these bytes as a two's-complement
    *     signed integer.
    */
-  default BigInteger toBigInteger(ByteOrder order) {
+  public BigInteger toBigInteger(ByteOrder order) {
     if (size() == 0) {
       return BigInteger.ZERO;
     }
@@ -888,7 +893,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A positive (or zero) {@link BigInteger} corresponding to interpreting these bytes as an
    *     unsigned integer.
    */
-  default BigInteger toUnsignedBigInteger() {
+  public BigInteger toUnsignedBigInteger() {
     return toUnsignedBigInteger(BIG_ENDIAN);
   }
 
@@ -899,7 +904,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A positive (or zero) {@link BigInteger} corresponding to interpreting these bytes as an
    *     unsigned integer.
    */
-  default BigInteger toUnsignedBigInteger(ByteOrder order) {
+  public BigInteger toUnsignedBigInteger(ByteOrder order) {
     return new BigInteger(1, (order == BIG_ENDIAN) ? toArrayUnsafe() : reverse().toArrayUnsafe());
   }
 
@@ -908,7 +913,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return {@code true} if all the bits of this value are zeros.
    */
-  default boolean isZero() {
+  public boolean isZero() {
     for (int i = size() - 1; i >= 0; --i) {
       if (get(i) != 0) return false;
     }
@@ -920,7 +925,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return true if the first bit equals zero
    */
-  default boolean hasLeadingZero() {
+  public boolean hasLeadingZero() {
     return size() > 0 && (get(0) & 0x80) == 0;
   }
 
@@ -931,7 +936,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return The number of zero bits preceding the highest-order ("leftmost") one-bit, or {@code
    *     size() * 8} if all bits are zero.
    */
-  default int numberOfLeadingZeros() {
+  public int numberOfLeadingZeros() {
     int size = size();
     for (int i = 0; i < size; i++) {
       byte b = get(i);
@@ -949,7 +954,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return true if the first byte equals zero
    */
-  default boolean hasLeadingZeroByte() {
+  public boolean hasLeadingZeroByte() {
     return size() > 0 && get(0) == 0;
   }
 
@@ -958,7 +963,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return The number of leading zero bytes of the value.
    */
-  default int numberOfLeadingZeroBytes() {
+  public int numberOfLeadingZeroBytes() {
     int size = size();
     for (int i = 0; i < size; i++) {
       if (get(i) != 0) {
@@ -973,7 +978,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return The number of trailing zero bytes of the value.
    */
-  default int numberOfTrailingZeroBytes() {
+  public int numberOfTrailingZeroBytes() {
     int size = size();
     for (int i = size; i >= 1; i--) {
       if (get(i - 1) != 0) {
@@ -990,7 +995,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return The number of bits following and including the highest-order ("leftmost") one-bit, or
    *     zero if all bits are zero.
    */
-  default int bitLength() {
+  public int bitLength() {
     int size = size();
     for (int i = 0; i < size; i++) {
       byte b = get(i);
@@ -1010,7 +1015,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param other The bytes to perform the operation with.
    * @return The result of a bit-wise AND.
    */
-  default Bytes and(Bytes other) {
+  public Bytes and(Bytes other) {
     return and(other, MutableBytes.create(Math.max(size(), other.size())));
   }
 
@@ -1026,7 +1031,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The {@link MutableBytes} value type.
    * @return The {@code result} output vector.
    */
-  default <T extends MutableBytes> T and(Bytes other, T result) {
+  public <T extends MutableBytes> T and(Bytes other, T result) {
     checkNotNull(other);
     checkNotNull(result);
     int rSize = result.size();
@@ -1049,7 +1054,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param other The bytes to perform the operation with.
    * @return The result of a bit-wise OR.
    */
-  default Bytes or(Bytes other) {
+  public Bytes or(Bytes other) {
     return or(other, MutableBytes.create(Math.max(size(), other.size())));
   }
 
@@ -1065,7 +1070,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The {@link MutableBytes} value type.
    * @return The {@code result} output vector.
    */
-  default <T extends MutableBytes> T or(Bytes other, T result) {
+  public <T extends MutableBytes> T or(Bytes other, T result) {
     checkNotNull(other);
     checkNotNull(result);
     int rSize = result.size();
@@ -1088,7 +1093,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param other The bytes to perform the operation with.
    * @return The result of a bit-wise XOR.
    */
-  default Bytes xor(Bytes other) {
+  public Bytes xor(Bytes other) {
     return xor(other, MutableBytes.create(Math.max(size(), other.size())));
   }
 
@@ -1104,7 +1109,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The {@link MutableBytes} value type.
    * @return The {@code result} output vector.
    */
-  default <T extends MutableBytes> T xor(Bytes other, T result) {
+  public <T extends MutableBytes> T xor(Bytes other, T result) {
     checkNotNull(other);
     checkNotNull(result);
     int rSize = result.size();
@@ -1123,7 +1128,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return The result of a bit-wise NOT.
    */
-  default Bytes not() {
+  public Bytes not() {
     return not(MutableBytes.create(size()));
   }
 
@@ -1138,7 +1143,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The {@link MutableBytes} value type.
    * @return The {@code result} output vector.
    */
-  default <T extends MutableBytes> T not(T result) {
+  public <T extends MutableBytes> T not(T result) {
     checkNotNull(result);
     int rSize = result.size();
     int offsetSelf = rSize - size();
@@ -1155,7 +1160,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param distance The number of bits to shift by.
    * @return A value containing the shifted bits.
    */
-  default Bytes shiftRight(int distance) {
+  public Bytes shiftRight(int distance) {
     return shiftRight(distance, MutableBytes.create(size()));
   }
 
@@ -1171,7 +1176,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The {@link MutableBytes} value type.
    * @return The {@code result} output vector.
    */
-  default <T extends MutableBytes> T shiftRight(int distance, T result) {
+  public <T extends MutableBytes> T shiftRight(int distance, T result) {
     checkNotNull(result);
     int rSize = result.size();
     int offsetSelf = rSize - size();
@@ -1203,7 +1208,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param distance The number of bits to shift by.
    * @return A value containing the shifted bits.
    */
-  default Bytes shiftLeft(int distance) {
+  public Bytes shiftLeft(int distance) {
     return shiftLeft(distance, MutableBytes.create(size()));
   }
 
@@ -1219,7 +1224,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The {@link MutableBytes} value type.
    * @return The {@code result} output vector.
    */
-  default <T extends MutableBytes> T shiftLeft(int distance, T result) {
+  public <T extends MutableBytes> T shiftLeft(int distance, T result) {
     checkNotNull(result);
     int size = size();
     int rSize = result.size();
@@ -1257,7 +1262,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A new value providing a view over the bytes from index {@code i} (included) to the end.
    * @throws IndexOutOfBoundsException if {@code i < 0}.
    */
-  default Bytes slice(int i) {
+  public Bytes slice(int i) {
     if (i == 0) {
       return this;
     }
@@ -1282,7 +1287,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code length < 0}.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()} or {i + length > size()} .
    */
-  Bytes slice(int i, int length);
+  public abstract Bytes slice(int i, int length);
 
   /**
    * Return a value equivalent to this one but guaranteed to 1) be deeply immutable (i.e. the
@@ -1292,7 +1297,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     "unreachable" bytes. For performance reasons, this is allowed to return this value however
    *     if it already fit those constraints.
    */
-  Bytes copy();
+  public abstract Bytes copy();
 
   /**
    * Return a new mutable value initialized with the content of this value.
@@ -1300,7 +1305,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A mutable copy of this value. This will copy bytes, modifying the returned value will
    *     <b>not</b> modify this value.
    */
-  MutableBytes mutableCopy();
+  public abstract MutableBytes mutableCopy();
 
   /**
    * Copy the bytes of this value to the provided mutable one, which must have the same size.
@@ -1310,7 +1315,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     #slice} and/or {@link MutableBytes#mutableSlice} and apply the copy to the result.
    * @throws IllegalArgumentException if {@code this.size() != destination.size()}.
    */
-  default void copyTo(MutableBytes destination) {
+  public void copyTo(MutableBytes destination) {
     checkNotNull(destination);
     checkArgument(
         destination.size() == size(),
@@ -1332,7 +1337,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if the destination doesn't have enough room, that is if {@code
    *     this.size() > (destination.size() - destinationOffset)}.
    */
-  default void copyTo(MutableBytes destination, int destinationOffset) {
+  public void copyTo(MutableBytes destination, int destinationOffset) {
     checkNotNull(destination);
 
     // Special casing an empty source or the following checks might throw (even though we have
@@ -1363,7 +1368,7 @@ public interface Bytes extends Comparable<Bytes> {
    *     can hold.
    * @throws ReadOnlyBufferException If the provided buffer is read-only.
    */
-  default void appendTo(ByteBuffer byteBuffer) {
+  public void appendTo(ByteBuffer byteBuffer) {
     checkNotNull(byteBuffer);
     for (int i = 0; i < size(); i++) {
       byteBuffer.put(get(i));
@@ -1377,7 +1382,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @param buffer The {@link Buffer} to which to append this value.
    */
-  default void appendTo(Buffer buffer) {
+  public void appendTo(Buffer buffer) {
     checkNotNull(buffer);
     for (int i = 0; i < size(); i++) {
       buffer.appendByte(get(i));
@@ -1391,7 +1396,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param <T> The appendable type.
    * @return The appendable.
    */
-  default <T extends Appendable> T appendHexTo(T appendable) {
+  public <T extends Appendable> T appendHexTo(T appendable) {
     try {
       appendable.append(toFastHex(false));
       return appendable;
@@ -1400,7 +1405,7 @@ public interface Bytes extends Comparable<Bytes> {
     }
   }
 
-  default String toFastHex(boolean prefix) {
+  public String toFastHex(boolean prefix) {
 
     int offset = prefix ? 2 : 0;
 
@@ -1416,8 +1421,8 @@ public interface Bytes extends Comparable<Bytes> {
     for (int i = 0; i < size(); i++) {
       byte b = get(i);
       int pos = i * 2;
-      result[pos + offset] = AbstractBytes.HEX_CODE_AS_STRING.charAt(b >> 4 & 15);
-      result[pos + offset + 1] = AbstractBytes.HEX_CODE_AS_STRING.charAt(b & 15);
+      result[pos + offset] = Bytes.HEX_CODE_AS_STRING.charAt(b >> 4 & 15);
+      result[pos + offset + 1] = Bytes.HEX_CODE_AS_STRING.charAt(b & 15);
     }
 
     return new String(result);
@@ -1429,7 +1434,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param other The bytes to compare to.
    * @return The number of common bytes.
    */
-  default int commonPrefixLength(Bytes other) {
+  public int commonPrefixLength(Bytes other) {
     checkNotNull(other);
     int ourSize = size();
     int otherSize = other.size();
@@ -1446,7 +1451,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param other The bytes to compare to.
    * @return A slice covering the common prefix.
    */
-  default Bytes commonPrefix(Bytes other) {
+  public Bytes commonPrefix(Bytes other) {
     return slice(0, commonPrefixLength(other));
   }
 
@@ -1456,7 +1461,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return {@code value} if its left-most byte is non zero, or a slice that exclude any leading
    *     zero bytes.
    */
-  default Bytes trimLeadingZeros() {
+  public Bytes trimLeadingZeros() {
     int size = size();
     for (int i = 0; i < size; i++) {
       if (get(i) != 0) {
@@ -1472,7 +1477,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return {@code value} if its right-most byte is non zero, or a slice that exclude any trailing
    *     zero bytes.
    */
-  default Bytes trimTrailingZeros() {
+  public Bytes trimTrailingZeros() {
     int size = size();
     for (int i = size - 1; i >= 0; i--) {
       if (get(i) != 0) {
@@ -1487,7 +1492,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @param digest The digest to update.
    */
-  default void update(MessageDigest digest) {
+  public void update(MessageDigest digest) {
     checkNotNull(digest);
     digest.update(toArrayUnsafe());
   }
@@ -1497,7 +1502,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return a new Bytes value, containing the bytes in reverse order
    */
-  default Bytes reverse() {
+  public Bytes reverse() {
     byte[] reverse = new byte[size()];
     for (int i = 0; i < size(); i++) {
       reverse[size() - i - 1] = get(i);
@@ -1510,7 +1515,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return A byte array with the same content than this value.
    */
-  default byte[] toArray() {
+  public byte[] toArray() {
     return toArray(BIG_ENDIAN);
   }
 
@@ -1520,7 +1525,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @param byteOrder the byte order to apply : big endian or little endian
    * @return A byte array with the same content than this value.
    */
-  default byte[] toArray(ByteOrder byteOrder) {
+  public byte[] toArray(ByteOrder byteOrder) {
     int size = size();
     byte[] array = new byte[size];
     if (byteOrder == BIG_ENDIAN) {
@@ -1546,24 +1551,16 @@ public interface Bytes extends Comparable<Bytes> {
    * @return A byte array with the same content than this value, which may or may not be the direct
    *     backing of this value.
    */
-  default byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     return toArray();
   }
-
-  /**
-   * Return the hexadecimal string representation of this value.
-   *
-   * @return The hexadecimal representation of this value, starting with "0x".
-   */
-  @Override
-  String toString();
 
   /**
    * Provides this value represented as hexadecimal, starting with "0x".
    *
    * @return This value represented as hexadecimal, starting with "0x".
    */
-  default String toHexString() {
+  public String toHexString() {
     return toFastHex(true);
   }
 
@@ -1572,11 +1569,11 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return This value represented as hexadecimal, with no prefix.
    */
-  default String toUnprefixedHexString() {
+  public String toUnprefixedHexString() {
     return toFastHex(false);
   }
 
-  default String toEllipsisHexString() {
+  public String toEllipsisHexString() {
     int size = size();
     if (size < 6) {
       return toHexString();
@@ -1587,16 +1584,16 @@ public interface Bytes extends Comparable<Bytes> {
     for (int i = 0; i < 2; i++) {
       byte b = get(i);
       int pos = (i * 2) + 2;
-      result[pos] = AbstractBytes.HEX_CODE_AS_STRING.charAt(b >> 4 & 15);
-      result[pos + 1] = AbstractBytes.HEX_CODE_AS_STRING.charAt(b & 15);
+      result[pos] = Bytes.HEX_CODE_AS_STRING.charAt(b >> 4 & 15);
+      result[pos + 1] = Bytes.HEX_CODE_AS_STRING.charAt(b & 15);
     }
     result[6] = '.';
     result[7] = '.';
     for (int i = 0; i < 2; i++) {
       byte b = get(i + size - 2);
       int pos = (i * 2) + 8;
-      result[pos] = AbstractBytes.HEX_CODE_AS_STRING.charAt(b >> 4 & 15);
-      result[pos + 1] = AbstractBytes.HEX_CODE_AS_STRING.charAt(b & 15);
+      result[pos] = Bytes.HEX_CODE_AS_STRING.charAt(b >> 4 & 15);
+      result[pos + 1] = Bytes.HEX_CODE_AS_STRING.charAt(b & 15);
     }
     return new String(result);
   }
@@ -1606,7 +1603,7 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return This value represented as a minimal hexadecimal string (without any leading zero).
    */
-  default String toShortHexString() {
+  public String toShortHexString() {
     String hex = toFastHex(false);
 
     int i = 0;
@@ -1623,7 +1620,7 @@ public interface Bytes extends Comparable<Bytes> {
    * @return This value represented as a minimal hexadecimal string (without any leading zero,
    *     except if it's valued zero or empty, in which case it returns 0x0).
    */
-  default String toQuantityHexString() {
+  public String toQuantityHexString() {
     if (Bytes.EMPTY.equals(this)) {
       return "0x0";
     }
@@ -1641,12 +1638,12 @@ public interface Bytes extends Comparable<Bytes> {
    *
    * @return This value represented as base 64.
    */
-  default String toBase64String() {
+  public String toBase64String() {
     return Base64.getEncoder().encodeToString(toArrayUnsafe());
   }
 
   @Override
-  default int compareTo(Bytes b) {
+  public int compareTo(Bytes b) {
     checkNotNull(b);
 
     int bitLength = bitLength();
@@ -1667,4 +1664,57 @@ public interface Bytes extends Comparable<Bytes> {
     }
     return 0;
   }
+
+  /**
+   * Compare this value and the provided one for equality.
+   *
+   * <p>Two {@link Bytes} values are equal is they have contain the exact same bytes.
+   *
+   * @param obj The object to test for equality with.
+   * @return {@code true} if this value and {@code obj} are equal.
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (!(obj instanceof Bytes)) {
+      return false;
+    }
+
+    Bytes other = (Bytes) obj;
+    if (this.size() != other.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < size(); i++) {
+      if (this.get(i) != other.get(i)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  protected int computeHashcode() {
+    int result = 1;
+    for (int i = 0; i < size(); i++) {
+      result = 31 * result + get(i);
+    }
+    return result;
+  }
+
+  @Override
+  public int hashCode() {
+    if (this.hashCode == null) {
+      this.hashCode = computeHashcode();
+    }
+    return this.hashCode;
+  }
+
+  @Override
+  public String toString() {
+    return toHexString();
+  }
+
 }

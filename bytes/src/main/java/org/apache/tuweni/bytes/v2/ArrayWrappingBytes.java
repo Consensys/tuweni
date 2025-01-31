@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import io.vertx.core.buffer.Buffer;
 
-class ArrayWrappingBytes extends AbstractBytes {
+class ArrayWrappingBytes extends Bytes {
 
   protected final byte[] bytes;
   protected final int offset;

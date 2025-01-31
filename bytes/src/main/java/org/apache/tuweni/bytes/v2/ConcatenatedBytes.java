@@ -8,7 +8,7 @@ import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
 import java.security.MessageDigest;
 import java.util.List;
 
-final class ConcatenatedBytes extends AbstractBytes {
+final class ConcatenatedBytes extends Bytes {
 
   private final Bytes[] values;
   private final int size;

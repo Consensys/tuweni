@@ -8,7 +8,7 @@ import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-class ByteBufferWrappingBytes extends AbstractBytes {
+class ByteBufferWrappingBytes extends Bytes {
 
   protected final ByteBuffer byteBuffer;
   protected final int offset;
