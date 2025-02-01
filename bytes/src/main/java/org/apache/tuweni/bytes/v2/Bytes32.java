@@ -2,19 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.bytes.v2;
 
-import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
 import static org.apache.tuweni.bytes.v2.Checks.checkNotNull;
 
 import java.security.SecureRandom;
 import java.util.Random;
 
 /** A {@link Bytes} value that is guaranteed to contain exactly 32 bytes. */
-public interface Bytes32 extends Bytes {
-  /** The number of bytes in this value - i.e. 32 */
-  int SIZE = 32;
+public final class Bytes32 extends DelegatingBytes {
+  public static final int SIZE = 32;
 
   /** A {@code Bytes32} containing all zero bytes */
-  Bytes32 ZERO = Bytes32.repeat((byte) 0);
+  public Bytes32 ZERO = Bytes32.repeat((byte) 0);
+
+  private Bytes32(Bytes delegate) {
+    super(delegate, SIZE);
+  }
 
   /**
    * Generate a bytes object filled with the same byte.
@@ -22,8 +24,8 @@ public interface Bytes32 extends Bytes {
    * @param b the byte to fill the Bytes with
    * @return a value filled with a fixed byte
    */
-  static Bytes32 repeat(byte b) {
-    return new ConstantBytes32Value(b);
+  public static Bytes32 repeat(byte b) {
+    return new Bytes32(new ConstantBytesValue(b, 32));
   }
 
   /**
@@ -36,9 +38,8 @@ public interface Bytes32 extends Bytes {
    * @return A {@link Bytes32} wrapping {@code value}.
    * @throws IllegalArgumentException if {@code value.length != 32}.
    */
-  static Bytes32 wrap(byte[] bytes) {
+  public static Bytes32 wrap(byte[] bytes) {
     checkNotNull(bytes);
-    checkArgument(bytes.length == SIZE, "Expected %s bytes but got %s", SIZE, bytes.length);
     return wrap(bytes, 0);
   }
 
@@ -57,9 +58,9 @@ public interface Bytes32 extends Bytes {
    *     value.length)}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + 32 > value.length}.
    */
-  static Bytes32 wrap(byte[] bytes, int offset) {
+  public static Bytes32 wrap(byte[] bytes, int offset) {
     checkNotNull(bytes);
-    return new ArrayWrappingBytes32(bytes, offset);
+    return new Bytes32(new ArrayWrappingBytes(bytes, offset, SIZE));
   }
 
   /**
@@ -72,13 +73,12 @@ public interface Bytes32 extends Bytes {
    * @return A {@link Bytes32} that exposes the bytes of {@code value}.
    * @throws IllegalArgumentException if {@code value.size() != 32}.
    */
-  static Bytes32 wrap(Bytes value) {
+  public static Bytes32 wrap(Bytes value) {
     checkNotNull(value);
-    if (value instanceof Bytes32) {
-      return (Bytes32) value;
+    if (value instanceof Bytes32 bytes32) {
+      return bytes32;
     }
-    checkArgument(value.size() == SIZE, "Expected %s bytes but got %s", SIZE, value.size());
-    return new DelegatingBytes32(value);
+    return new Bytes32(value.getImpl());
   }
 
   /**
@@ -96,69 +96,13 @@ public interface Bytes32 extends Bytes {
    *     value.size())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + 32 > value.size()}.
    */
-  static Bytes32 wrap(Bytes value, int offset) {
+  public static Bytes32 wrap(Bytes value, int offset) {
     checkNotNull(value);
-    Bytes slice = value.slice(offset, Bytes32.SIZE);
-    if (slice instanceof Bytes32) {
-      return (Bytes32) slice;
+    Bytes slice = value.slice(offset, SIZE);
+    if (slice instanceof Bytes32 bytes32) {
+      return bytes32;
     }
-    return new DelegatingBytes32(slice);
-  }
-
-  /**
-   * Left pad a {@link Bytes} value with a fill byte to create a {@link Bytes32}.
-   *
-   * @param value The bytes value pad.
-   * @param fill the byte to fill with
-   * @return A {@link Bytes32} that exposes the left-padded bytes of {@code value}.
-   * @throws IllegalArgumentException if {@code value.size() > 32}.
-   */
-  static Bytes32 leftPad(Bytes value, byte fill) {
-    checkNotNull(value);
-    if (value instanceof Bytes32) {
-      return (Bytes32) value;
-    }
-    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
-    MutableBytes32 result = MutableBytes32.create();
-    result.fill(fill);
-    value.copyTo(result, SIZE - value.size());
-    return result;
-  }
-
-  /**
-   * Left pad a {@link Bytes} value with zero bytes to create a {@link Bytes32}.
-   *
-   * @param value The bytes value pad.
-   * @return A {@link Bytes32} that exposes the left-padded bytes of {@code value}.
-   * @throws IllegalArgumentException if {@code value.size() > 32}.
-   */
-  static Bytes32 leftPad(Bytes value) {
-    checkNotNull(value);
-    if (value instanceof Bytes32) {
-      return (Bytes32) value;
-    }
-    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
-    MutableBytes32 result = MutableBytes32.create();
-    value.copyTo(result, SIZE - value.size());
-    return result;
-  }
-
-  /**
-   * Right pad a {@link Bytes} value with zero bytes to create a {@link Bytes32}.
-   *
-   * @param value The bytes value pad.
-   * @return A {@link Bytes32} that exposes the rightw-padded bytes of {@code value}.
-   * @throws IllegalArgumentException if {@code value.size() > 32}.
-   */
-  static Bytes32 rightPad(Bytes value) {
-    checkNotNull(value);
-    if (value instanceof Bytes32) {
-      return (Bytes32) value;
-    }
-    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
-    MutableBytes32 result = MutableBytes32.create();
-    value.copyTo(result, 0);
-    return result;
+    return new Bytes32(slice.getImpl());
   }
 
   /**
@@ -174,7 +118,7 @@ public interface Bytes32 extends Bytes {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation or contains more than 32 bytes.
    */
-  static Bytes32 fromHexStringLenient(CharSequence str) {
+  public static Bytes32 fromHexStringLenient(CharSequence str) {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, SIZE, true));
   }
@@ -191,7 +135,7 @@ public interface Bytes32 extends Bytes {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation, is of an odd length, or contains more than 32 bytes.
    */
-  static Bytes32 fromHexString(CharSequence str) {
+  public static Bytes32 fromHexString(CharSequence str) {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, SIZE, false));
   }
@@ -201,7 +145,7 @@ public interface Bytes32 extends Bytes {
    *
    * @return A value containing random bytes.
    */
-  static Bytes32 random() {
+  public static Bytes32 random() {
     return random(new SecureRandom());
   }
 
@@ -211,7 +155,7 @@ public interface Bytes32 extends Bytes {
    * @param generator The generator for random bytes.
    * @return A value containing random bytes.
    */
-  static Bytes32 random(Random generator) {
+  public static Bytes32 random(Random generator) {
     byte[] array = new byte[32];
     generator.nextBytes(array);
     return wrap(array);
@@ -228,64 +172,13 @@ public interface Bytes32 extends Bytes {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation, is of an odd length or does not contain exactly 32 bytes.
    */
-  static Bytes32 fromHexStringStrict(CharSequence str) {
+  public static Bytes32 fromHexStringStrict(CharSequence str) {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, -1, false));
   }
 
-  @Override
-  default int size() {
-    return SIZE;
-  }
-
-  /**
-   * Return a bit-wise AND of these bytes and the supplied bytes.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise AND.
-   */
-  default Bytes32 and(Bytes32 other) {
-    return and(other, MutableBytes32.create());
-  }
-
-  /**
-   * Return a bit-wise OR of these bytes and the supplied bytes.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise OR.
-   */
-  default Bytes32 or(Bytes32 other) {
-    return or(other, MutableBytes32.create());
-  }
-
-  /**
-   * Return a bit-wise XOR of these bytes and the supplied bytes.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise XOR.
-   */
-  default Bytes32 xor(Bytes32 other) {
-    return xor(other, MutableBytes32.create());
-  }
-
-  @Override
-  default Bytes32 not() {
-    return not(MutableBytes32.create());
-  }
-
-  @Override
-  default Bytes32 shiftRight(int distance) {
-    return shiftRight(distance, MutableBytes32.create());
-  }
-
-  @Override
-  default Bytes32 shiftLeft(int distance) {
-    return shiftLeft(distance, MutableBytes32.create());
-  }
-
-  @Override
-  Bytes32 copy();
-
-  @Override
-  MutableBytes32 mutableCopy();
+//  TODO: Finish MutableBytes
+//  MutableBytes32 mutableCopy() {
+//    return MutableBytes32.wrap(delegate);
+//  }
 }

@@ -12,34 +12,44 @@ import java.nio.ByteBuffer;
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
 
-/** A mutable {@link Bytes} value. */
-public interface MutableBytes extends Bytes {
+/** A class for doing modifications on a {@link Bytes} value without modifying the original. */
+public class MutableBytes {
+  static final MutableBytes EMPTY = create(0);
 
-  /** The empty value (with 0 bytes). */
-  MutableBytes EMPTY = wrap(new byte[0]);
+  private final MutableArrayWrappingBytes mutableBytes;
+
+  MutableBytes(byte[] bytesArray) {
+    this(bytesArray, 0, bytesArray.length);
+  }
+
+  MutableBytes(byte[] bytesArray, int offset, int length) {
+    this.mutableBytes = new MutableArrayWrappingBytes(bytesArray, offset, length);
+  }
 
   /**
-   * Create a new mutable byte value.
+   * Create a new mutable bytes value.
    *
    * @param size The size of the returned value.
    * @return A {@link MutableBytes} value.
    */
-  static MutableBytes create(int size) {
-    if (size == 32) {
-      return MutableBytes32.create();
-    }
-    return new MutableArrayWrappingBytes(new byte[size]);
+  public static MutableBytes create(int size) {
+    return new MutableBytes(new byte[size]);
   }
 
   /**
-   * Wrap a byte array in a {@link MutableBytes} value.
+   * Create a {@link MutableBytes} value from a byte array.
    *
    * @param value The value to wrap.
    * @return A {@link MutableBytes} value wrapping {@code value}.
    */
-  static MutableBytes wrap(byte[] value) {
+  public static MutableBytes fromArray(byte[] value) {
     checkNotNull(value);
-    return new MutableArrayWrappingBytes(value);
+    if (value.length == 0) {
+      return EMPTY;
+    }
+    byte[] newValue = new byte[value.length];
+    System.arraycopy(value, 0, newValue, 0, value.length);
+    return new MutableBytes(newValue);
   }
 
   /**
@@ -58,12 +68,20 @@ public interface MutableBytes extends Bytes {
    *     value.length)}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > value.length}.
    */
-  static MutableBytes wrap(byte[] value, int offset, int length) {
+  public static MutableBytes from(byte[] value, int offset, int length) {
     checkNotNull(value);
-    if (length == 32) {
-      return new MutableArrayWrappingBytes32(value, offset);
+    checkArgument(length >= 0, "Invalid negative length");
+    if (value.length > 0) {
+      checkElementIndex(offset, value.length);
     }
-    return new MutableArrayWrappingBytes(value, offset, length);
+    checkArgument(
+            offset + length <= value.length,
+            "Provided length %s is too big: the value has only %s bytes from offset %s",
+            length,
+            value.length - offset,
+            offset);
+    byte[] newValue = new byte[length - offset];
+    return new MutableBytes(newValue);
   }
 
   /**
@@ -74,12 +92,13 @@ public interface MutableBytes extends Bytes {
    * @param buffer The buffer to wrap.
    * @return A {@link MutableBytes} value.
    */
-  static MutableBytes wrapBuffer(Buffer buffer) {
+  public static MutableBytes fromBuffer(Buffer buffer) {
     checkNotNull(buffer);
     if (buffer.length() == 0) {
       return EMPTY;
     }
-    return new MutableBufferWrappingBytes(buffer);
+    byte[] value = buffer.getBytes();
+    return new MutableBytes(value);
   }
 
   /**
@@ -97,12 +116,13 @@ public interface MutableBytes extends Bytes {
    *     buffer.length())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > buffer.length()}.
    */
-  static MutableBytes wrapBuffer(Buffer buffer, int offset, int size) {
+  public static MutableBytes wrapBuffer(Buffer buffer, int offset, int size) {
     checkNotNull(buffer);
     if (size == 0) {
       return EMPTY;
     }
-    return new MutableBufferWrappingBytes(buffer, offset, size);
+    byte[] value = buffer.getBytes();
+    return new MutableBytes(buffer, offset, size);
   }
 
   /**
@@ -113,7 +133,7 @@ public interface MutableBytes extends Bytes {
    * @param byteBuf The {@link ByteBuf} to wrap.
    * @return A {@link MutableBytes} value.
    */
-  static MutableBytes wrapByteBuf(ByteBuf byteBuf) {
+  public static MutableBytes wrapByteBuf(ByteBuf byteBuf) {
     checkNotNull(byteBuf);
     if (byteBuf.capacity() == 0) {
       return EMPTY;
@@ -136,7 +156,7 @@ public interface MutableBytes extends Bytes {
    *     byteBuf.capacity())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > byteBuf.capacity()}.
    */
-  static MutableBytes wrapByteBuf(ByteBuf byteBuf, int offset, int size) {
+  public static MutableBytes wrapByteBuf(ByteBuf byteBuf, int offset, int size) {
     checkNotNull(byteBuf);
     if (size == 0) {
       return EMPTY;
@@ -152,7 +172,7 @@ public interface MutableBytes extends Bytes {
    * @param byteBuffer The {@link ByteBuffer} to wrap.
    * @return A {@link MutableBytes} value.
    */
-  static MutableBytes wrapByteBuffer(ByteBuffer byteBuffer) {
+  public static MutableBytes wrapByteBuffer(ByteBuffer byteBuffer) {
     checkNotNull(byteBuffer);
     if (byteBuffer.limit() == 0) {
       return EMPTY;
@@ -175,7 +195,7 @@ public interface MutableBytes extends Bytes {
    *     byteBuffer.limit())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + length > byteBuffer.limit()}.
    */
-  static MutableBytes wrapByteBuffer(ByteBuffer byteBuffer, int offset, int size) {
+  public static MutableBytes wrapByteBuffer(ByteBuffer byteBuffer, int offset, int size) {
     checkNotNull(byteBuffer);
     if (size == 0) {
       return EMPTY;
@@ -189,7 +209,7 @@ public interface MutableBytes extends Bytes {
    * @param bytes The bytes that must compose the returned value.
    * @return A value containing the specified bytes.
    */
-  static MutableBytes of(byte... bytes) {
+  public static MutableBytes of(byte... bytes) {
     return wrap(bytes);
   }
 
@@ -201,7 +221,7 @@ public interface MutableBytes extends Bytes {
    * @throws IllegalArgumentException if any of the specified would be truncated when storing as a
    *     byte.
    */
-  static MutableBytes of(int... bytes) {
+  public static MutableBytes of(int... bytes) {
     byte[] result = new byte[bytes.length];
     for (int i = 0; i < bytes.length; i++) {
       int b = bytes[i];
@@ -214,20 +234,11 @@ public interface MutableBytes extends Bytes {
   /**
    * Set a byte in this value.
    *
-   * @param i The index of the byte to set.
-   * @param b The value to set that byte to.
-   * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()}.
-   */
-  void set(int i, byte b);
-
-  /**
-   * Set a byte in this value.
-   *
    * @param offset The offset of the bytes to set.
    * @param bytes The value to set bytes to.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()}.
    */
-  default void set(int offset, Bytes bytes) {
+  public void set(int offset, Bytes bytes) {
     for (int i = 0; i < bytes.size(); i++) {
       set(offset + i, bytes.get(i));
     }
@@ -240,7 +251,7 @@ public interface MutableBytes extends Bytes {
    * @param value The integer value.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {@code i > size() - 4}.
    */
-  default void setInt(int i, int value) {
+  public void setInt(int i, int value) {
     int size = size();
     checkElementIndex(i, size);
     if (i > (size - 4)) {
@@ -263,7 +274,7 @@ public interface MutableBytes extends Bytes {
    * @param value The long value.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {@code i > size() - 8}.
    */
-  default void setLong(int i, long value) {
+  public void setLong(int i, long value) {
     int size = size();
     checkElementIndex(i, size);
     if (i > (size - 8)) {
@@ -291,7 +302,7 @@ public interface MutableBytes extends Bytes {
    *
    * @return this value
    */
-  default MutableBytes increment() {
+  public MutableBytes increment() {
     for (int i = size() - 1; i >= 0; --i) {
       if (get(i) == (byte) 0xFF) {
         set(i, (byte) 0x00);
@@ -312,7 +323,7 @@ public interface MutableBytes extends Bytes {
    *
    * @return this value
    */
-  default MutableBytes decrement() {
+  public MutableBytes decrement() {
     for (int i = size() - 1; i >= 0; --i) {
       if (get(i) == (byte) 0x00) {
         set(i, (byte) 0xFF);
@@ -326,11 +337,270 @@ public interface MutableBytes extends Bytes {
   }
 
   /**
+   * Fill all the bytes of this value with the specified byte.
+   *
+   * @param b The byte to use to fill the value.
+   */
+  public void fill(byte b) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+      set(i, b);
+    }
+  }
+
+  /** Set all bytes in this value to 0. */
+  public void clear() {
+    fill((byte) 0);
+  }
+
+  /**
+   * Return a bit-wise AND of these bytes and the supplied bytes.
+   *
+   * <p>If this value and the supplied value are different lengths, then the shorter will be
+   * zero-padded to the left.
+   *
+   * @param other The bytes to perform the operation with.
+   * @return The result of a bit-wise AND.
+   */
+  public void and(Bytes other) {
+    and(other, MutableBytes.create(Math.max(size(), other.size())));
+  }
+
+  /**
+   * Calculate a bit-wise AND of these bytes and the supplied bytes.
+   *
+   * <p>If this value or the supplied value are shorter in length than the output vector, then they
+   * will be zero-padded to the left. Likewise, if either this value or the supplied valid is longer
+   * in length than the output vector, then they will be truncated to the left.
+   *
+   * @param other The bytes to perform the operation with.
+   * @param result The mutable output vector for the result.
+   * @param <T> The {@link MutableBytes} value type.
+   * @return The {@code result} output vector.
+   */
+  public <T extends MutableBytes> T and(Bytes other, T result) {
+    checkNotNull(other);
+    checkNotNull(result);
+    int rSize = result.size();
+    int offsetSelf = rSize - size();
+    int offsetOther = rSize - other.size();
+    for (int i = 0; i < rSize; i++) {
+      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
+      byte b2 = (i < offsetOther) ? 0x00 : other.get(i - offsetOther);
+      result.set(i, (byte) (b1 & b2));
+    }
+    return result;
+  }
+
+  /**
+   * Return a bit-wise OR of these bytes and the supplied bytes.
+   *
+   * <p>If this value and the supplied value are different lengths, then the shorter will be
+   * zero-padded to the left.
+   *
+   * @param other The bytes to perform the operation with.
+   * @return The result of a bit-wise OR.
+   */
+  public void or(Bytes other) {
+    or(other, MutableBytes.create(Math.max(size(), other.size())));
+  }
+
+  /**
+   * Calculate a bit-wise OR of these bytes and the supplied bytes.
+   *
+   * <p>If this value or the supplied value are shorter in length than the output vector, then they
+   * will be zero-padded to the left. Likewise, if either this value or the supplied valid is longer
+   * in length than the output vector, then they will be truncated to the left.
+   *
+   * @param other The bytes to perform the operation with.
+   * @param result The mutable output vector for the result.
+   * @param <T> The {@link MutableBytes} value type.
+   * @return The {@code result} output vector.
+   */
+  public <T extends MutableBytes> T or(Bytes other, T result) {
+    checkNotNull(other);
+    checkNotNull(result);
+    int rSize = result.size();
+    int offsetSelf = rSize - size();
+    int offsetOther = rSize - other.size();
+    for (int i = 0; i < rSize; i++) {
+      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
+      byte b2 = (i < offsetOther) ? 0x00 : other.get(i - offsetOther);
+      result.set(i, (byte) (b1 | b2));
+    }
+    return result;
+  }
+
+  /**
+   * Return a bit-wise XOR of these bytes and the supplied bytes.
+   *
+   * <p>If this value and the supplied value are different lengths, then the shorter will be
+   * zero-padded to the left.
+   *
+   * @param other The bytes to perform the operation with.
+   * @return The result of a bit-wise XOR.
+   */
+  public void xor(Bytes other) {
+    xor(other, MutableBytes.create(Math.max(size(), other.size())));
+  }
+
+  /**
+   * Calculate a bit-wise XOR of these bytes and the supplied bytes.
+   *
+   * <p>If this value or the supplied value are shorter in length than the output vector, then they
+   * will be zero-padded to the left. Likewise, if either this value or the supplied valid is longer
+   * in length than the output vector, then they will be truncated to the left.
+   *
+   * @param other The bytes to perform the operation with.
+   * @param result The mutable output vector for the result.
+   * @param <T> The {@link MutableBytes} value type.
+   * @return The {@code result} output vector.
+   */
+  public <T extends MutableBytes> T xor(Bytes other, T result) {
+    checkNotNull(other);
+    checkNotNull(result);
+    int rSize = result.size();
+    int offsetSelf = rSize - size();
+    int offsetOther = rSize - other.size();
+    for (int i = 0; i < rSize; i++) {
+      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
+      byte b2 = (i < offsetOther) ? 0x00 : other.get(i - offsetOther);
+      result.set(i, (byte) (b1 ^ b2));
+    }
+    return result;
+  }
+
+  /**
+   * Makes a bit-wise NOT of these bytes.
+   */
+  public void not() {
+    not(MutableBytes.create(size()));
+  }
+
+  /**
+   * Calculate a bit-wise NOT of these bytes.
+   *
+   * <p>If this value is shorter in length than the output vector, then it will be zero-padded to
+   * the left. Likewise, if this value is longer in length than the output vector, then it will be
+   * truncated to the left.
+   *
+   * @param result The mutable output vector for the result.
+   * @param <T> The {@link MutableBytes} value type.
+   * @return The {@code result} output vector.
+   */
+  public <T extends MutableBytes> T not(T result) {
+    checkNotNull(result);
+    int rSize = result.size();
+    int offsetSelf = rSize - size();
+    for (int i = 0; i < rSize; i++) {
+      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
+      result.set(i, (byte) ~b1);
+    }
+    return result;
+  }
+
+  /**
+   * Shift all bits in this value to the right.
+   *
+   * @param distance The number of bits to shift by.
+   * @return A value containing the shifted bits.
+   */
+  public void shiftRight(int distance) {
+    shiftRight(distance, MutableBytes.create(size()));
+  }
+
+  /**
+   * Shift all bits in this value to the right.
+   *
+   * <p>If this value is shorter in length than the output vector, then it will be zero-padded to
+   * the left. Likewise, if this value is longer in length than the output vector, then it will be
+   * truncated to the left (after shifting).
+   *
+   * @param distance The number of bits to shift by.
+   * @param result The mutable output vector for the result.
+   * @param <T> The {@link MutableBytes} value type.
+   * @return The {@code result} output vector.
+   */
+  public <T extends MutableBytes> T shiftRight(int distance, T result) {
+    checkNotNull(result);
+    int rSize = result.size();
+    int offsetSelf = rSize - size();
+
+    int d = distance / 8;
+    int s = distance % 8;
+    int resIdx = rSize - 1;
+    for (int i = rSize - 1 - d; i >= 0; i--) {
+      byte res;
+      if (i < offsetSelf) {
+        res = 0;
+      } else {
+        int selfIdx = i - offsetSelf;
+        int leftSide = (get(selfIdx) & 0xFF) >>> s;
+        int rightSide = (selfIdx == 0) ? 0 : get(selfIdx - 1) << (8 - s);
+        res = (byte) (leftSide | rightSide);
+      }
+      result.set(resIdx--, res);
+    }
+    for (; resIdx >= 0; resIdx--) {
+      result.set(resIdx, (byte) 0);
+    }
+    return result;
+  }
+
+  /**
+   * Shift all bits in this value to the left.
+   *
+   * @param distance The number of bits to shift by.
+   * @return A value containing the shifted bits.
+   */
+  public void shiftLeft(int distance) {
+    shiftLeft(distance, MutableBytes.create(size()));
+  }
+
+  /**
+   * Shift all bits in this value to the left.
+   *
+   * <p>If this value is shorter in length than the output vector, then it will be zero-padded to
+   * the left. Likewise, if this value is longer in length than the output vector, then it will be
+   * truncated to the left.
+   *
+   * @param distance The number of bits to shift by.
+   * @param result The mutable output vector for the result.
+   * @param <T> The {@link MutableBytes} value type.
+   * @return The {@code result} output vector.
+   */
+  public <T extends MutableBytes> T shiftLeft(int distance, T result) {
+    checkNotNull(result);
+    int size = size();
+    int rSize = result.size();
+    int offsetSelf = rSize - size;
+
+    int d = distance / 8;
+    int s = distance % 8;
+    int resIdx = 0;
+    for (int i = d; i < rSize; i++) {
+      byte res;
+      if (i < offsetSelf) {
+        res = 0;
+      } else {
+        int selfIdx = i - offsetSelf;
+        int leftSide = get(selfIdx) << s;
+        int rightSide = (selfIdx == size - 1) ? 0 : (get(selfIdx + 1) & 0xFF) >>> (8 - s);
+        res = (byte) (leftSide | rightSide);
+      }
+      result.set(resIdx++, res);
+    }
+    for (; resIdx < rSize; resIdx++) {
+      result.set(resIdx, (byte) 0);
+    }
+    return result;
+  }
+
+  /**
    * Create a mutable slice of the bytes of this value.
    *
    * <p>Note: the resulting slice is only a view over the original value. Holding a reference to the
-   * returned slice may hold more memory than the slide represents. Use {@link #copy} on the
-   * returned slice to avoid this.
+   * returned slice may hold more memory than the slide represents.
    *
    * @param i The start index for the slice.
    * @param length The length of the resulting value.
@@ -339,22 +609,32 @@ public interface MutableBytes extends Bytes {
    * @throws IllegalArgumentException if {@code length < 0}.
    * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()} or {i + length > size()} .
    */
-  MutableBytes mutableSlice(int i, int length);
+  public abstract void mutableSlice(int i, int length);
 
   /**
-   * Fill all the bytes of this value with the specified byte.
+   * Provides the number of bytes this value represents.
    *
-   * @param b The byte to use to fill the value.
+   * @return The number of bytes this value represents.
    */
-  default void fill(byte b) {
-    int size = size();
-    for (int i = 0; i < size; i++) {
-      set(i, b);
-    }
-  }
+  public abstract int size();
 
-  /** Set all bytes in this value to 0. */
-  default void clear() {
-    fill((byte) 0);
-  }
+  /**
+   * Set a byte in this value.
+   *
+   * @param i The index of the byte to set.
+   * @param b The value to set that byte to.
+   * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()}.
+   */
+  public abstract void set(int i, byte b);
+
+  /**
+   * Retrieve a byte in this value.
+   *
+   * @param i The index of the byte to fetch within the value (0-indexed).
+   * @return The byte at index {@code i} in this value.
+   * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()}.
+   */
+  public abstract byte get(int i);
+
+  public abstract Bytes toBytesView();
 }

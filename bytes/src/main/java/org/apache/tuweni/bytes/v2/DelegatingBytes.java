@@ -9,6 +9,8 @@ import java.security.MessageDigest;
 
 import io.vertx.core.buffer.Buffer;
 
+import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
+
 /**
  * A class that holds and delegates all operations to its inner bytes field.
  *
@@ -18,14 +20,17 @@ import io.vertx.core.buffer.Buffer;
 public class DelegatingBytes extends Bytes {
 
   final Bytes delegate;
+  final int size;
 
-  protected DelegatingBytes(Bytes delegate) {
+  protected DelegatingBytes(Bytes delegate, int size) {
     this.delegate = delegate;
+    checkArgument(delegate.size() == size, "Expected %s bytes but got %s", size, delegate.size());
+    this.size = size;
   }
 
   @Override
   public int size() {
-    return delegate.size();
+    return size;
   }
 
   @Override
@@ -38,15 +43,11 @@ public class DelegatingBytes extends Bytes {
     return delegate.slice(index, length);
   }
 
-  @Override
-  public Bytes copy() {
-    return Bytes.wrap(toArray());
-  }
-
-  @Override
-  public MutableBytes mutableCopy() {
-    return MutableBytes.wrap(toArray());
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public MutableBytes mutableCopy() {
+//    return MutableBytes.wrap(toArray());
+//  }
 
   @Override
   public byte[] toArray() {
@@ -66,6 +67,11 @@ public class DelegatingBytes extends Bytes {
   @Override
   public String toString() {
     return delegate.toString();
+  }
+
+  @Override
+  Bytes getImpl() {
+    return delegate.getImpl();
   }
 
   @Override
@@ -169,59 +175,20 @@ public class DelegatingBytes extends Bytes {
   }
 
   @Override
-  public Bytes and(Bytes other) {
-    return delegate.and(other);
-  }
-
-  @Override
-  public <T extends MutableBytes> T and(Bytes other, T result) {
-    return delegate.and(other, result);
-  }
-
-  @Override
-  public Bytes or(Bytes other) {
-    return delegate.or(other);
-  }
-
-  @Override
-  public <T extends MutableBytes> T or(Bytes other, T result) {
-    return delegate.or(other, result);
-  }
-
-  @Override
-  public Bytes xor(Bytes other) {
-    return delegate.xor(other);
-  }
-
-  @Override
-  public <T extends MutableBytes> T xor(Bytes other, T result) {
-    return delegate.xor(other, result);
-  }
-
-  @Override
-  public <T extends MutableBytes> T shiftRight(int distance, T result) {
-    return delegate.shiftRight(distance, result);
-  }
-
-  @Override
-  public <T extends MutableBytes> T shiftLeft(int distance, T result) {
-    return delegate.shiftLeft(distance, result);
-  }
-
-  @Override
   public Bytes slice(int i) {
     return delegate.slice(i);
   }
 
-  @Override
-  public void copyTo(MutableBytes destination) {
-    delegate.copyTo(destination);
-  }
-
-  @Override
-  public void copyTo(MutableBytes destination, int destinationOffset) {
-    delegate.copyTo(destination, destinationOffset);
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public void copyTo(MutableBytes destination) {
+//    delegate.copyTo(destination);
+//  }
+//
+//  @Override
+//  public void copyTo(MutableBytes destination, int destinationOffset) {
+//    delegate.copyTo(destination, destinationOffset);
+//  }
 
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
@@ -299,6 +266,7 @@ public class DelegatingBytes extends Bytes {
   }
 
   @Override
+  @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
   public boolean equals(final Object o) {
     return delegate.equals(o);
   }

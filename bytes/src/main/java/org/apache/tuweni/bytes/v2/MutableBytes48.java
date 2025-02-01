@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.bytes.v2;
 
+import static org.apache.tuweni.bytes.v2.Bytes48.SIZE;
+import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
 import static org.apache.tuweni.bytes.v2.Checks.checkNotNull;
 
 /** A mutable {@link Bytes48}, that is a mutable {@link Bytes} value of exactly 48 bytes. */
-public interface MutableBytes48 extends MutableBytes, Bytes48 {
+public class MutableBytes48 extends MutableBytes {
 
   /**
    * Create a new mutable 48 bytes value.
    *
    * @return A newly allocated {@link MutableBytes} value.
    */
-  static MutableBytes48 create() {
+  public static MutableBytes48 create() {
     return new MutableArrayWrappingBytes48(new byte[SIZE]);
   }
 
@@ -23,7 +25,7 @@ public interface MutableBytes48 extends MutableBytes, Bytes48 {
    * @return A {@link MutableBytes48} wrapping {@code value}.
    * @throws IllegalArgumentException if {@code value.length != 48}.
    */
-  static MutableBytes48 wrap(byte[] value) {
+  public static MutableBytes48 wrap(byte[] value) {
     checkNotNull(value);
     return new MutableArrayWrappingBytes48(value);
   }
@@ -43,7 +45,7 @@ public interface MutableBytes48 extends MutableBytes, Bytes48 {
    *     value.length)}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + 48 > value.length}.
    */
-  static MutableBytes48 wrap(byte[] value, int offset) {
+  public static MutableBytes48 wrap(byte[] value, int offset) {
     checkNotNull(value);
     return new MutableArrayWrappingBytes48(value, offset);
   }
@@ -58,10 +60,10 @@ public interface MutableBytes48 extends MutableBytes, Bytes48 {
    * @return A {@link MutableBytes48} that exposes the bytes of {@code value}.
    * @throws IllegalArgumentException if {@code value.size() != 48}.
    */
-  static MutableBytes48 wrap(MutableBytes value) {
+  public static MutableBytes48 wrap(MutableBytes value) {
     checkNotNull(value);
-    if (value instanceof MutableBytes48) {
-      return (MutableBytes48) value;
+    if (value instanceof MutableBytes48 bytes48) {
+      return bytes48;
     }
     return DelegatingMutableBytes48.delegateTo(value);
   }
@@ -81,15 +83,93 @@ public interface MutableBytes48 extends MutableBytes, Bytes48 {
    *     value.size())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + 48 > value.size()}.
    */
-  static MutableBytes48 wrap(MutableBytes value, int offset) {
+  public static MutableBytes48 wrap(MutableBytes value, int offset) {
     checkNotNull(value);
-    if (value instanceof MutableBytes48) {
-      return (MutableBytes48) value;
+    if (value instanceof MutableBytes48 bytes48) {
+      return bytes48;
     }
-    MutableBytes slice = value.mutableSlice(offset, Bytes48.SIZE);
-    if (slice instanceof MutableBytes48) {
-      return (MutableBytes48) slice;
+    MutableBytes slice = value.mutableSlice(offset, SIZE);
+    if (slice instanceof MutableBytes48 bytes48) {
+      return bytes48;
     }
     return DelegatingMutableBytes48.delegateTo(slice);
+  }
+
+  /**
+   * Left pad a {@link Bytes} value with zero bytes to create a {@link Bytes48}.
+   *
+   * @param value The bytes value pad.
+   * @return A {@link Bytes48} that exposes the left-padded bytes of {@code value}.
+   * @throws IllegalArgumentException if {@code value.size() > 48}.
+   */
+  public static MutableBytes48 leftPad(MutableBytes value) {
+    checkNotNull(value);
+    if (value instanceof MutableBytes48 bytes48) {
+      return bytes48;
+    }
+    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
+    MutableBytes48 result = create();
+    value.copyTo(result, SIZE - value.size());
+    return result;
+  }
+
+  /**
+   * Right pad a {@link Bytes} value with zero bytes to create a {@link Bytes48}.
+   *
+   * @param value The bytes value pad.
+   * @return A {@link Bytes48} that exposes the rightw-padded bytes of {@code value}.
+   * @throws IllegalArgumentException if {@code value.size() > 48}.
+   */
+  public static MutableBytes48 rightPad(MutableBytes value) {
+    checkNotNull(value);
+    if (value instanceof MutableBytes48 bytes48) {
+      return bytes48;
+    }
+    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
+    MutableBytes48 result = create();
+    value.copyTo(result, 0);
+    return result;
+  }
+
+  /**
+   * Return a bit-wise AND of these bytes and the supplied bytes.
+   *
+   * @param other The bytes to perform the operation with.
+   * @return The result of a bit-wise AND.
+   */
+  public Bytes48 and(Bytes48 other) {
+    return and(other, MutableBytes48.create());
+  }
+
+  /**
+   * Return a bit-wise OR of these bytes and the supplied bytes.
+   *
+   * @param other The bytes to perform the operation with.
+   * @return The result of a bit-wise OR.
+   */
+  public Bytes48 or(Bytes48 other) {
+    return or(other, MutableBytes48.create());
+  }
+
+  /**
+   * Return a bit-wise XOR of these bytes and the supplied bytes.
+   *
+   * @param other The bytes to perform the operation with.
+   * @return The result of a bit-wise XOR.
+   */
+  public Bytes48 xor(Bytes48 other) {
+    return xor(other, MutableBytes48.create());
+  }
+
+  public Bytes48 not() {
+    return not(MutableBytes48.create());
+  }
+
+  public Bytes48 shiftRight(int distance) {
+    return shiftRight(distance, MutableBytes48.create());
+  }
+
+  public Bytes48 shiftLeft(int distance) {
+    return shiftLeft(distance, MutableBytes48.create());
   }
 }

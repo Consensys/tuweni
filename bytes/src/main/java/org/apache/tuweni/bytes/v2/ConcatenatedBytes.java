@@ -18,7 +18,7 @@ final class ConcatenatedBytes extends Bytes {
     this.size = totalSize;
   }
 
-  static Bytes wrap(Bytes... values) {
+  static Bytes create(Bytes... values) {
     if (values.length == 0) {
       return EMPTY;
     }
@@ -65,12 +65,12 @@ final class ConcatenatedBytes extends Bytes {
     return new ConcatenatedBytes(concatenated, totalSize);
   }
 
-  static Bytes wrap(List<Bytes> values) {
-    if (values.size() == 0) {
+  static Bytes create(List<Bytes> values) {
+    if (values.isEmpty()) {
       return EMPTY;
     }
     if (values.size() == 1) {
-      return values.get(0);
+      return values.getFirst();
     }
 
     int count = 0;
@@ -191,37 +191,33 @@ final class ConcatenatedBytes extends Bytes {
     return new ConcatenatedBytes(combined, length);
   }
 
-  @Override
-  public Bytes copy() {
-    return mutableCopy();
-  }
-
-  @Override
-  public MutableBytes mutableCopy() {
-    if (size == 0) {
-      return MutableBytes.EMPTY;
-    }
-    MutableBytes result = MutableBytes.create(size);
-    copyToUnchecked(result, 0);
-    return result;
-  }
-
-  @Override
-  public void copyTo(MutableBytes destination, int destinationOffset) {
-    if (size == 0) {
-      return;
-    }
-
-    checkElementIndex(destinationOffset, destination.size());
-    checkArgument(
-        destination.size() - destinationOffset >= size,
-        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-        size,
-        destination.size() - destinationOffset,
-        destinationOffset);
-
-    copyToUnchecked(destination, destinationOffset);
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public MutableBytes mutableCopy() {
+//    if (size == 0) {
+//      return MutableBytes.EMPTY;
+//    }
+//    MutableBytes result = MutableBytes.create(size);
+//    copyToUnchecked(result, 0);
+//    return result;
+//  }
+//
+//  @Override
+//  public void copyTo(MutableBytes destination, int destinationOffset) {
+//    if (size == 0) {
+//      return;
+//    }
+//
+//    checkElementIndex(destinationOffset, destination.size());
+//    checkArgument(
+//        destination.size() - destinationOffset >= size,
+//        "Cannot copy %s bytes, destination has only %s bytes from index %s",
+//        size,
+//        destination.size() - destinationOffset,
+//        destinationOffset);
+//
+//    copyToUnchecked(destination, destinationOffset);
+//  }
 
   @Override
   public void update(MessageDigest digest) {
@@ -230,29 +226,30 @@ final class ConcatenatedBytes extends Bytes {
     }
   }
 
-  @Override
-  public byte[] toArray() {
-    if (size == 0) {
-      return new byte[0];
-    }
-
-    MutableBytes result = MutableBytes.create(size);
-    copyToUnchecked(result, 0);
-    return result.toArrayUnsafe();
-  }
-
-  private void copyToUnchecked(MutableBytes destination, int destinationOffset) {
-    int offset = 0;
-    for (Bytes value : values) {
-      int vSize = value.size();
-      if ((offset + vSize) > size) {
-        throw new IllegalStateException("element sizes do not match total size");
-      }
-      value.copyTo(destination, destinationOffset);
-      offset += vSize;
-      destinationOffset += vSize;
-    }
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public byte[] toArray() {
+//    if (size == 0) {
+//      return new byte[0];
+//    }
+//
+//    MutableBytes result = MutableBytes.create(size);
+//    copyToUnchecked(result, 0);
+//    return result.toArrayUnsafe();
+//  }
+//
+//  private void copyToUnchecked(MutableBytes destination, int destinationOffset) {
+//    int offset = 0;
+//    for (Bytes value : values) {
+//      int vSize = value.size();
+//      if ((offset + vSize) > size) {
+//        throw new IllegalStateException("element sizes do not match total size");
+//      }
+//      value.copyTo(destination, destinationOffset);
+//      offset += vSize;
+//      destinationOffset += vSize;
+//    }
+//  }
 
   @Override
   public int hashCode() {

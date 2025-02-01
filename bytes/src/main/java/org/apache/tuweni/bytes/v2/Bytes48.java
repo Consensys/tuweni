@@ -2,19 +2,32 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.bytes.v2;
 
-import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
 import static org.apache.tuweni.bytes.v2.Checks.checkNotNull;
 
 import java.security.SecureRandom;
 import java.util.Random;
 
 /** A {@link Bytes} value that is guaranteed to contain exactly 48 bytes. */
-public interface Bytes48 extends Bytes {
+public final class Bytes48 extends DelegatingBytes {
   /** The number of bytes in this value - i.e. 48 */
-  int SIZE = 48;
+  public static final int SIZE = 48;
 
   /** A {@code Bytes48} containing all zero bytes */
-  Bytes48 ZERO = wrap(new byte[SIZE]);
+  public static Bytes48 ZERO = repeat((byte) 0);
+
+  private Bytes48(Bytes delegate) {
+    super(delegate, SIZE);
+  }
+
+  /**
+   * Generate a bytes object filled with the same byte.
+   *
+   * @param b the byte to fill the Bytes with
+   * @return a value filled with a fixed byte
+   */
+  public static Bytes48 repeat(byte b) {
+    return new Bytes48(new ConstantBytesValue(b, SIZE));
+  }
 
   /**
    * Wrap the provided byte array, which must be of length 48, as a {@link Bytes48}.
@@ -26,9 +39,8 @@ public interface Bytes48 extends Bytes {
    * @return A {@link Bytes48} wrapping {@code value}.
    * @throws IllegalArgumentException if {@code value.length != 48}.
    */
-  static Bytes48 wrap(byte[] bytes) {
+  public static Bytes48 wrap(byte[] bytes) {
     checkNotNull(bytes);
-    checkArgument(bytes.length == SIZE, "Expected %s bytes but got %s", SIZE, bytes.length);
     return wrap(bytes, 0);
   }
 
@@ -47,9 +59,9 @@ public interface Bytes48 extends Bytes {
    *     value.length)}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + 48 > value.length}.
    */
-  static Bytes48 wrap(byte[] bytes, int offset) {
+  public static Bytes48 wrap(byte[] bytes, int offset) {
     checkNotNull(bytes);
-    return new ArrayWrappingBytes48(bytes, offset);
+    return new Bytes48(new ArrayWrappingBytes(bytes, offset, SIZE));
   }
 
   /**
@@ -62,13 +74,12 @@ public interface Bytes48 extends Bytes {
    * @return A {@link Bytes48} that exposes the bytes of {@code value}.
    * @throws IllegalArgumentException if {@code value.size() != 48}.
    */
-  static Bytes48 wrap(Bytes value) {
+  public static Bytes48 wrap(Bytes value) {
     checkNotNull(value);
-    if (value instanceof Bytes48) {
-      return (Bytes48) value;
+    if (value instanceof Bytes48 bytes48) {
+      return bytes48;
     }
-    checkArgument(value.size() == SIZE, "Expected %s bytes but got %s", SIZE, value.size());
-    return new DelegatingBytes48(value);
+    return new Bytes48(value.getImpl());
   }
 
   /**
@@ -86,52 +97,13 @@ public interface Bytes48 extends Bytes {
    *     value.size())}.
    * @throws IllegalArgumentException if {@code length < 0 || offset + 48 > value.size()}.
    */
-  static Bytes48 wrap(Bytes value, int offset) {
+  public static Bytes48 wrap(Bytes value, int offset) {
     checkNotNull(value);
-    if (value instanceof Bytes48) {
-      return (Bytes48) value;
+    Bytes slice = value.slice(offset, SIZE);
+    if (slice instanceof Bytes48 bytes48) {
+      return bytes48;
     }
-    Bytes slice = value.slice(offset, Bytes48.SIZE);
-    if (slice instanceof Bytes48) {
-      return (Bytes48) slice;
-    }
-    return new DelegatingBytes48(Bytes48.wrap(slice));
-  }
-
-  /**
-   * Left pad a {@link Bytes} value with zero bytes to create a {@link Bytes48}.
-   *
-   * @param value The bytes value pad.
-   * @return A {@link Bytes48} that exposes the left-padded bytes of {@code value}.
-   * @throws IllegalArgumentException if {@code value.size() > 48}.
-   */
-  static Bytes48 leftPad(Bytes value) {
-    checkNotNull(value);
-    if (value instanceof Bytes48) {
-      return (Bytes48) value;
-    }
-    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
-    MutableBytes48 result = MutableBytes48.create();
-    value.copyTo(result, SIZE - value.size());
-    return result;
-  }
-
-  /**
-   * Right pad a {@link Bytes} value with zero bytes to create a {@link Bytes48}.
-   *
-   * @param value The bytes value pad.
-   * @return A {@link Bytes48} that exposes the rightw-padded bytes of {@code value}.
-   * @throws IllegalArgumentException if {@code value.size() > 48}.
-   */
-  static Bytes48 rightPad(Bytes value) {
-    checkNotNull(value);
-    if (value instanceof Bytes48) {
-      return (Bytes48) value;
-    }
-    checkArgument(value.size() <= SIZE, "Expected at most %s bytes but got %s", SIZE, value.size());
-    MutableBytes48 result = MutableBytes48.create();
-    value.copyTo(result, 0);
-    return result;
+    return new Bytes48(value.getImpl());
   }
 
   /**
@@ -147,7 +119,7 @@ public interface Bytes48 extends Bytes {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation or contains more than 48 bytes.
    */
-  static Bytes48 fromHexStringLenient(CharSequence str) {
+  public static Bytes48 fromHexStringLenient(CharSequence str) {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, SIZE, true));
   }
@@ -164,7 +136,7 @@ public interface Bytes48 extends Bytes {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation, is of an odd length, or contains more than 48 bytes.
    */
-  static Bytes48 fromHexString(CharSequence str) {
+  public static Bytes48 fromHexString(CharSequence str) {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, SIZE, false));
   }
@@ -174,7 +146,7 @@ public interface Bytes48 extends Bytes {
    *
    * @return A value containing random bytes.
    */
-  static Bytes48 random() {
+  public static Bytes48 random() {
     return random(new SecureRandom());
   }
 
@@ -184,7 +156,7 @@ public interface Bytes48 extends Bytes {
    * @param generator The generator for random bytes.
    * @return A value containing random bytes.
    */
-  static Bytes48 random(Random generator) {
+  public static Bytes48 random(Random generator) {
     byte[] array = new byte[48];
     generator.nextBytes(array);
     return wrap(array);
@@ -201,64 +173,13 @@ public interface Bytes48 extends Bytes {
    * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
    *     representation, is of an odd length or does not contain exactly 48 bytes.
    */
-  static Bytes48 fromHexStringStrict(CharSequence str) {
+  public static Bytes48 fromHexStringStrict(CharSequence str) {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, -1, false));
   }
 
-  @Override
-  default int size() {
-    return SIZE;
-  }
-
-  /**
-   * Return a bit-wise AND of these bytes and the supplied bytes.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise AND.
-   */
-  default Bytes48 and(Bytes48 other) {
-    return and(other, MutableBytes48.create());
-  }
-
-  /**
-   * Return a bit-wise OR of these bytes and the supplied bytes.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise OR.
-   */
-  default Bytes48 or(Bytes48 other) {
-    return or(other, MutableBytes48.create());
-  }
-
-  /**
-   * Return a bit-wise XOR of these bytes and the supplied bytes.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise XOR.
-   */
-  default Bytes48 xor(Bytes48 other) {
-    return xor(other, MutableBytes48.create());
-  }
-
-  @Override
-  default Bytes48 not() {
-    return not(MutableBytes48.create());
-  }
-
-  @Override
-  default Bytes48 shiftRight(int distance) {
-    return shiftRight(distance, MutableBytes48.create());
-  }
-
-  @Override
-  default Bytes48 shiftLeft(int distance) {
-    return shiftLeft(distance, MutableBytes48.create());
-  }
-
-  @Override
-  Bytes48 copy();
-
-  @Override
-  MutableBytes48 mutableCopy();
+//  TODO: Finish MutableBytes
+//  MutableBytes48 mutableCopy() {
+//    return MutableBytes48.wrap(delegate);
+//  }
 }

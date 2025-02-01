@@ -17,7 +17,6 @@ import java.nio.ByteOrder;
 import java.nio.ReadOnlyBufferException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
@@ -29,8 +28,7 @@ import io.vertx.core.buffer.Buffer;
  * A value made of bytes.
  *
  * <p>This class makes no thread-safety guarantee, and a {@link Bytes} value is generally not
- * thread safe. However, specific implementations may be thread-safe. For instance, the value
- * returned by {@link #copy} is guaranteed to be thread-safe as it is immutable.
+ * thread safe. However, specific implementations may be thread-safe, e.g., MutableBytes.
  */
 public abstract class Bytes implements Comparable<Bytes> {
 
@@ -73,9 +71,6 @@ public abstract class Bytes implements Comparable<Bytes> {
    */
   public static Bytes wrap(byte[] value, int offset, int length) {
     checkNotNull(value);
-    if (length == 32) {
-      return new ArrayWrappingBytes32(value, offset);
-    }
     return new ArrayWrappingBytes(value, offset, length);
   }
 
@@ -83,90 +78,28 @@ public abstract class Bytes implements Comparable<Bytes> {
    * Wrap a list of other values into a concatenated view.
    *
    * <p>Note that the values are not copied and thus any future update to the values will be
-   * reflected in the returned value. If copying the inputs is desired, use {@link
-   * #concatenate(Bytes...)}.
+   * reflected in the returned value.
    *
    * @param values The values to wrap.
    * @return A value representing a view over the concatenation of all {@code values}.
    * @throws IllegalArgumentException if the result overflows an int.
    */
   public static Bytes wrap(Bytes... values) {
-    return ConcatenatedBytes.wrap(values);
+    return ConcatenatedBytes.create(values);
   }
 
   /**
    * Wrap a list of other values into a concatenated view.
    *
    * <p>Note that the values are not copied and thus any future update to the values will be
-   * reflected in the returned value. If copying the inputs is desired, use {@link
-   * #concatenate(Bytes...)}.
+   * reflected in the returned value.
    *
    * @param values The values to wrap.
    * @return A value representing a view over the concatenation of all {@code values}.
    * @throws IllegalArgumentException if the result overflows an int.
    */
   public static Bytes wrap(List<Bytes> values) {
-    return ConcatenatedBytes.wrap(values);
-  }
-
-  /**
-   * Create a value containing the concatenation of the values provided.
-   *
-   * @param values The values to copy and concatenate.
-   * @return A value containing the result of concatenating the value from {@code values} in their
-   *     provided order.
-   * @throws IllegalArgumentException if the result overflows an int.
-   */
-  public static Bytes concatenate(List<Bytes> values) {
-    if (values.isEmpty()) {
-      return Bytes.EMPTY;
-    }
-
-    int size;
-    try {
-      size = values.stream().mapToInt(Bytes::size).reduce(0, Math::addExact);
-    } catch (ArithmeticException e) {
-      throw new IllegalArgumentException(
-          "Combined length of values is too long (> Integer.MAX_VALUE)");
-    }
-
-    MutableBytes result = MutableBytes.create(size);
-    int offset = 0;
-    for (Bytes value : values) {
-      value.copyTo(result, offset);
-      offset += value.size();
-    }
-    return result;
-  }
-
-  /**
-   * Create a value containing the concatenation of the values provided.
-   *
-   * @param values The values to copy and concatenate.
-   * @return A value containing the result of concatenating the value from {@code values} in their
-   *     provided order.
-   * @throws IllegalArgumentException if the result overflows an int.
-   */
-  public static Bytes concatenate(Bytes... values) {
-    if (values.length == 0) {
-      return EMPTY;
-    }
-
-    int size;
-    try {
-      size = Arrays.stream(values).mapToInt(Bytes::size).reduce(0, Math::addExact);
-    } catch (ArithmeticException e) {
-      throw new IllegalArgumentException(
-          "Combined length of values is too long (> Integer.MAX_VALUE)");
-    }
-
-    MutableBytes result = MutableBytes.create(size);
-    int offset = 0;
-    for (Bytes value : values) {
-      value.copyTo(result, offset);
-      offset += value.size();
-    }
-    return result;
+    return ConcatenatedBytes.create(values);
   }
 
   /**
@@ -578,21 +511,21 @@ public abstract class Bytes implements Comparable<Bytes> {
     return new ConstantBytesValue(b, size);
   }
 
-  /**
-   * Splits a Bytes object into Bytes32 objects. If the last element is not exactly 32 bytes, it is
-   * right padded with zeros.
-   *
-   * @param bytes the bytes object to segment
-   * @return an array of Bytes32 objects
-   */
-  public static Bytes32[] segment(Bytes bytes) {
-    int segments = (int) Math.ceil(bytes.size() / 32.0);
-    Bytes32[] result = new Bytes32[segments];
-    for (int i = 0; i < segments; i++) {
-      result[i] = Bytes32.rightPad(bytes.slice(i * 32, Math.min(32, bytes.size() - i * 32)));
-    }
-    return result;
-  }
+//  /**
+//   * Splits a Bytes object into Bytes32 objects. If the last element is not exactly 32 bytes, it is
+//   * right padded with zeros.
+//   *
+//   * @param bytes the bytes object to segment
+//   * @return an array of Bytes32 objects
+//   */
+//  public static Bytes32[] segment(Bytes bytes) {
+//    int segments = (int) Math.ceil(bytes.size() / 32.0);
+//    Bytes32[] result = new Bytes32[segments];
+//    for (int i = 0; i < segments; i++) {
+//      result[i] = Bytes32.rightPad(bytes.slice(i * 32, Math.min(32, bytes.size() - i * 32)));
+//    }
+//    return result;
+//  }
 
   /**
    * Provides the number of bytes this value represents.
@@ -1007,256 +940,11 @@ public abstract class Bytes implements Comparable<Bytes> {
   }
 
   /**
-   * Return a bit-wise AND of these bytes and the supplied bytes.
-   *
-   * <p>If this value and the supplied value are different lengths, then the shorter will be
-   * zero-padded to the left.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise AND.
-   */
-  public Bytes and(Bytes other) {
-    return and(other, MutableBytes.create(Math.max(size(), other.size())));
-  }
-
-  /**
-   * Calculate a bit-wise AND of these bytes and the supplied bytes.
-   *
-   * <p>If this value or the supplied value are shorter in length than the output vector, then they
-   * will be zero-padded to the left. Likewise, if either this value or the supplied valid is longer
-   * in length than the output vector, then they will be truncated to the left.
-   *
-   * @param other The bytes to perform the operation with.
-   * @param result The mutable output vector for the result.
-   * @param <T> The {@link MutableBytes} value type.
-   * @return The {@code result} output vector.
-   */
-  public <T extends MutableBytes> T and(Bytes other, T result) {
-    checkNotNull(other);
-    checkNotNull(result);
-    int rSize = result.size();
-    int offsetSelf = rSize - size();
-    int offsetOther = rSize - other.size();
-    for (int i = 0; i < rSize; i++) {
-      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
-      byte b2 = (i < offsetOther) ? 0x00 : other.get(i - offsetOther);
-      result.set(i, (byte) (b1 & b2));
-    }
-    return result;
-  }
-
-  /**
-   * Return a bit-wise OR of these bytes and the supplied bytes.
-   *
-   * <p>If this value and the supplied value are different lengths, then the shorter will be
-   * zero-padded to the left.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise OR.
-   */
-  public Bytes or(Bytes other) {
-    return or(other, MutableBytes.create(Math.max(size(), other.size())));
-  }
-
-  /**
-   * Calculate a bit-wise OR of these bytes and the supplied bytes.
-   *
-   * <p>If this value or the supplied value are shorter in length than the output vector, then they
-   * will be zero-padded to the left. Likewise, if either this value or the supplied valid is longer
-   * in length than the output vector, then they will be truncated to the left.
-   *
-   * @param other The bytes to perform the operation with.
-   * @param result The mutable output vector for the result.
-   * @param <T> The {@link MutableBytes} value type.
-   * @return The {@code result} output vector.
-   */
-  public <T extends MutableBytes> T or(Bytes other, T result) {
-    checkNotNull(other);
-    checkNotNull(result);
-    int rSize = result.size();
-    int offsetSelf = rSize - size();
-    int offsetOther = rSize - other.size();
-    for (int i = 0; i < rSize; i++) {
-      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
-      byte b2 = (i < offsetOther) ? 0x00 : other.get(i - offsetOther);
-      result.set(i, (byte) (b1 | b2));
-    }
-    return result;
-  }
-
-  /**
-   * Return a bit-wise XOR of these bytes and the supplied bytes.
-   *
-   * <p>If this value and the supplied value are different lengths, then the shorter will be
-   * zero-padded to the left.
-   *
-   * @param other The bytes to perform the operation with.
-   * @return The result of a bit-wise XOR.
-   */
-  public Bytes xor(Bytes other) {
-    return xor(other, MutableBytes.create(Math.max(size(), other.size())));
-  }
-
-  /**
-   * Calculate a bit-wise XOR of these bytes and the supplied bytes.
-   *
-   * <p>If this value or the supplied value are shorter in length than the output vector, then they
-   * will be zero-padded to the left. Likewise, if either this value or the supplied valid is longer
-   * in length than the output vector, then they will be truncated to the left.
-   *
-   * @param other The bytes to perform the operation with.
-   * @param result The mutable output vector for the result.
-   * @param <T> The {@link MutableBytes} value type.
-   * @return The {@code result} output vector.
-   */
-  public <T extends MutableBytes> T xor(Bytes other, T result) {
-    checkNotNull(other);
-    checkNotNull(result);
-    int rSize = result.size();
-    int offsetSelf = rSize - size();
-    int offsetOther = rSize - other.size();
-    for (int i = 0; i < rSize; i++) {
-      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
-      byte b2 = (i < offsetOther) ? 0x00 : other.get(i - offsetOther);
-      result.set(i, (byte) (b1 ^ b2));
-    }
-    return result;
-  }
-
-  /**
-   * Return a bit-wise NOT of these bytes.
-   *
-   * @return The result of a bit-wise NOT.
-   */
-  public Bytes not() {
-    return not(MutableBytes.create(size()));
-  }
-
-  /**
-   * Calculate a bit-wise NOT of these bytes.
-   *
-   * <p>If this value is shorter in length than the output vector, then it will be zero-padded to
-   * the left. Likewise, if this value is longer in length than the output vector, then it will be
-   * truncated to the left.
-   *
-   * @param result The mutable output vector for the result.
-   * @param <T> The {@link MutableBytes} value type.
-   * @return The {@code result} output vector.
-   */
-  public <T extends MutableBytes> T not(T result) {
-    checkNotNull(result);
-    int rSize = result.size();
-    int offsetSelf = rSize - size();
-    for (int i = 0; i < rSize; i++) {
-      byte b1 = (i < offsetSelf) ? 0x00 : get(i - offsetSelf);
-      result.set(i, (byte) ~b1);
-    }
-    return result;
-  }
-
-  /**
-   * Shift all bits in this value to the right.
-   *
-   * @param distance The number of bits to shift by.
-   * @return A value containing the shifted bits.
-   */
-  public Bytes shiftRight(int distance) {
-    return shiftRight(distance, MutableBytes.create(size()));
-  }
-
-  /**
-   * Shift all bits in this value to the right.
-   *
-   * <p>If this value is shorter in length than the output vector, then it will be zero-padded to
-   * the left. Likewise, if this value is longer in length than the output vector, then it will be
-   * truncated to the left (after shifting).
-   *
-   * @param distance The number of bits to shift by.
-   * @param result The mutable output vector for the result.
-   * @param <T> The {@link MutableBytes} value type.
-   * @return The {@code result} output vector.
-   */
-  public <T extends MutableBytes> T shiftRight(int distance, T result) {
-    checkNotNull(result);
-    int rSize = result.size();
-    int offsetSelf = rSize - size();
-
-    int d = distance / 8;
-    int s = distance % 8;
-    int resIdx = rSize - 1;
-    for (int i = rSize - 1 - d; i >= 0; i--) {
-      byte res;
-      if (i < offsetSelf) {
-        res = 0;
-      } else {
-        int selfIdx = i - offsetSelf;
-        int leftSide = (get(selfIdx) & 0xFF) >>> s;
-        int rightSide = (selfIdx == 0) ? 0 : get(selfIdx - 1) << (8 - s);
-        res = (byte) (leftSide | rightSide);
-      }
-      result.set(resIdx--, res);
-    }
-    for (; resIdx >= 0; resIdx--) {
-      result.set(resIdx, (byte) 0);
-    }
-    return result;
-  }
-
-  /**
-   * Shift all bits in this value to the left.
-   *
-   * @param distance The number of bits to shift by.
-   * @return A value containing the shifted bits.
-   */
-  public Bytes shiftLeft(int distance) {
-    return shiftLeft(distance, MutableBytes.create(size()));
-  }
-
-  /**
-   * Shift all bits in this value to the left.
-   *
-   * <p>If this value is shorter in length than the output vector, then it will be zero-padded to
-   * the left. Likewise, if this value is longer in length than the output vector, then it will be
-   * truncated to the left.
-   *
-   * @param distance The number of bits to shift by.
-   * @param result The mutable output vector for the result.
-   * @param <T> The {@link MutableBytes} value type.
-   * @return The {@code result} output vector.
-   */
-  public <T extends MutableBytes> T shiftLeft(int distance, T result) {
-    checkNotNull(result);
-    int size = size();
-    int rSize = result.size();
-    int offsetSelf = rSize - size;
-
-    int d = distance / 8;
-    int s = distance % 8;
-    int resIdx = 0;
-    for (int i = d; i < rSize; i++) {
-      byte res;
-      if (i < offsetSelf) {
-        res = 0;
-      } else {
-        int selfIdx = i - offsetSelf;
-        int leftSide = get(selfIdx) << s;
-        int rightSide = (selfIdx == size - 1) ? 0 : (get(selfIdx + 1) & 0xFF) >>> (8 - s);
-        res = (byte) (leftSide | rightSide);
-      }
-      result.set(resIdx++, res);
-    }
-    for (; resIdx < rSize; resIdx++) {
-      result.set(resIdx, (byte) 0);
-    }
-    return result;
-  }
-
-  /**
    * Create a new value representing (a view of) a slice of the bytes of this value.
    *
    * <p>Please note that the resulting slice is only a view and as such maintains a link to the
    * underlying full value. So holding a reference to the returned slice may hold more memory than
-   * the slide represents. Use {@link #copy} on the returned slice if that is not what you want.
+   * the slice represents.
    *
    * @param i The start index for the slice.
    * @return A new value providing a view over the bytes from index {@code i} (included) to the end.
@@ -1278,7 +966,7 @@ public abstract class Bytes implements Comparable<Bytes> {
    *
    * <p>Please note that the resulting slice is only a view and as such maintains a link to the
    * underlying full value. So holding a reference to the returned slice may hold more memory than
-   * the slide represents. Use {@link #copy} on the returned slice if that is not what you want.
+   * the slide represents.
    *
    * @param i The start index for the slice.
    * @param length The length of the resulting value.
@@ -1289,76 +977,67 @@ public abstract class Bytes implements Comparable<Bytes> {
    */
   public abstract Bytes slice(int i, int length);
 
-  /**
-   * Return a value equivalent to this one but guaranteed to 1) be deeply immutable (i.e. the
-   * underlying value will be immutable) and 2) to not retain more bytes than exposed by the value.
-   *
-   * @return A value, equals to this one, but deeply immutable and that doesn't retain any
-   *     "unreachable" bytes. For performance reasons, this is allowed to return this value however
-   *     if it already fit those constraints.
-   */
-  public abstract Bytes copy();
-
-  /**
-   * Return a new mutable value initialized with the content of this value.
-   *
-   * @return A mutable copy of this value. This will copy bytes, modifying the returned value will
-   *     <b>not</b> modify this value.
-   */
-  public abstract MutableBytes mutableCopy();
-
-  /**
-   * Copy the bytes of this value to the provided mutable one, which must have the same size.
-   *
-   * @param destination The mutable value to which to copy the bytes to, which must have the same
-   *     size as this value. If you want to copy value where size differs, you should use {@link
-   *     #slice} and/or {@link MutableBytes#mutableSlice} and apply the copy to the result.
-   * @throws IllegalArgumentException if {@code this.size() != destination.size()}.
-   */
-  public void copyTo(MutableBytes destination) {
-    checkNotNull(destination);
-    checkArgument(
-        destination.size() == size(),
-        "Cannot copy %s bytes to destination of non-equal size %s",
-        size(),
-        destination.size());
-    copyTo(destination, 0);
-  }
-
-  /**
-   * Copy the bytes of this value to the provided mutable one from a particular offset.
-   *
-   * <p>This is a (potentially slightly more efficient) shortcut for {@code
-   * copyTo(destination.mutableSlice(destinationOffset, this.size()))}.
-   *
-   * @param destination The mutable value to which to copy the bytes to, which must have enough
-   *     bytes from {@code destinationOffset} for the copied value.
-   * @param destinationOffset The offset in {@code destination} at which the copy starts.
-   * @throws IllegalArgumentException if the destination doesn't have enough room, that is if {@code
-   *     this.size() > (destination.size() - destinationOffset)}.
-   */
-  public void copyTo(MutableBytes destination, int destinationOffset) {
-    checkNotNull(destination);
-
-    // Special casing an empty source or the following checks might throw (even though we have
-    // nothing to copy anyway) and this gets inconvenient for generic methods using copyTo() as
-    // they may have to special case empty values because of this. As an example,
-    // concatenate(EMPTY, EMPTY) would need to be special cased without this.
-    int size = size();
-    if (size == 0) {
-      return;
-    }
-
-    checkElementIndex(destinationOffset, destination.size());
-    checkArgument(
-        destination.size() - destinationOffset >= size,
-        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-        size,
-        destination.size() - destinationOffset,
-        destinationOffset);
-
-    destination.set(destinationOffset, this);
-  }
+//  TODO: Finish MutableBytes
+//  /**
+//   * Return a new mutable value initialized with the content of this value.
+//   *
+//   * @return A mutable copy of this value. This will copy bytes, modifying the returned value will
+//   *     <b>not</b> modify this value.
+//   */
+//  public abstract MutableBytes mutableCopy();
+//
+//  /**
+//   * Copy the bytes of this value to the provided mutable one, which must have the same size.
+//   *
+//   * @param destination The mutable value to which to copy the bytes to, which must have the same
+//   *     size as this value. If you want to copy value where size differs, you should use {@link
+//   *     #slice} and/or {@link MutableBytes#mutableSlice} and apply the copy to the result.
+//   * @throws IllegalArgumentException if {@code this.size() != destination.size()}.
+//   */
+//  public void copyTo(MutableBytes destination) {
+//    checkNotNull(destination);
+//    checkArgument(
+//        destination.size() == size(),
+//        "Cannot copy %s bytes to destination of non-equal size %s",
+//        size(),
+//        destination.size());
+//    copyTo(destination, 0);
+//  }
+//
+//  /**
+//   * Copy the bytes of this value to the provided mutable one from a particular offset.
+//   *
+//   * <p>This is a (potentially slightly more efficient) shortcut for {@code
+//   * copyTo(destination.mutableSlice(destinationOffset, this.size()))}.
+//   *
+//   * @param destination The mutable value to which to copy the bytes to, which must have enough
+//   *     bytes from {@code destinationOffset} for the copied value.
+//   * @param destinationOffset The offset in {@code destination} at which the copy starts.
+//   * @throws IllegalArgumentException if the destination doesn't have enough room, that is if {@code
+//   *     this.size() > (destination.size() - destinationOffset)}.
+//   */
+//  public void copyTo(MutableBytes destination, int destinationOffset) {
+//    checkNotNull(destination);
+//
+//    // Special casing an empty source or the following checks might throw (even though we have
+//    // nothing to copy anyway) and this gets inconvenient for generic methods using copyTo() as
+//    // they may have to special case empty values because of this. As an example,
+//    // concatenate(EMPTY, EMPTY) would need to be special cased without this.
+//    int size = size();
+//    if (size == 0) {
+//      return;
+//    }
+//
+//    checkElementIndex(destinationOffset, destination.size());
+//    checkArgument(
+//        destination.size() - destinationOffset >= size,
+//        "Cannot copy %s bytes, destination has only %s bytes from index %s",
+//        size,
+//        destination.size() - destinationOffset,
+//        destinationOffset);
+//
+//    destination.set(destinationOffset, this);
+//  }
 
   /**
    * Append the bytes of this value to the {@link ByteBuffer}.
@@ -1678,12 +1357,11 @@ public abstract class Bytes implements Comparable<Bytes> {
     if (obj == this) {
       return true;
     }
-    if (!(obj instanceof Bytes)) {
+    if (!(obj instanceof Bytes other)) {
       return false;
     }
 
-    Bytes other = (Bytes) obj;
-    if (this.size() != other.size()) {
+      if (this.size() != other.size()) {
       return false;
     }
 
@@ -1717,4 +1395,7 @@ public abstract class Bytes implements Comparable<Bytes> {
     return toHexString();
   }
 
+  Bytes getImpl() {
+    return this;
+  }
 }

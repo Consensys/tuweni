@@ -77,16 +77,11 @@ class ByteBufWrappingBytes extends Bytes {
     return new ByteBufWrappingBytes(byteBuf.slice(i, length));
   }
 
-  // MUST be overridden by mutable implementations
-  @Override
-  public Bytes copy() {
-    return Bytes.wrap(toArray());
-  }
-
-  @Override
-  public MutableBytes mutableCopy() {
-    return MutableBytes.wrap(toArray());
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public MutableBytes mutableCopy() {
+//    return MutableBytes.wrap(toArray());
+//  }
 
   @Override
   public void appendTo(Buffer buffer) {

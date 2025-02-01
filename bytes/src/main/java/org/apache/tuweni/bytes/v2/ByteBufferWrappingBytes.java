@@ -74,26 +74,14 @@ class ByteBufferWrappingBytes extends Bytes {
         this.length - i,
         i);
 
-    if (length == 32) {
-      return new ByteBufferWrappingBytes32(byteBuffer, offset + i, length);
-    }
-
     return new ByteBufferWrappingBytes(byteBuffer, offset + i, length);
   }
 
-  // MUST be overridden by mutable implementations
-  @Override
-  public Bytes copy() {
-    if (offset == 0 && length == byteBuffer.limit()) {
-      return this;
-    }
-    return new ArrayWrappingBytes(toArray());
-  }
-
-  @Override
-  public MutableBytes mutableCopy() {
-    return new MutableArrayWrappingBytes(toArray());
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public MutableBytes mutableCopy() {
+//    return new MutableArrayWrappingBytes(toArray());
+//  }
 
   @Override
   public void appendTo(ByteBuffer byteBuffer) {

@@ -69,31 +69,20 @@ class ArrayWrappingBytes extends Bytes {
         this.length - i,
         i);
 
-    return length == Bytes32.SIZE
-        ? new ArrayWrappingBytes32(bytes, offset + i)
-        : new ArrayWrappingBytes(bytes, offset + i, length);
+    return new ArrayWrappingBytes(bytes, offset + i, length);
   }
 
-  // MUST be overridden by mutable implementations
-  @Override
-  public Bytes copy() {
-    if (offset == 0 && length == bytes.length) {
-      return this;
-    }
-    return new ArrayWrappingBytes(toArray());
-  }
-
-  @Override
-  public MutableBytes mutableCopy() {
-    return new MutableArrayWrappingBytes(toArray());
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public MutableBytes mutableCopy() {
+//    return new MutableArrayWrappingBytes(toArray());
+//  }
 
   @Override
   public int commonPrefixLength(Bytes other) {
-    if (!(other instanceof ArrayWrappingBytes)) {
+    if (!(other instanceof ArrayWrappingBytes o)) {
       return super.commonPrefixLength(other);
     }
-    ArrayWrappingBytes o = (ArrayWrappingBytes) other;
     int i = 0;
     while (i < length && i < o.length && bytes[offset + i] == o.bytes[o.offset + i]) {
       i++;
@@ -106,29 +95,29 @@ class ArrayWrappingBytes extends Bytes {
     digest.update(bytes, offset, length);
   }
 
-  @Override
-  public void copyTo(MutableBytes destination, int destinationOffset) {
-    if (!(destination instanceof MutableArrayWrappingBytes)) {
-      super.copyTo(destination, destinationOffset);
-      return;
-    }
-
-    int size = size();
-    if (size == 0) {
-      return;
-    }
-
-    checkElementIndex(destinationOffset, destination.size());
-    checkArgument(
-        destination.size() - destinationOffset >= size,
-        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-        size,
-        destination.size() - destinationOffset,
-        destinationOffset);
-
-    MutableArrayWrappingBytes d = (MutableArrayWrappingBytes) destination;
-    System.arraycopy(bytes, offset, d.bytes, d.offset + destinationOffset, size);
-  }
+//  TODO: Finish MutableBytes
+//  @Override
+//  public void copyTo(MutableBytes destination, int destinationOffset) {
+//    if (!(destination instanceof MutableArrayWrappingBytes d)) {
+//      super.copyTo(destination, destinationOffset);
+//      return;
+//    }
+//
+//    int size = size();
+//    if (size == 0) {
+//      return;
+//    }
+//
+//    checkElementIndex(destinationOffset, destination.size());
+//    checkArgument(
+//        destination.size() - destinationOffset >= size,
+//        "Cannot copy %s bytes, destination has only %s bytes from index %s",
+//        size,
+//        destination.size() - destinationOffset,
+//        destinationOffset);
+//
+//      System.arraycopy(bytes, offset, d.bytes, d.offset + destinationOffset, size);
+//  }
 
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
