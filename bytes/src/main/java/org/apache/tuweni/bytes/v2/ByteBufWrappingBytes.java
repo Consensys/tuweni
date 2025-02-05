@@ -77,11 +77,10 @@ class ByteBufWrappingBytes extends Bytes {
     return new ByteBufWrappingBytes(byteBuf.slice(i, length));
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public MutableBytes mutableCopy() {
-//    return MutableBytes.wrap(toArray());
-//  }
+  @Override
+  public MutableBytes mutableCopy() {
+    return MutableBytes.fromByteBuf(byteBuf, 0, byteBuf.capacity());
+  }
 
   @Override
   public void appendTo(Buffer buffer) {
@@ -89,10 +88,30 @@ class ByteBufWrappingBytes extends Bytes {
   }
 
   @Override
-  public byte[] toArray() {
-    int size = byteBuf.capacity();
-    byte[] array = new byte[size];
+  byte[] toArrayUnsafe() {
+    byte[] array = new byte[byteBuf.capacity()];
     byteBuf.getBytes(0, array);
     return array;
+  }
+
+  @Override
+  void and(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      bytesArray[offset + i] = (byte) (byteBuf.getByte(i) & bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  void or(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      bytesArray[offset + i] = (byte) (byteBuf.getByte(i) | bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  void xor(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      bytesArray[offset + i] = (byte) (byteBuf.getByte(i) ^ bytesArray[offset + i]);
+    }
   }
 }

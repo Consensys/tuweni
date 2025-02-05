@@ -72,12 +72,6 @@ class ArrayWrappingBytes extends Bytes {
     return new ArrayWrappingBytes(bytes, offset + i, length);
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public MutableBytes mutableCopy() {
-//    return new MutableArrayWrappingBytes(toArray());
-//  }
-
   @Override
   public int commonPrefixLength(Bytes other) {
     if (!(other instanceof ArrayWrappingBytes o)) {
@@ -95,33 +89,38 @@ class ArrayWrappingBytes extends Bytes {
     digest.update(bytes, offset, length);
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public void copyTo(MutableBytes destination, int destinationOffset) {
-//    if (!(destination instanceof MutableArrayWrappingBytes d)) {
-//      super.copyTo(destination, destinationOffset);
-//      return;
-//    }
-//
-//    int size = size();
-//    if (size == 0) {
-//      return;
-//    }
-//
-//    checkElementIndex(destinationOffset, destination.size());
-//    checkArgument(
-//        destination.size() - destinationOffset >= size,
-//        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-//        size,
-//        destination.size() - destinationOffset,
-//        destinationOffset);
-//
-//      System.arraycopy(bytes, offset, d.bytes, d.offset + destinationOffset, size);
-//  }
+  //  TODO: Finish MutableBytes
+  //  @Override
+  //  public void copyTo(MutableBytes destination, int destinationOffset) {
+  //    if (!(destination instanceof MutableArrayWrappingBytes d)) {
+  //      super.copyTo(destination, destinationOffset);
+  //      return;
+  //    }
+  //
+  //    int size = size();
+  //    if (size == 0) {
+  //      return;
+  //    }
+  //
+  //    checkElementIndex(destinationOffset, destination.size());
+  //    checkArgument(
+  //        destination.size() - destinationOffset >= size,
+  //        "Cannot copy %s bytes, destination has only %s bytes from index %s",
+  //        size,
+  //        destination.size() - destinationOffset,
+  //        destinationOffset);
+  //
+  //      System.arraycopy(bytes, offset, d.bytes, d.offset + destinationOffset, size);
+  //  }
 
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
     byteBuffer.put(bytes, offset, length);
+  }
+
+  @Override
+  public MutableBytes mutableCopy() {
+    return MutableBytes.fromArray(bytes, offset, length);
   }
 
   @Override
@@ -130,15 +129,56 @@ class ArrayWrappingBytes extends Bytes {
   }
 
   @Override
-  public byte[] toArray() {
+  byte[] toArrayUnsafe() {
+    if (offset == 0 && length == bytes.length) {
+      return bytes;
+    }
     return Arrays.copyOfRange(bytes, offset, offset + length);
   }
 
   @Override
-  public byte[] toArrayUnsafe() {
-    if (offset == 0 && length == bytes.length) {
-      return bytes;
+  void and(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      // TODO: Speed this up with SIMD
+      bytesArray[offset + i] = (byte) (bytes[this.offset + i] & bytesArray[offset + i]);
     }
-    return toArray();
+  }
+
+  @Override
+  void or(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      // TODO: Speed this up with SIMD
+      bytesArray[offset + i] = (byte) (bytes[this.offset + i] | bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  void xor(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      // TODO: Speed this up with SIMD
+      bytesArray[offset + i] = (byte) (bytes[this.offset + i] ^ bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (!(obj instanceof Bytes other)) {
+      return false;
+    }
+
+    if (this.size() != other.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < length; i++) {
+      if (bytes[i + offset] != other.get(i)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

@@ -37,8 +37,8 @@ final class ConcatenatedBytes extends Bytes {
         throw new IllegalArgumentException(
             "Combined length of values is too long (> Integer.MAX_VALUE)");
       }
-      if (value instanceof ConcatenatedBytes) {
-        count += ((ConcatenatedBytes) value).values.length;
+      if (value instanceof ConcatenatedBytes concatenatedBytes) {
+        count += concatenatedBytes.values.length;
       } else if (size != 0) {
         count += 1;
       }
@@ -52,14 +52,13 @@ final class ConcatenatedBytes extends Bytes {
     }
 
     Bytes[] concatenated = new Bytes[count];
-    int i = 0;
-    for (Bytes value : values) {
-      if (value instanceof ConcatenatedBytes) {
-        Bytes[] subvalues = ((ConcatenatedBytes) value).values;
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] instanceof ConcatenatedBytes concatenatedBytes) {
+        Bytes[] subvalues = concatenatedBytes.values;
         System.arraycopy(subvalues, 0, concatenated, i, subvalues.length);
         i += subvalues.length;
-      } else if (value.size() != 0) {
-        concatenated[i++] = value;
+      } else if (!values[i].isEmpty()) {
+        concatenated[i] = values[i];
       }
     }
     return new ConcatenatedBytes(concatenated, totalSize);
@@ -191,33 +190,38 @@ final class ConcatenatedBytes extends Bytes {
     return new ConcatenatedBytes(combined, length);
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public MutableBytes mutableCopy() {
-//    if (size == 0) {
-//      return MutableBytes.EMPTY;
-//    }
-//    MutableBytes result = MutableBytes.create(size);
-//    copyToUnchecked(result, 0);
-//    return result;
-//  }
-//
-//  @Override
-//  public void copyTo(MutableBytes destination, int destinationOffset) {
-//    if (size == 0) {
-//      return;
-//    }
-//
-//    checkElementIndex(destinationOffset, destination.size());
-//    checkArgument(
-//        destination.size() - destinationOffset >= size,
-//        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-//        size,
-//        destination.size() - destinationOffset,
-//        destinationOffset);
-//
-//    copyToUnchecked(destination, destinationOffset);
-//  }
+  @Override
+  public MutableBytes mutableCopy() {
+    return MutableBytes.fromArray(toArrayUnsafe());
+  }
+
+  //  TODO: Finish MutableBytes
+  //  @Override
+  //  public MutableBytes mutableCopy() {
+  //    if (size == 0) {
+  //      return MutableBytes.EMPTY;
+  //    }
+  //    MutableBytes result = MutableBytes.create(size);
+  //    copyToUnchecked(result, 0);
+  //    return result;
+  //  }
+  //
+  //  @Override
+  //  public void copyTo(MutableBytes destination, int destinationOffset) {
+  //    if (size == 0) {
+  //      return;
+  //    }
+  //
+  //    checkElementIndex(destinationOffset, destination.size());
+  //    checkArgument(
+  //        destination.size() - destinationOffset >= size,
+  //        "Cannot copy %s bytes, destination has only %s bytes from index %s",
+  //        size,
+  //        destination.size() - destinationOffset,
+  //        destinationOffset);
+  //
+  //    copyToUnchecked(destination, destinationOffset);
+  //  }
 
   @Override
   public void update(MessageDigest digest) {
@@ -226,33 +230,72 @@ final class ConcatenatedBytes extends Bytes {
     }
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public byte[] toArray() {
-//    if (size == 0) {
-//      return new byte[0];
-//    }
-//
-//    MutableBytes result = MutableBytes.create(size);
-//    copyToUnchecked(result, 0);
-//    return result.toArrayUnsafe();
-//  }
-//
-//  private void copyToUnchecked(MutableBytes destination, int destinationOffset) {
-//    int offset = 0;
-//    for (Bytes value : values) {
-//      int vSize = value.size();
-//      if ((offset + vSize) > size) {
-//        throw new IllegalStateException("element sizes do not match total size");
-//      }
-//      value.copyTo(destination, destinationOffset);
-//      offset += vSize;
-//      destinationOffset += vSize;
-//    }
-//  }
+  @Override
+  byte[] toArrayUnsafe() {
+    byte[] bytesArray = new byte[size];
+    int offset = 0;
+    for (Bytes value : values) {
+      System.arraycopy(value.toArrayUnsafe(), 0, bytesArray, offset, value.size());
+      offset += value.size();
+    }
+    return bytesArray;
+  }
+
+  //  TODO: Finish MutableBytes
+  //  @Override
+  //  public byte[] toArray() {
+  //    if (size == 0) {
+  //      return new byte[0];
+  //    }
+  //
+  //    MutableBytes result = MutableBytes.create(size);
+  //    copyToUnchecked(result, 0);
+  //    return result.toArrayUnsafe();
+  //  }
+  //
+  //  private void copyToUnchecked(MutableBytes destination, int destinationOffset) {
+  //    int offset = 0;
+  //    for (Bytes value : values) {
+  //      int vSize = value.size();
+  //      if ((offset + vSize) > size) {
+  //        throw new IllegalStateException("element sizes do not match total size");
+  //      }
+  //      value.copyTo(destination, destinationOffset);
+  //      offset += vSize;
+  //      destinationOffset += vSize;
+  //    }
+  //  }
 
   @Override
-  public int hashCode() {
-    return computeHashcode();
+  void and(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      for (Bytes bytes : values) {
+        for (int j = 0; j < bytes.size(); j++) {
+          bytesArray[offset + i] = (byte) (bytes.get(j) & bytesArray[offset + i]);
+        }
+      }
+    }
+  }
+
+  @Override
+  void or(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      for (Bytes bytes : values) {
+        for (int j = 0; j < bytes.size(); j++) {
+          bytesArray[offset + i] = (byte) (bytes.get(j) | bytesArray[offset + i]);
+        }
+      }
+    }
+  }
+
+  @Override
+  void xor(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      for (Bytes bytes : values) {
+        for (int j = 0; j < bytes.size(); j++) {
+          bytesArray[offset + i] = (byte) (bytes.get(j) ^ bytesArray[offset + i]);
+        }
+      }
+    }
   }
 }

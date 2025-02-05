@@ -6,7 +6,6 @@ import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
 import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 class ByteBufferWrappingBytes extends Bytes {
 
@@ -77,29 +76,25 @@ class ByteBufferWrappingBytes extends Bytes {
     return new ByteBufferWrappingBytes(byteBuffer, offset + i, length);
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public MutableBytes mutableCopy() {
-//    return new MutableArrayWrappingBytes(toArray());
-//  }
+  //  TODO: Finish MutableBytes
+  @Override
+  public MutableBytes mutableCopy() {
+    return null;
+  }
 
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
     byteBuffer.put(this.byteBuffer);
   }
 
-  @Override
-  public byte[] toArray() {
-    if (!byteBuffer.hasArray()) {
-      return super.toArray();
-    }
-    int arrayOffset = byteBuffer.arrayOffset();
-    return Arrays.copyOfRange(
-        byteBuffer.array(), arrayOffset + offset, arrayOffset + offset + length);
+  private byte[] toArray() {
+    byte[] array = new byte[length];
+    byteBuffer.get(array, offset, length);
+    return array;
   }
 
   @Override
-  public byte[] toArrayUnsafe() {
+  byte[] toArrayUnsafe() {
     if (!byteBuffer.hasArray()) {
       return toArray();
     }
@@ -108,5 +103,29 @@ class ByteBufferWrappingBytes extends Bytes {
       return toArray();
     }
     return array;
+  }
+
+  @Override
+  void and(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      // TODO: There is a chance for implementing with SIMD - see toArrayUnsafe()
+      bytesArray[offset + i] = (byte) (byteBuffer.get(this.offset + i) & bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  void or(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      // TODO: There is a chance for implementing with SIMD - see toArrayUnsafe()
+      bytesArray[offset + i] = (byte) (byteBuffer.get(this.offset + i) | bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  void xor(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
+      // TODO: There is a chance for implementing with SIMD - see toArrayUnsafe()
+      bytesArray[offset + i] = (byte) (byteBuffer.get(this.offset + i) ^ bytesArray[offset + i]);
+    }
   }
 }

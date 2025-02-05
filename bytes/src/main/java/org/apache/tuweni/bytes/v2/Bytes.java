@@ -27,8 +27,8 @@ import io.vertx.core.buffer.Buffer;
 /**
  * A value made of bytes.
  *
- * <p>This class makes no thread-safety guarantee, and a {@link Bytes} value is generally not
- * thread safe. However, specific implementations may be thread-safe, e.g., MutableBytes.
+ * <p>This class makes no thread-safety guarantee, and a {@link Bytes} value is generally not thread
+ * safe. However, specific implementations may be thread-safe, e.g., MutableBytes.
  */
 public abstract class Bytes implements Comparable<Bytes> {
 
@@ -511,22 +511,6 @@ public abstract class Bytes implements Comparable<Bytes> {
     return new ConstantBytesValue(b, size);
   }
 
-//  /**
-//   * Splits a Bytes object into Bytes32 objects. If the last element is not exactly 32 bytes, it is
-//   * right padded with zeros.
-//   *
-//   * @param bytes the bytes object to segment
-//   * @return an array of Bytes32 objects
-//   */
-//  public static Bytes32[] segment(Bytes bytes) {
-//    int segments = (int) Math.ceil(bytes.size() / 32.0);
-//    Bytes32[] result = new Bytes32[segments];
-//    for (int i = 0; i < segments; i++) {
-//      result[i] = Bytes32.rightPad(bytes.slice(i * 32, Math.min(32, bytes.size() - i * 32)));
-//    }
-//    return result;
-//  }
-
   /**
    * Provides the number of bytes this value represents.
    *
@@ -817,7 +801,15 @@ public abstract class Bytes implements Comparable<Bytes> {
     if (size() == 0) {
       return BigInteger.ZERO;
     }
-    return new BigInteger((order == BIG_ENDIAN) ? toArrayUnsafe() : reverse().toArrayUnsafe());
+    byte[] array;
+    if (order == BIG_ENDIAN) {
+      array = toArrayUnsafe();
+    } else {
+      MutableBytes mutableBytes = mutableCopy();
+      mutableBytes.reverse();
+      array = mutableBytes.toArrayUnsafe();
+    }
+    return new BigInteger(array);
   }
 
   /**
@@ -838,7 +830,15 @@ public abstract class Bytes implements Comparable<Bytes> {
    *     unsigned integer.
    */
   public BigInteger toUnsignedBigInteger(ByteOrder order) {
-    return new BigInteger(1, (order == BIG_ENDIAN) ? toArrayUnsafe() : reverse().toArrayUnsafe());
+    byte[] array;
+    if (order == BIG_ENDIAN) {
+      array = toArrayUnsafe();
+    } else {
+      MutableBytes mutableBytes = mutableCopy();
+      mutableBytes.reverse();
+      array = mutableBytes.toArrayUnsafe();
+    }
+    return new BigInteger(1, array);
   }
 
   /**
@@ -977,67 +977,68 @@ public abstract class Bytes implements Comparable<Bytes> {
    */
   public abstract Bytes slice(int i, int length);
 
-//  TODO: Finish MutableBytes
-//  /**
-//   * Return a new mutable value initialized with the content of this value.
-//   *
-//   * @return A mutable copy of this value. This will copy bytes, modifying the returned value will
-//   *     <b>not</b> modify this value.
-//   */
-//  public abstract MutableBytes mutableCopy();
-//
-//  /**
-//   * Copy the bytes of this value to the provided mutable one, which must have the same size.
-//   *
-//   * @param destination The mutable value to which to copy the bytes to, which must have the same
-//   *     size as this value. If you want to copy value where size differs, you should use {@link
-//   *     #slice} and/or {@link MutableBytes#mutableSlice} and apply the copy to the result.
-//   * @throws IllegalArgumentException if {@code this.size() != destination.size()}.
-//   */
-//  public void copyTo(MutableBytes destination) {
-//    checkNotNull(destination);
-//    checkArgument(
-//        destination.size() == size(),
-//        "Cannot copy %s bytes to destination of non-equal size %s",
-//        size(),
-//        destination.size());
-//    copyTo(destination, 0);
-//  }
-//
-//  /**
-//   * Copy the bytes of this value to the provided mutable one from a particular offset.
-//   *
-//   * <p>This is a (potentially slightly more efficient) shortcut for {@code
-//   * copyTo(destination.mutableSlice(destinationOffset, this.size()))}.
-//   *
-//   * @param destination The mutable value to which to copy the bytes to, which must have enough
-//   *     bytes from {@code destinationOffset} for the copied value.
-//   * @param destinationOffset The offset in {@code destination} at which the copy starts.
-//   * @throws IllegalArgumentException if the destination doesn't have enough room, that is if {@code
-//   *     this.size() > (destination.size() - destinationOffset)}.
-//   */
-//  public void copyTo(MutableBytes destination, int destinationOffset) {
-//    checkNotNull(destination);
-//
-//    // Special casing an empty source or the following checks might throw (even though we have
-//    // nothing to copy anyway) and this gets inconvenient for generic methods using copyTo() as
-//    // they may have to special case empty values because of this. As an example,
-//    // concatenate(EMPTY, EMPTY) would need to be special cased without this.
-//    int size = size();
-//    if (size == 0) {
-//      return;
-//    }
-//
-//    checkElementIndex(destinationOffset, destination.size());
-//    checkArgument(
-//        destination.size() - destinationOffset >= size,
-//        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-//        size,
-//        destination.size() - destinationOffset,
-//        destinationOffset);
-//
-//    destination.set(destinationOffset, this);
-//  }
+  /**
+   * Return a new mutable value initialized with the content of this value.
+   *
+   * @return A mutable copy of this value. This will copy bytes, modifying the returned value will
+   *     <b>not</b> modify this value.
+   */
+  public abstract MutableBytes mutableCopy();
+
+  //  /**
+  //   * Copy the bytes of this value to the provided mutable one, which must have the same size.
+  //   *
+  //   * @param destination The mutable value to which to copy the bytes to, which must have the
+  // same
+  //   *     size as this value. If you want to copy value where size differs, you should use {@link
+  //   *     #slice} and/or {@link MutableBytes#mutableSlice} and apply the copy to the result.
+  //   * @throws IllegalArgumentException if {@code this.size() != destination.size()}.
+  //   */
+  //  public void copyTo(MutableBytes destination) {
+  //    checkNotNull(destination);
+  //    checkArgument(
+  //        destination.size() == size(),
+  //        "Cannot copy %s bytes to destination of non-equal size %s",
+  //        size(),
+  //        destination.size());
+  //    copyTo(destination, 0);
+  //  }
+  //
+  //  /**
+  //   * Copy the bytes of this value to the provided mutable one from a particular offset.
+  //   *
+  //   * <p>This is a (potentially slightly more efficient) shortcut for {@code
+  //   * copyTo(destination.mutableSlice(destinationOffset, this.size()))}.
+  //   *
+  //   * @param destination The mutable value to which to copy the bytes to, which must have enough
+  //   *     bytes from {@code destinationOffset} for the copied value.
+  //   * @param destinationOffset The offset in {@code destination} at which the copy starts.
+  //   * @throws IllegalArgumentException if the destination doesn't have enough room, that is if
+  // {@code
+  //   *     this.size() > (destination.size() - destinationOffset)}.
+  //   */
+  //  public void copyTo(MutableBytes destination, int destinationOffset) {
+  //    checkNotNull(destination);
+  //
+  //    // Special casing an empty source or the following checks might throw (even though we have
+  //    // nothing to copy anyway) and this gets inconvenient for generic methods using copyTo() as
+  //    // they may have to special case empty values because of this. As an example,
+  //    // concatenate(EMPTY, EMPTY) would need to be special cased without this.
+  //    int size = size();
+  //    if (size == 0) {
+  //      return;
+  //    }
+  //
+  //    checkElementIndex(destinationOffset, destination.size());
+  //    checkArgument(
+  //        destination.size() - destinationOffset >= size,
+  //        "Cannot copy %s bytes, destination has only %s bytes from index %s",
+  //        size,
+  //        destination.size() - destinationOffset,
+  //        destinationOffset);
+  //
+  //    destination.set(destinationOffset, this);
+  //  }
 
   /**
    * Append the bytes of this value to the {@link ByteBuffer}.
@@ -1177,62 +1178,17 @@ public abstract class Bytes implements Comparable<Bytes> {
   }
 
   /**
-   * Computes the reverse array of bytes of the current bytes.
-   *
-   * @return a new Bytes value, containing the bytes in reverse order
-   */
-  public Bytes reverse() {
-    byte[] reverse = new byte[size()];
-    for (int i = 0; i < size(); i++) {
-      reverse[size() - i - 1] = get(i);
-    }
-    return Bytes.wrap(reverse);
-  }
-
-  /**
-   * Extract the bytes of this value into a byte array.
-   *
-   * @return A byte array with the same content than this value.
-   */
-  public byte[] toArray() {
-    return toArray(BIG_ENDIAN);
-  }
-
-  /**
-   * Extract the bytes of this value into a byte array.
-   *
-   * @param byteOrder the byte order to apply : big endian or little endian
-   * @return A byte array with the same content than this value.
-   */
-  public byte[] toArray(ByteOrder byteOrder) {
-    int size = size();
-    byte[] array = new byte[size];
-    if (byteOrder == BIG_ENDIAN) {
-      for (int i = 0; i < size; i++) {
-        array[i] = get(i);
-      }
-    } else {
-      for (int i = 0; i < size(); i++) {
-        array[size() - i - 1] = get(i);
-      }
-    }
-    return array;
-  }
-
-  /**
    * Get the bytes represented by this value as byte array.
    *
-   * <p>Contrarily to {@link #toArray()}, this may avoid allocating a new array and directly return
-   * the backing array of this value if said value is array backed and doing so is possible. As
-   * such, modifications to the returned array may or may not impact this value. As such, this
-   * method should be used with care and hence the "unsafe" moniker.
+   * <p>This may avoid allocating a new array and directly return the backing array of this value if
+   * said value is array backed and doing so is possible. As such, modifications to the returned
+   * array may or may not impact this value. As such, this method should be used with care and hence
+   * the "unsafe" moniker.
    *
    * @return A byte array with the same content than this value, which may or may not be the direct
    *     backing of this value.
    */
-  public byte[] toArrayUnsafe() {
-    return toArray();
-  }
+  abstract byte[] toArrayUnsafe();
 
   /**
    * Provides this value represented as hexadecimal, starting with "0x".
@@ -1361,7 +1317,7 @@ public abstract class Bytes implements Comparable<Bytes> {
       return false;
     }
 
-      if (this.size() != other.size()) {
+    if (this.size() != other.size()) {
       return false;
     }
 
@@ -1398,4 +1354,10 @@ public abstract class Bytes implements Comparable<Bytes> {
   Bytes getImpl() {
     return this;
   }
+
+  abstract void and(int offset, byte[] bytesArray);
+
+  abstract void or(int offset, byte[] bytesArray);
+
+  abstract void xor(int offset, byte[] bytesArray);
 }

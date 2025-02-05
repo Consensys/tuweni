@@ -177,9 +177,4 @@ public final class Bytes48 extends DelegatingBytes {
     checkNotNull(str);
     return wrap(BytesValues.fromRawHexString(str, -1, false));
   }
-
-//  TODO: Finish MutableBytes
-//  MutableBytes48 mutableCopy() {
-//    return MutableBytes48.wrap(delegate);
-//  }
 }

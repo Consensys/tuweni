@@ -177,8 +177,20 @@ public final class Bytes32 extends DelegatingBytes {
     return wrap(BytesValues.fromRawHexString(str, -1, false));
   }
 
-//  TODO: Finish MutableBytes
-//  MutableBytes32 mutableCopy() {
-//    return MutableBytes32.wrap(delegate);
-//  }
+  //  /**
+  //   * Splits a Bytes object into Bytes32 objects. If the last element is not exactly 32 bytes, it
+  // is
+  //   * right padded with zeros.
+  //   *
+  //   * @param bytes the bytes object to segment
+  //   * @return an array of Bytes32 objects
+  //   */
+  //  public static Bytes32[] segment(Bytes bytes) {
+  //    int segments = (int) Math.ceil(bytes.size() / 32.0);
+  //    Bytes32[] result = new Bytes32[segments];
+  //    for (int i = 0; i < segments; i++) {
+  //      result[i] = Bytes32.rightPad(bytes.slice(i * 32, Math.min(32, bytes.size() - i * 32)));
+  //    }
+  //    return result;
+  //  }
 }

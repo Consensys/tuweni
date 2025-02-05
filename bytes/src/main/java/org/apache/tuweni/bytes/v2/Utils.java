@@ -21,13 +21,6 @@ class Checks {
   }
 
   @FormatMethod
-  static void checkArgument(boolean condition, String message, Object... args) {
-    if (!condition) {
-      throw new IllegalArgumentException(String.format(message, args));
-    }
-  }
-
-  @FormatMethod
   static void checkArgument(boolean condition, String message) {
     if (!condition) {
       throw new IllegalArgumentException(message);

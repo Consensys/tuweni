@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.bytes.v2;
 
+import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
 
 import io.vertx.core.buffer.Buffer;
-
-import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
 
 /**
  * A class that holds and delegates all operations to its inner bytes field.
@@ -43,24 +43,8 @@ public class DelegatingBytes extends Bytes {
     return delegate.slice(index, length);
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public MutableBytes mutableCopy() {
-//    return MutableBytes.wrap(toArray());
-//  }
-
   @Override
-  public byte[] toArray() {
-    return delegate.toArray();
-  }
-
-  @Override
-  public byte[] toArray(ByteOrder byteOrder) {
-    return delegate.toArray(byteOrder);
-  }
-
-  @Override
-  public byte[] toArrayUnsafe() {
+  byte[] toArrayUnsafe() {
     return delegate.toArrayUnsafe();
   }
 
@@ -72,6 +56,21 @@ public class DelegatingBytes extends Bytes {
   @Override
   Bytes getImpl() {
     return delegate.getImpl();
+  }
+
+  @Override
+  void and(int offset, byte[] bytesArray) {
+    delegate.and(offset, bytesArray);
+  }
+
+  @Override
+  void or(int offset, byte[] bytesArray) {
+    delegate.or(offset, bytesArray);
+  }
+
+  @Override
+  void xor(int offset, byte[] bytesArray) {
+    delegate.xor(offset, bytesArray);
   }
 
   @Override
@@ -179,20 +178,25 @@ public class DelegatingBytes extends Bytes {
     return delegate.slice(i);
   }
 
-//  TODO: Finish MutableBytes
-//  @Override
-//  public void copyTo(MutableBytes destination) {
-//    delegate.copyTo(destination);
-//  }
-//
-//  @Override
-//  public void copyTo(MutableBytes destination, int destinationOffset) {
-//    delegate.copyTo(destination, destinationOffset);
-//  }
+  //  TODO: Finish MutableBytes
+  //  @Override
+  //  public void copyTo(MutableBytes destination) {
+  //    delegate.copyTo(destination);
+  //  }
+  //
+  //  @Override
+  //  public void copyTo(MutableBytes destination, int destinationOffset) {
+  //    delegate.copyTo(destination, destinationOffset);
+  //  }
 
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
     delegate.appendTo(byteBuffer);
+  }
+
+  @Override
+  public MutableBytes mutableCopy() {
+    return delegate.mutableCopy();
   }
 
   @Override
@@ -223,11 +227,6 @@ public class DelegatingBytes extends Bytes {
   @Override
   public void update(MessageDigest digest) {
     delegate.update(digest);
-  }
-
-  @Override
-  public Bytes reverse() {
-    return delegate.reverse();
   }
 
   @Override
