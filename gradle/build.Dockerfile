@@ -9,17 +9,19 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-# Build image used for github actions
-FROM eclipse-temurin:17-jdk
+# tuwnei-build - Build image used for github actions
+# Build using: docker buildx build --platform linux/amd64 --tag "consensys/tuweni-build:1.3" -f gradle/build.Dockerfile .
+# and push:    docker push consensys/tuweni-build:1.3
+FROM --platform=linux/amd64 eclipse-temurin:21-jdk
 
 CMD ["gradle"]
 
-ENV GRADLE_HOME /opt/gradle
+ENV GRADLE_HOME=/opt/gradle
 
 RUN set -o errexit -o nounset \
     && echo "Adding gradle user and group" \
-    && groupadd --system --gid 1000 gradle \
-    && useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
+    && groupadd --force --system --gid 1000 gradle \
+    && useradd --non-unique --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
     && mkdir /home/gradle/.gradle \
     && chown --recursive gradle:gradle /home/gradle \
     \
@@ -51,8 +53,8 @@ RUN apt-get update \
     && which hg \
     && which svn
 
-ENV GRADLE_VERSION 7.6
-ARG GRADLE_DOWNLOAD_SHA256=7ba68c54029790ab444b39d7e293d3236b2632631fb5f2e012bb28b4ff669e4b
+ENV GRADLE_VERSION=8.8
+ARG GRADLE_DOWNLOAD_SHA256=a4b4158601f8636cdeeab09bd76afb640030bb5b144aafe261a5e8af027dc612
 RUN set -o errexit -o nounset \
     && echo "Downloading Gradle" \
     && wget --no-verbose --output-document=gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \

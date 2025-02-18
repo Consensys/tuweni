@@ -43,7 +43,7 @@ description = 'A set of libraries and other tools to aid development of blockcha
 //////
 // Version numbering
 
-def versionNumber = '2.5.0'
+def versionNumber = '25.2.0-RC1'
 def buildVersion = versionNumber + buildTag(buildRelease)
 
 static String buildTag(releaseBuild) {
@@ -389,10 +389,9 @@ allprojects {
             }
             developers {
               developer {
-                name = 'Antoine Toulme'
-                email = 'antoine@lunar-ocean.com'
-                organization = 'The Machine Consultancy, LLC'
-                organizationUrl = 'https://themachine.io'
+                id = "consensys"
+                name = 'Protocols Team'
+                email = 'devops@consensys.net'
               }
             }
             issueManagement {
