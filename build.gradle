@@ -472,6 +472,20 @@ jreleaser {
   }
 }
 
+// Create a task to prepare the jreleaser directory.
+task prepareJreleaserDirectory {
+  doLast {
+    file("$buildDir/jreleaser").mkdirs()
+  }
+}
+
+// Make every task whose name starts with "jreleaser" depend on the preparation task.
+tasks.all { t ->
+  if (t.name.startsWith("jreleaser")) {
+    t.dependsOn prepareJreleaserDirectory
+  }
+}
+
 //////
 // Configure root project as a virtual package that depends on all components
 
