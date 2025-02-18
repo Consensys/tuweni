@@ -475,7 +475,7 @@ jreleaser {
 // Create a task to prepare the jreleaser directory.
 task prepareJreleaserDirectory {
   doLast {
-    file("$buildDir/jreleaser").mkdirs()
+    file(rootProject.layout.buildDirectory.dir("jreleaser")).mkdirs()
   }
 }
 
