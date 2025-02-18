@@ -13,7 +13,6 @@
 import net.ltgt.gradle.errorprone.CheckSeverity
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import groovy.xml.XmlParser
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -36,9 +35,11 @@ plugins {
   id 'maven-publish'
   id 'se.patrikerdes.use-latest-versions' version '0.2.18'
   id 'com.github.ben-manes.versions' version '0.49.0'
+  id 'org.jreleaser' version '1.16.0'
 }
 
 description = 'A set of libraries and other tools to aid development of blockchain and other decentralized software in Java and other JVM languages'
+group = "io.consensys.protocols"
 
 //////
 // Version numbering
@@ -317,47 +318,7 @@ allprojects {
 	publishing {
       repositories {
         maven {
-          name = "OSSRH"
-          def isRelease = buildVersion.endsWith('SNAPSHOT')
-          def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-          def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-          url = isRelease ? snapshotsRepoUrl : releasesRepoUrl
-
-          def settingsXml = new File(System.getProperty('user.home'), '.m2/settings.xml')
-
-          def credentialsFound = false;
-          if (settingsXml.exists()) {
-            project.logger.info('Reading .m2/settings.xml')
-            def serverId = (project.properties['distMgmtServerId'] ?: isRelease
-              ? 'apache.releases.https' : 'apache.snapshots.https')
-            def m2SettingCreds = new XmlParser().parse(settingsXml).servers.server.find { server -> serverId == server.id.text() }
-            if (m2SettingCreds) {
-              project.logger.info('Found matching credentials from .m2/settings.xml')
-              credentials {
-                username m2SettingCreds.username.text()
-                password m2SettingCreds.password.text()
-              }
-              credentialsFound = true
-            }
-          }
-
-          if (!credentialsFound) {
-            project.logger.info('Reading credentials from environment')
-            project.logger.info('Username ' + nexusUsername)
-            credentials {
-              username nexusUsername
-              password nexusPassword
-            }
-          }
-        }
-
-        maven {
-          name = "GitHubPackages"
-          url = "https://maven.pkg.github.com/consensys/tuweni"
-          credentials {
-            username = System.getenv('GITHUB_ACTOR')
-            password = System.getenv('GITHUB_TOKEN')
-          }
+          url = rootProject.layout.buildDirectory.dir("staging-deploy")
         }
       }
 
@@ -477,6 +438,36 @@ allprojects {
     // Ensure each project's publication task depends on its own POM generation
     tasks.withType(PublishToMavenLocal).configureEach { publishTask ->
       publishTask.dependsOn(tasks.withType(GenerateMavenPom))
+    }
+  }
+}
+
+//////
+// JReleaser at root project level
+jreleaser {
+  gitRootSearch = true
+  release {
+    github {
+      commitAuthor {
+        name = 'Protocols Team'
+        email = 'devops@consensys.net'
+      }
+    }
+  }
+  signing {
+    active = 'ALWAYS'
+    armored = true
+    verify = false // TODO SLD reenabled after adding PUBLIC_KEY to github environment
+  }
+  deploy {
+    maven {
+      mavenCentral {
+        sonatype {
+          active = 'ALWAYS'
+          url = 'https://central.sonatype.com/api/v1/publisher'
+          stagingRepository('build/staging-deploy')
+        }
+      }
     }
   }
 }
