@@ -464,7 +464,7 @@ jreleaser {
   signing {
     active = 'ALWAYS'
     armored = true
-    verify = false // TODO SLD reenabled after adding PUBLIC_KEY to github environment
+    verify = true
   }
   deploy {
     maven {
