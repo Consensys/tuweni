@@ -44,7 +44,7 @@ group = "io.consensys.protocols"
 //////
 // Version numbering
 
-def versionNumber = '25.2.0'
+def versionNumber = '25.2.1-SNAPSHOT'
 def buildVersion = versionNumber + buildTag(buildRelease)
 
 static String buildTag(releaseBuild) {
@@ -473,6 +473,9 @@ jreleaser {
           active = 'ALWAYS'
           url = 'https://central.sonatype.com/api/v1/publisher'
           stagingRepository('build/staging-deploy')
+          // It's taking about 15-20 mins to complete deployment
+          retryDelay = 15
+          maxRetries = 100
         }
       }
     }
