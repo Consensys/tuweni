@@ -44,7 +44,7 @@ group = "io.consensys.protocols"
 //////
 // Version numbering
 
-def versionNumber = '25.2.1-SNAPSHOT'
+def versionNumber = '2.6.0'
 def buildVersion = versionNumber + buildTag(buildRelease)
 
 static String buildTag(releaseBuild) {
