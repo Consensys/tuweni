@@ -44,7 +44,7 @@ group = "io.consensys.tuweni"
 //////
 // Version numbering
 
-def versionNumber = '2.7.0'
+def versionNumber = '2.7.1-SNAPSHOT'
 def buildVersion = versionNumber + buildTag(buildRelease)
 
 static String buildTag(releaseBuild) {
