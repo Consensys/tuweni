@@ -39,12 +39,12 @@ plugins {
 }
 
 description = 'A set of libraries and other tools to aid development of blockchain and other decentralized software in Java and other JVM languages'
-group = "io.consensys.protocols"
+group = "io.consensys.tuweni"
 
 //////
 // Version numbering
 
-def versionNumber = '2.6.0'
+def versionNumber = '2.7.0'
 def buildVersion = versionNumber + buildTag(buildRelease)
 
 static String buildTag(releaseBuild) {
@@ -336,7 +336,7 @@ allprojects {
             artifact tasks.javadocJar
           }
           
-          groupId = 'io.consensys.protocols'
+          groupId = 'io.consensys.tuweni'
           artifactId = project == rootProject ? project.name : "${rootProject.name}-${project.name}"
           version = project.version
 
@@ -380,7 +380,7 @@ allprojects {
               configurations.implementation.allDependencies.each { dep ->
                 if (dep.name != 'unspecified') {
                   def node = dependencies.appendNode('dependency')
-                  node.appendNode('groupId', dep instanceof ProjectDependency ? "io.consensys.protocols" : dep.group)
+                  node.appendNode('groupId', dep instanceof ProjectDependency ? "io.consensys.tuweni" : dep.group)
                   node.appendNode('artifactId', dep instanceof ProjectDependency ? "${rootProject.name}-${dep.name}" : dep.name)
                   
                   // Get version from dependency management if available
@@ -393,7 +393,7 @@ allprojects {
               configurations.compileOnly.allDependencies.each { dep ->
                 if (dep.name != 'unspecified') {
                   def node = dependencies.appendNode('dependency')
-                  node.appendNode('groupId', dep instanceof ProjectDependency ? "io.consensys.protocols" : dep.group)
+                  node.appendNode('groupId', dep instanceof ProjectDependency ? "io.consensys.tuweni" : dep.group)
                   node.appendNode('artifactId', dep instanceof ProjectDependency ? "${rootProject.name}-${dep.name}" : dep.name)
                   // Get version from dependency management if available
                   def version = dep.version ?: project.dependencyManagement.managedVersions["${dep.group}:${dep.name}"]
