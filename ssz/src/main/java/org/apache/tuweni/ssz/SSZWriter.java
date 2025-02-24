@@ -710,14 +710,29 @@ public interface SSZWriter {
     SSZ.encodeBooleanListTo(elements, this::writeSSZ);
   }
 
+  /**
+   * Write a list of SSZWritable elements.
+   *
+   * @param elements the elements to write as a list
+   */
   default void writeAsContainer(SSZWritable... elements) {
     SSZ.encodeAsContainerTo(this::writeSSZ, elements);
   }
 
+  /**
+   * Write a list of SSZWritable elements.
+   *
+   * @param elements the elements to write as a list
+   */
   default <T extends SSZWritable> void writeTypedList(List<T> elements) {
     SSZ.encodeAsFixedTypeListTo(elements, this::writeSSZ);
   }
 
+  /**
+   * Write a list of SSZWritable elements.
+   *
+   * @param elements the elements to write as a list
+   */
   default <T extends SSZWritable> void writeTypedVector(List<T> elements) {
     SSZ.encodeAsFixedTypeVectorTo(elements, this::writeSSZ);
   }

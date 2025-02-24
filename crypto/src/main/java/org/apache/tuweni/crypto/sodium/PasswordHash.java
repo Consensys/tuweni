@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * <p>It prevents ASICs from having a significant advantage over software implementations.
  *
- * <h3>Guidelines for choosing the parameters</h3>
+ * <h2>Guidelines for choosing the parameters</h2>
  *
  * <p>Start by determining how much memory the function can use. What will be the highest number of
  * threads/processes evaluating the function simultaneously (ideally, no more than 1 per CPU core)?
