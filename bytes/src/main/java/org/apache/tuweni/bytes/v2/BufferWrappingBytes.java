@@ -87,26 +87,26 @@ class BufferWrappingBytes extends Bytes {
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     return buffer.getBytes();
   }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       bytesArray[offset + i] = (byte) (buffer.getByte(i) & bytesArray[offset + i]);
     }
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       bytesArray[offset + i] = (byte) (buffer.getByte(i) | bytesArray[offset + i]);
     }
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       bytesArray[offset + i] = (byte) (buffer.getByte(i) ^ bytesArray[offset + i]);
     }

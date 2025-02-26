@@ -3,13 +3,13 @@
 package org.apache.tuweni.ssz;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.tuweni.bytes.Bytes.fromHexString;
+import static org.apache.tuweni.bytes.v2.Bytes.fromHexString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes32;
 import org.apache.tuweni.units.bigints.UInt256;
 
 import java.math.BigInteger;
@@ -253,7 +253,7 @@ class BytesSSZWriterTest {
         SSZ.encode(
             writer ->
                 writer.writeHash(
-                    Bytes32.fromHexString(
+                    Bytes.fromHexString(
                         "ED1C978EE1CEEFA5BBD9ED1C8EE1CEEFA5BBD9ED1C978EE1CEEFA5BBD9ED1C97"))));
     assertThrows(
         IllegalArgumentException.class,
@@ -380,9 +380,9 @@ class BytesSSZWriterTest {
             "0x6C000000200000000000000000000000000000000000000000000000000000000000000000626F6220000000000000000000000000000000000000000000000000000000000000006A616E65200000000000000000000000000000000000000000000000000000000000006A616E6574"),
         SSZ.encodeBytesList(
             Arrays.asList(
-                Bytes32.leftPad(Bytes.wrap("bob".getBytes(Charsets.UTF_8))),
-                Bytes32.leftPad(Bytes.wrap("jane".getBytes(Charsets.UTF_8))),
-                Bytes32.leftPad(Bytes.wrap("janet".getBytes(Charsets.UTF_8))))));
+                Bytes.wrap("bob".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32),
+                Bytes.wrap("jane".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32),
+                Bytes.wrap("janet".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32))));
   }
 
   @Test
@@ -448,7 +448,7 @@ class BytesSSZWriterTest {
   @Test
   void shouldWriteVectorOfHomogeneousBytes() {
     // Per the pre-SOS SSZ spec, neither the vector nor the bytes should have a mixin.
-    List<Bytes32> elements =
+    List<Bytes> elements =
         Arrays.asList(
             Bytes32.fromHexString("0x01"),
             Bytes32.fromHexString("0x02"),
@@ -469,7 +469,7 @@ class BytesSSZWriterTest {
   void shouldWriteVectorOfNonHomogeneousBytes() {
     // Per the pre-SOS SSZ spec, the vector itself should not have a mixin, but the individual bytes
     // elements should.
-    List<Bytes32> elements =
+    List<Bytes> elements =
         Arrays.asList(
             Bytes32.fromHexString("0x01"),
             Bytes32.fromHexString("0x02"),
@@ -490,7 +490,7 @@ class BytesSSZWriterTest {
   void shouldWriteListOfHomogeneousBytes() {
     // Per the pre-SOS SSZ spec, the list iself should have a mixin, but the bytes elements should
     // not.
-    List<Bytes32> elements =
+    List<Bytes> elements =
         Arrays.asList(
             Bytes32.fromHexString("0x01"),
             Bytes32.fromHexString("0x02"),
@@ -512,7 +512,7 @@ class BytesSSZWriterTest {
   void shouldWriteListOfNonHomogeneousBytes() {
     // Per the pre-SOS SSZ spec, both the vector itself and the individual bytes elements should
     // have a length mixin.
-    List<Bytes32> elements =
+    List<Bytes> elements =
         Arrays.asList(
             Bytes32.fromHexString("0x01"),
             Bytes32.fromHexString("0x02"),

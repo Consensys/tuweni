@@ -5,7 +5,7 @@ package org.apache.tuweni.devp2p.v5
 import io.vertx.core.net.SocketAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.concurrent.coroutines.await
 import org.apache.tuweni.crypto.SECP256K1
 import org.apache.tuweni.devp2p.EthereumNodeRecord

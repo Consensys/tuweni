@@ -3,11 +3,11 @@
 package org.apache.tuweni.crypto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.tuweni.bytes.Bytes.fromHexString;
+import static org.apache.tuweni.bytes.v2.Bytes.fromHexString;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 import org.apache.tuweni.crypto.SECP256K1.KeyPair;
 import org.apache.tuweni.crypto.SECP256K1.PublicKey;
 import org.apache.tuweni.crypto.SECP256K1.SecretKey;
@@ -93,15 +93,14 @@ class SECP256K1Test {
     assertThrows(
         NullPointerException.class,
         () ->
-            SECP256K1.KeyPair.create(
-                null, SECP256K1.PublicKey.fromBytes(Bytes.wrap(new byte[64]))));
+            SECP256K1.KeyPair.create(null, SECP256K1.PublicKey.fromBytes(MutableBytes.create(64))));
   }
 
   @Test
   void testCreateKeyPair_PrivateKeyNull() {
     assertThrows(
         NullPointerException.class,
-        () -> SECP256K1.KeyPair.create(SecretKey.fromBytes(Bytes32.wrap(new byte[32])), null));
+        () -> SECP256K1.KeyPair.create(SecretKey.fromBytes(MutableBytes.create(32)), null));
   }
 
   @Test
@@ -269,8 +268,8 @@ class SECP256K1Test {
       }
     }
 
-    Bytes32 hash =
-        Bytes32.fromHexString("ACB1C19AC0832320815B5E886C6B73AD7D6177853D44B026F2A7A9E11BB899FC");
+    Bytes hash =
+        Bytes.fromHexString("ACB1C19AC0832320815B5E886C6B73AD7D6177853D44B026F2A7A9E11BB899FC");
     SECP256K1.Signature signature =
         SECP256K1.Signature.create(
             (byte) 1,
@@ -373,9 +372,8 @@ class SECP256K1Test {
   void testSharedSecretBytes() {
     KeyPair kp = SECP256K1.KeyPair.random();
     KeyPair otherKP = SECP256K1.KeyPair.random();
-    Bytes32 sharedSecret = SECP256K1.calculateKeyAgreement(kp.secretKey(), otherKP.publicKey());
-    Bytes32 otherSharedSecret =
-        SECP256K1.calculateKeyAgreement(otherKP.secretKey(), kp.publicKey());
+    Bytes sharedSecret = SECP256K1.calculateKeyAgreement(kp.secretKey(), otherKP.publicKey());
+    Bytes otherSharedSecret = SECP256K1.calculateKeyAgreement(otherKP.secretKey(), kp.publicKey());
     assertEquals(sharedSecret, otherSharedSecret);
   }
 

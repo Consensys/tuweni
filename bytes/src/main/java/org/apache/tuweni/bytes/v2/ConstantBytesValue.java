@@ -37,7 +37,7 @@ class ConstantBytesValue extends Bytes {
   }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (value & bytesArray[offset + i]);
@@ -45,7 +45,7 @@ class ConstantBytesValue extends Bytes {
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (value | bytesArray[offset + i]);
@@ -53,7 +53,7 @@ class ConstantBytesValue extends Bytes {
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (value ^ bytesArray[offset + i]);
@@ -68,7 +68,7 @@ class ConstantBytesValue extends Bytes {
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     byte[] array = new byte[size];
     Arrays.fill(array, value);
     return array;

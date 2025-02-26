@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p.v5.packet
 
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.devp2p.v5.Message
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -23,8 +22,8 @@ class MessageTest {
 
   @Test
   fun tagHashesSourceAndDestNodeIdCorrectly() {
-    val srcId = Bytes32.fromHexString("0x98EB6D611291FA21F6169BFF382B9369C33D997FE4DC93410987E27796360640")
-    val destId = Bytes32.fromHexString("0xA5CFE10E0EFC543CBE023560B2900E2243D798FAFD0EA46267DDD20D283CE13C")
+    val srcId = Bytes.fromHexString("0x98EB6D611291FA21F6169BFF382B9369C33D997FE4DC93410987E27796360640")
+    val destId = Bytes.fromHexString("0xA5CFE10E0EFC543CBE023560B2900E2243D798FAFD0EA46267DDD20D283CE13C")
     val expected = Bytes.fromHexString("0xB7A0D7CA8BD37611315DA0882FF479DE14B442FD30AE0EFBE6FC6344D55DC632")
 
     val result = Message.tag(srcId, destId)
@@ -34,7 +33,7 @@ class MessageTest {
 
   @Test
   fun getSourceFromTagFetchesSrcNodeId() {
-    val srcId = Bytes32.fromHexString("0x98EB6D611291FA21F6169BFF382B9369C33D997FE4DC93410987E27796360640")
+    val srcId = Bytes.fromHexString("0x98EB6D611291FA21F6169BFF382B9369C33D997FE4DC93410987E27796360640")
     val destId = Bytes.fromHexString("0xA5CFE10E0EFC543CBE023560B2900E2243D798FAFD0EA46267DDD20D283CE13C")
     val tag = Message.tag(srcId, destId)
 

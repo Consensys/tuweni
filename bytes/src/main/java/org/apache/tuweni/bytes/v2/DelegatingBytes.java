@@ -44,7 +44,7 @@ public class DelegatingBytes extends Bytes {
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     return delegate.toArrayUnsafe();
   }
 
@@ -59,17 +59,17 @@ public class DelegatingBytes extends Bytes {
   }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     delegate.and(offset, bytesArray);
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     delegate.or(offset, bytesArray);
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     delegate.xor(offset, bytesArray);
   }
 

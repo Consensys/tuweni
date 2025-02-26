@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.crypto.blake2bf;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import java.nio.ByteOrder;
 

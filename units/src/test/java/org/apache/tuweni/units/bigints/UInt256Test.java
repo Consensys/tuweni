@@ -5,8 +5,9 @@ package org.apache.tuweni.units.bigints;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes32;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import java.math.BigInteger;
 import java.util.stream.Stream;
@@ -1000,16 +1001,16 @@ class UInt256Test {
     Bytes oneeBytes = Bytes.fromHexString(onesString + eString);
     return Stream.of(
         // Mutable Bytes
-        Arguments.of(Bytes.concatenate(onesBytes), hv(onesString), false),
-        Arguments.of(Bytes.concatenate(eBytes), hv(eString), false),
-        Arguments.of(Bytes.concatenate(onesBytes, twosBytes), hv(onesString + twosString), true),
-        Arguments.of(Bytes.concatenate(onesBytes, eBytes), hv(onesString + eString), true),
+        Arguments.of(Bytes.wrap(onesBytes), hv(onesString), false),
+        Arguments.of(Bytes.wrap(eBytes), hv(eString), false),
+        Arguments.of(Bytes.wrap(onesBytes, twosBytes), hv(onesString + twosString), false),
+        Arguments.of(Bytes.wrap(onesBytes, eBytes), hv(onesString + eString), false),
         // Array Wrapping Bytes
         Arguments.of(Bytes.fromHexString(onesString), hv(onesString), false),
         Arguments.of(Bytes.fromHexString(eString), hv(eString), false),
         Arguments.of(
-            Bytes.fromHexString(onesString + twosString), hv(onesString + twosString), true),
-        Arguments.of(Bytes.fromHexString(onesString + eString), hv(onesString + eString), true),
+            Bytes.fromHexString(onesString + twosString), hv(onesString + twosString), false),
+        Arguments.of(Bytes.fromHexString(onesString + eString), hv(onesString + eString), false),
         // Delegating Bytes32
         Arguments.of(Bytes32.wrap(onetwoBytes), hv(onesString + twosString), true),
         Arguments.of(Bytes32.wrap(oneeBytes), hv(onesString + eString), true));
@@ -1148,7 +1149,7 @@ class UInt256Test {
   @Test
   void testEquals() {
     UInt256 value = UInt256.ZERO;
-    assertEquals(Bytes32.leftPad(Bytes.of(0)), value);
+    assertEquals(MutableBytes.create(32), value);
   }
 
   @SuppressWarnings("UnusedMethod")

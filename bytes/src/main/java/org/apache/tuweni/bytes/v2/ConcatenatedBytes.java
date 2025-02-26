@@ -30,7 +30,7 @@ final class ConcatenatedBytes extends Bytes {
     int totalSize = 0;
 
     for (Bytes value : values) {
-      int size = value.size();
+      int size = value == null ? 0 : value.size();
       try {
         totalSize = Math.addExact(totalSize, size);
       } catch (ArithmeticException e) {
@@ -52,13 +52,15 @@ final class ConcatenatedBytes extends Bytes {
     }
 
     Bytes[] concatenated = new Bytes[count];
-    for (int i = 0; i < values.length; i++) {
-      if (values[i] instanceof ConcatenatedBytes concatenatedBytes) {
+    int i = 0;
+    for (Bytes value : values) {
+      if (value instanceof ConcatenatedBytes concatenatedBytes) {
         Bytes[] subvalues = concatenatedBytes.values;
         System.arraycopy(subvalues, 0, concatenated, i, subvalues.length);
         i += subvalues.length;
-      } else if (!values[i].isEmpty()) {
-        concatenated[i] = values[i];
+      } else if (value != null && !value.isEmpty()) {
+        concatenated[i] = value;
+        i++;
       }
     }
     return new ConcatenatedBytes(concatenated, totalSize);
@@ -231,7 +233,7 @@ final class ConcatenatedBytes extends Bytes {
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     byte[] bytesArray = new byte[size];
     int offset = 0;
     for (Bytes value : values) {
@@ -267,7 +269,7 @@ final class ConcatenatedBytes extends Bytes {
   //  }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       for (Bytes bytes : values) {
         for (int j = 0; j < bytes.size(); j++) {
@@ -278,7 +280,7 @@ final class ConcatenatedBytes extends Bytes {
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       for (Bytes bytes : values) {
         for (int j = 0; j < bytes.size(); j++) {
@@ -289,7 +291,7 @@ final class ConcatenatedBytes extends Bytes {
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       for (Bytes bytes : values) {
         for (int j = 0; j < bytes.size(); j++) {

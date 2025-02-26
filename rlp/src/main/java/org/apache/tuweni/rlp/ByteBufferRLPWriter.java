@@ -7,7 +7,7 @@ import static org.apache.tuweni.rlp.RLP.encodeByteArray;
 import static org.apache.tuweni.rlp.RLP.encodeLength;
 import static org.apache.tuweni.rlp.RLP.encodeNumber;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;

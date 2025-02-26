@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 import org.apache.tuweni.crypto.sodium.PasswordHash.Algorithm;
 import org.apache.tuweni.crypto.sodium.PasswordHash.Salt;
 import org.apache.tuweni.crypto.sodium.PasswordHash.VerificationResult;

@@ -13,8 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,9 +52,9 @@ class BoxTest {
 
   @Test
   void testObjectEquality() {
-    Box.PublicKey pk = Box.PublicKey.fromBytes(Bytes32.random());
+    Box.PublicKey pk = Box.PublicKey.fromBytes(Bytes.random(32));
     assertEquals(pk, pk);
-    Box.PublicKey pk2 = Box.PublicKey.fromBytes(Bytes32.random());
+    Box.PublicKey pk2 = Box.PublicKey.fromBytes(Bytes.random(32));
     assertNotEquals(pk, pk2);
     assertEquals(pk.hashCode(), pk.hashCode());
     assertNotEquals(pk.hashCode(), pk2.hashCode());
@@ -73,7 +72,7 @@ class BoxTest {
 
   @Test
   void toBytes() {
-    Bytes32 value = Bytes32.random();
+    Bytes value = Bytes.random(32);
     Box.PublicKey pk = Box.PublicKey.fromBytes(value);
     assertEquals(value, pk.bytes());
     assertArrayEquals(value.toArrayUnsafe(), pk.bytesArray());

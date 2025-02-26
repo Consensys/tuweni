@@ -5,7 +5,7 @@ package org.apache.tuweni.crypto.mikuli;
 import org.apache.milagro.amcl.BLS381.ECP;
 import org.apache.milagro.amcl.BLS381.ECP2;
 import org.apache.milagro.amcl.BLS381.MPIN;
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 /*
  * Adapted from the ConsenSys/mikuli (Apache 2 License) implementation:
@@ -54,7 +54,7 @@ public final class BLS12381 {
    * @return The SignatureAndPublicKey, not null
    */
   public static SignatureAndPublicKey sign(KeyPair keyPair, Bytes message, int domain) {
-    return sign(keyPair, message.toArray(), domain);
+    return sign(keyPair, message.toArrayUnsafe(), domain);
   }
 
   /**

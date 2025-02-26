@@ -89,24 +89,26 @@ class ByteBufferWrappingBytes extends Bytes {
 
   private byte[] toArray() {
     byte[] array = new byte[length];
-    byteBuffer.get(array, offset, length);
+    for (int i = 0; i < length; i++) {
+      array[i] = byteBuffer.get(i + offset);
+    }
     return array;
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     if (!byteBuffer.hasArray()) {
       return toArray();
     }
     byte[] array = byteBuffer.array();
-    if (array.length != length || byteBuffer.arrayOffset() != 0) {
+    if (byteBuffer.limit() != length || byteBuffer.arrayOffset() != offset) {
       return toArray();
     }
     return array;
   }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: There is a chance for implementing with SIMD - see toArrayUnsafe()
       bytesArray[offset + i] = (byte) (byteBuffer.get(this.offset + i) & bytesArray[offset + i]);
@@ -114,7 +116,7 @@ class ByteBufferWrappingBytes extends Bytes {
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: There is a chance for implementing with SIMD - see toArrayUnsafe()
       bytesArray[offset + i] = (byte) (byteBuffer.get(this.offset + i) | bytesArray[offset + i]);
@@ -122,7 +124,7 @@ class ByteBufferWrappingBytes extends Bytes {
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: There is a chance for implementing with SIMD - see toArrayUnsafe()
       bytesArray[offset + i] = (byte) (byteBuffer.get(this.offset + i) ^ bytesArray[offset + i]);

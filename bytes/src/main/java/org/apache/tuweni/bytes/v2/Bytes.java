@@ -1188,7 +1188,7 @@ public abstract class Bytes implements Comparable<Bytes> {
    * @return A byte array with the same content than this value, which may or may not be the direct
    *     backing of this value.
    */
-  abstract byte[] toArrayUnsafe();
+  public abstract byte[] toArrayUnsafe();
 
   /**
    * Provides this value represented as hexadecimal, starting with "0x".
@@ -1355,9 +1355,9 @@ public abstract class Bytes implements Comparable<Bytes> {
     return this;
   }
 
-  abstract void and(int offset, byte[] bytesArray);
+  protected abstract void and(int offset, byte[] bytesArray);
 
-  abstract void or(int offset, byte[] bytesArray);
+  protected abstract void or(int offset, byte[] bytesArray);
 
-  abstract void xor(int offset, byte[] bytesArray);
+  protected abstract void xor(int offset, byte[] bytesArray);
 }

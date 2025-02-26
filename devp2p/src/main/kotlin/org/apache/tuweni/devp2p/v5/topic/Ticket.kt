@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p.v5.topic
 
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.devp2p.v5.encrypt.AES128GCM
 import org.apache.tuweni.rlp.RLP
 import java.net.InetAddress
@@ -25,7 +25,7 @@ internal data class Ticket(
       return RLP.decodeList(content) { reader ->
         val topic = reader.readValue()
         val srcNodeId = reader.readValue()
-        val srcIp = InetAddress.getByAddress(reader.readValue().toArray())
+        val srcIp = InetAddress.getByAddress(reader.readValue().toArrayUnsafe())
         val requestTime = reader.readLong()
         val waitTime = reader.readLong()
         val cumTime = reader.readLong()

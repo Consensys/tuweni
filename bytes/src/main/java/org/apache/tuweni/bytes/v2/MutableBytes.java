@@ -293,7 +293,7 @@ public class MutableBytes extends Bytes {
    */
   public void set(int index, Bytes bytes) {
     checkNotNull(bytes);
-    checkElementIndex(index, bytes.size());
+    checkElementIndex(index, length);
     checkArgument(
         index + bytes.size() <= length,
         "Provided length %s is too big: the value has only %s bytes from offset %s",
@@ -302,6 +302,28 @@ public class MutableBytes extends Bytes {
         index);
     for (int i = 0; i < bytes.size(); i++) {
       set(i + index + offset, bytes.get(i));
+    }
+  }
+
+  /**
+   * Set a byte array in this value.
+   *
+   * @param index The offset of the bytes to set.
+   * @param bytes The value to set bytes to.
+   * @throws IndexOutOfBoundsException if {@code offset < 0} or {offset >= bytes.length}.
+   * @throws IllegalArgumentException if {@code offset + bytes.length > this.length}.
+   */
+  public void set(int index, byte[] bytes) {
+    checkNotNull(bytes);
+    checkElementIndex(index, length);
+    checkArgument(
+        index + bytes.length <= length,
+        "Provided length %s is too big: the value has only %s bytes from offset %s",
+        bytes.length,
+        length - index,
+        index);
+    for (int i = 0; i < bytes.length; i++) {
+      set(i + index + offset, bytes[i]);
     }
   }
 
@@ -450,7 +472,7 @@ public class MutableBytes extends Bytes {
   }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     for (int i = 0; i < this.length; i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] & bytesArray[offset + i]);
@@ -472,7 +494,7 @@ public class MutableBytes extends Bytes {
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     for (int i = 0; i < this.length; i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] | bytesArray[offset + i]);
@@ -494,7 +516,7 @@ public class MutableBytes extends Bytes {
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     for (int i = 0; i < this.length; i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] ^ bytesArray[offset + i]);
@@ -638,10 +660,9 @@ public class MutableBytes extends Bytes {
         this.length - offset,
         offset);
     if (length != this.length) {
-      this.offset += offset;
-      this.length = length;
+      offset += this.offset;
     }
-    return this;
+    return new MutableBytes(this.bytesArray, offset, length);
   }
 
   @Override
@@ -650,7 +671,7 @@ public class MutableBytes extends Bytes {
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     return bytesArray;
   }
 

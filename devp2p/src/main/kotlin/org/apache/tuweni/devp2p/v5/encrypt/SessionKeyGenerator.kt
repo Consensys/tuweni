@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p.v5.encrypt
 
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator
 import org.bouncycastle.crypto.params.HKDFParameters
@@ -24,7 +24,7 @@ internal object SessionKeyGenerator {
    * @param idNonce nonce used as salt
    */
   fun generate(srcNodeId: Bytes, destNodeId: Bytes, secret: Bytes, idNonce: Bytes): SessionKey {
-    val info = Bytes.concatenate(INFO_PREFIX, srcNodeId, destNodeId)
+    val info = Bytes.wrap(INFO_PREFIX, srcNodeId, destNodeId)
 
     val hkdf = HKDFBytesGenerator(SHA256Digest())
     val params = HKDFParameters(secret.toArrayUnsafe(), idNonce.toArrayUnsafe(), info.toArrayUnsafe())

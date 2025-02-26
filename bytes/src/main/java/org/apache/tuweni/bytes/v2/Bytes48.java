@@ -13,7 +13,7 @@ public final class Bytes48 extends DelegatingBytes {
   public static final int SIZE = 48;
 
   /** A {@code Bytes48} containing all zero bytes */
-  public static Bytes48 ZERO = repeat((byte) 0);
+  public static final Bytes48 ZERO = repeat((byte) 0);
 
   private Bytes48(Bytes delegate) {
     super(delegate, SIZE);

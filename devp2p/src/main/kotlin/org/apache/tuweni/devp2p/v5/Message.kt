@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p.v5
 
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.crypto.Hash
 
 /**
@@ -26,14 +25,14 @@ internal interface Message {
       return Hash.sha2_256(Bytes.wrap(dest, WHO_ARE_YOU))
     }
 
-    fun tag(src: Bytes32, dest: Bytes): Bytes32 {
+    fun tag(src: Bytes, dest: Bytes): Bytes {
       val encodedDestKey = Hash.sha2_256(dest)
-      return encodedDestKey.xor(src)
+      return encodedDestKey.mutableCopy().xor(src)
     }
 
     fun getSourceFromTag(tag: Bytes, dest: Bytes): Bytes {
       val encodedDestKey = Hash.sha2_256(dest)
-      return Bytes.wrap(encodedDestKey).xor(tag)
+      return encodedDestKey.mutableCopy().xor(tag)
     }
 
     fun requestId(): Bytes = Bytes.random(REQUEST_ID_LENGTH)

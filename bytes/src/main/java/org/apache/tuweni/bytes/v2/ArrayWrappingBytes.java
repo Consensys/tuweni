@@ -129,7 +129,7 @@ class ArrayWrappingBytes extends Bytes {
   }
 
   @Override
-  byte[] toArrayUnsafe() {
+  public byte[] toArrayUnsafe() {
     if (offset == 0 && length == bytes.length) {
       return bytes;
     }
@@ -137,7 +137,7 @@ class ArrayWrappingBytes extends Bytes {
   }
 
   @Override
-  void and(int offset, byte[] bytesArray) {
+  protected void and(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (bytes[this.offset + i] & bytesArray[offset + i]);
@@ -145,7 +145,7 @@ class ArrayWrappingBytes extends Bytes {
   }
 
   @Override
-  void or(int offset, byte[] bytesArray) {
+  protected void or(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (bytes[this.offset + i] | bytesArray[offset + i]);
@@ -153,7 +153,7 @@ class ArrayWrappingBytes extends Bytes {
   }
 
   @Override
-  void xor(int offset, byte[] bytesArray) {
+  protected void xor(int offset, byte[] bytesArray) {
     for (int i = 0; i < size(); i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (bytes[this.offset + i] ^ bytesArray[offset + i]);

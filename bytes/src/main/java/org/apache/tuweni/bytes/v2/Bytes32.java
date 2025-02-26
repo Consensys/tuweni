@@ -12,7 +12,7 @@ public final class Bytes32 extends DelegatingBytes {
   public static final int SIZE = 32;
 
   /** A {@code Bytes32} containing all zero bytes */
-  public Bytes32 ZERO = Bytes32.repeat((byte) 0);
+  public static final Bytes32 ZERO = Bytes32.repeat((byte) 0);
 
   private Bytes32(Bytes delegate) {
     super(delegate, SIZE);
