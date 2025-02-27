@@ -805,9 +805,7 @@ public abstract class Bytes implements Comparable<Bytes> {
     if (order == BIG_ENDIAN) {
       array = toArrayUnsafe();
     } else {
-      MutableBytes mutableBytes = mutableCopy();
-      mutableBytes.reverse();
-      array = mutableBytes.toArrayUnsafe();
+      array = MutableBytes.reverse(this).toArrayUnsafe();
     }
     return new BigInteger(array);
   }
@@ -834,9 +832,7 @@ public abstract class Bytes implements Comparable<Bytes> {
     if (order == BIG_ENDIAN) {
       array = toArrayUnsafe();
     } else {
-      MutableBytes mutableBytes = mutableCopy();
-      mutableBytes.reverse();
-      array = mutableBytes.toArrayUnsafe();
+      array = MutableBytes.reverse(this).toArrayUnsafe();
     }
     return new BigInteger(1, array);
   }

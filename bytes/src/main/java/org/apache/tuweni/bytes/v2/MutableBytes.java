@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
 
 /** A class for doing modifications on a {@link Bytes} value without modifying the original. */
-public class MutableBytes extends Bytes {
+public class MutableBytes {
 
   private byte[] bytesArray;
 
@@ -383,6 +383,25 @@ public class MutableBytes extends Bytes {
    * <p>If incrementing overflows the value then all bits flip, i.e. incrementing 0xFFFF will return
    * 0x0000.
    *
+   * <p>This is less efficient than {@code MutableBytes.increment()} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b value to increment.
+   * @return a new instance of Bytes that stores the new value incremented.
+   */
+  public static Bytes increment(Bytes b) {
+    MutableBytes mutableBytes = b.mutableCopy();
+    mutableBytes.increment();
+    return new ArrayWrappingBytes(mutableBytes.bytesArray);
+  }
+
+  /**
+   * Increments the value of the bytes by 1, treating the value as big endian.
+   *
+   * <p>If incrementing overflows the value then all bits flip, i.e. incrementing 0xFFFF will return
+   * 0x0000.
+   *
    * @return This mutable bytes instance.
    */
   public MutableBytes increment() {
@@ -396,6 +415,25 @@ public class MutableBytes extends Bytes {
       }
     }
     return this;
+  }
+
+  /**
+   * Decrements the value of the bytes by 1, treating the value as big endian.
+   *
+   * <p>If decrementing overflows the value then all bits flip, i.e. decrementing 0xFFFF will return
+   * 0x0000.
+   *
+   * <p>This is less efficient than {@code MutableBytes.decrement()} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b value to decrement.
+   * @return a new instance of Bytes that stores the new value decremented.
+   */
+  public static Bytes decrement(Bytes b) {
+    MutableBytes mutableBytes = b.mutableCopy();
+    mutableBytes.decrement();
+    return new ArrayWrappingBytes(mutableBytes.bytesArray);
   }
 
   /**
@@ -422,6 +460,23 @@ public class MutableBytes extends Bytes {
   /**
    * Fill all the bytes of this value with the specified byte.
    *
+   * <p>This is less efficient than {@code MutableBytes.fill(byte b)} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param bytes value to fill with the byte.
+   * @param b value used to fill the Bytes value.
+   * @return a new instance of Bytes that stores the new value.
+   */
+  public static Bytes fill(Bytes bytes, byte b) {
+    MutableBytes mutableBytes = bytes.mutableCopy();
+    mutableBytes.fill(b);
+    return new ArrayWrappingBytes(mutableBytes.bytesArray);
+  }
+
+  /**
+   * Fill all the bytes of this value with the specified byte.
+   *
    * @param b The byte to use to fill the value.
    * @return This mutable bytes instance.
    */
@@ -435,11 +490,41 @@ public class MutableBytes extends Bytes {
   /**
    * Set all bytes in this value to 0.
    *
+   * <p>This is less efficient than {@code MutableBytes.clear()} as it does not create new objects
+   * for computation and should be preferred when more than one computation is done in sequence.
+   *
+   * @param b Bytes value to be cleared.
+   * @return a new instance of Bytes that stores the new value.
+   */
+  public static Bytes clear(Bytes b) {
+    MutableBytes mutableBytes = b.mutableCopy();
+    mutableBytes.clear();
+    return new ArrayWrappingBytes(mutableBytes.bytesArray);
+  }
+
+  /**
+   * Set all bytes in this value to 0.
+   *
    * @return This mutable bytes instance.
    */
   public MutableBytes clear() {
     fill((byte) 0);
     return this;
+  }
+
+  /**
+   * Set all bytes in this value to 0.
+   *
+   * <p>This is less efficient than {@code MutableBytes.revert()} as it does not create new objects
+   * for computation and should be preferred when more than one computation is done in sequence.
+   *
+   * @param b Bytes value to be reverted.
+   * @return a new instance of Bytes that stores the new value.
+   */
+  public static Bytes reverse(Bytes b) {
+    MutableBytes mutableBytes = b.mutableCopy();
+    mutableBytes.clear();
+    return new ArrayWrappingBytes(mutableBytes.bytesArray);
   }
 
   /**
@@ -458,6 +543,23 @@ public class MutableBytes extends Bytes {
   }
 
   /**
+   * Calculate a bit-wise AND between two Bytes values and return the result.
+   *
+   * <p>This is less efficient than {@code MutableBytes.or(Bytes b)} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b1 first operand of the compute.
+   * @param b2 second operand of the compute.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes and(Bytes b1, Bytes b2) {
+    MutableBytes resultBytes = b1.mutableCopy();
+    resultBytes.and(b2);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
+  }
+
+  /**
    * Calculate a bit-wise AND of these bytes and the supplied bytes.
    *
    * @param other The bytes to perform the operation with.
@@ -471,12 +573,21 @@ public class MutableBytes extends Bytes {
     return this;
   }
 
-  @Override
-  protected void and(int offset, byte[] bytesArray) {
-    for (int i = 0; i < this.length; i++) {
-      // TODO: Speed this up with SIMD
-      bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] & bytesArray[offset + i]);
-    }
+  /**
+   * Calculate a bit-wise OR between two Bytes values and return the result.
+   *
+   * <p>This is less efficient than {@code MutableBytes.or(Bytes b)} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b1 first operand of the compute.
+   * @param b2 second operand of the compute.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes or(Bytes b1, Bytes b2) {
+    MutableBytes resultBytes = b1.mutableCopy();
+    resultBytes.or(b2);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
   }
 
   /**
@@ -493,12 +604,21 @@ public class MutableBytes extends Bytes {
     return this;
   }
 
-  @Override
-  protected void or(int offset, byte[] bytesArray) {
-    for (int i = 0; i < this.length; i++) {
-      // TODO: Speed this up with SIMD
-      bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] | bytesArray[offset + i]);
-    }
+  /**
+   * Calculate a bit-wise XOR between two Bytes values and return the result.
+   *
+   * <p>This is less efficient than {@code MutableBytes.xor(Bytes b)} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b1 first operand of the compute.
+   * @param b2 second operand of the compute.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes xor(Bytes b1, Bytes b2) {
+    MutableBytes resultBytes = b1.mutableCopy();
+    resultBytes.xor(b2);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
   }
 
   /**
@@ -515,12 +635,20 @@ public class MutableBytes extends Bytes {
     return this;
   }
 
-  @Override
-  protected void xor(int offset, byte[] bytesArray) {
-    for (int i = 0; i < this.length; i++) {
-      // TODO: Speed this up with SIMD
-      bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] ^ bytesArray[offset + i]);
-    }
+  /**
+   * Calculate a bit-wise NOT between two Bytes values and return the result.
+   *
+   * <p>This is less efficient than {@code MutableBytes.or(Bytes b)} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b Bytes value to compute the not operation.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes not(Bytes b) {
+    MutableBytes resultBytes = b.mutableCopy();
+    resultBytes.not();
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
   }
 
   /**
@@ -533,6 +661,22 @@ public class MutableBytes extends Bytes {
       bytesArray[i] = (byte) ~bytesArray[i];
     }
     return this;
+  }
+
+  /**
+   * Shift all bits of a given Bytes value to the right by {@code distance} bits.
+   *
+   * <p>This is less efficient than {@code MutableBytes.shiftRight(int distance)} as it does not
+   * create new objects for computation and should be preferred when more than one computation is
+   * done in sequence.
+   *
+   * @param b Bytes value to shift bytes.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes shiftRight(Bytes b, int distance) {
+    MutableBytes resultBytes = b.mutableCopy();
+    resultBytes.shiftRight(distance);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
   }
 
   /**
@@ -570,6 +714,22 @@ public class MutableBytes extends Bytes {
   }
 
   /**
+   * Shift all bits of a given Bytes value to the left by {@code distance} bits.
+   *
+   * <p>This is less efficient than {@code MutableBytes.shiftLeft(int distance)} as it does not
+   * create new objects for computation and should be preferred when more than one computation is
+   * done in sequence.
+   *
+   * @param b Bytes value to shift bytes.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes shiftLeft(Bytes b, int distance) {
+    MutableBytes resultBytes = b.mutableCopy();
+    resultBytes.shiftLeft(distance);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
+  }
+
+  /**
    * Shift all bits in this value to the left.
    *
    * @param distance The number of bits to shift by.
@@ -604,6 +764,24 @@ public class MutableBytes extends Bytes {
   }
 
   /**
+   * Left pad some Bytes value with zero bytes up to the specified size. Resulting Bytes are
+   * guaranteed to have at least {@code size} bytes in length but not necessarily that exact amount.
+   * If length already exceeds {@code size} then bytes are not modified.
+   *
+   * <p>This is less efficient than {@code MutableBytes.leftPad(int size)} as it does not create new
+   * objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b Bytes value to pad.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes leftPad(Bytes b, int size) {
+    MutableBytes resultBytes = b.mutableCopy();
+    resultBytes.leftPad(size);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
+  }
+
+  /**
    * Left pad these mutable values with zero bytes up to the specified size. Resulting bytes are
    * guaranteed to have at least {@code size} bytes in length but not necessarily that exact amount.
    * If length already exceeds {@code size} then bytes are not modified.
@@ -623,6 +801,24 @@ public class MutableBytes extends Bytes {
     offset = 0;
     length = size;
     return this;
+  }
+
+  /**
+   * Right pad some Bytes value with zero bytes up to the specified size. Resulting Bytes are
+   * guaranteed to have at least {@code size} bytes in length but not necessarily that exact amount.
+   * If length already exceeds {@code size} then bytes are not modified.
+   *
+   * <p>This is less efficient than {@code MutableBytes.rightPad(int size)} as it does not create
+   * new objects for computation and should be preferred when more than one computation is done in
+   * sequence.
+   *
+   * @param b Bytes value to pad.
+   * @return a new instance of Bytes that stores the result of the compute.
+   */
+  public static Bytes rightPad(Bytes b, int size) {
+    MutableBytes resultBytes = b.mutableCopy();
+    resultBytes.rightPad(size);
+    return new ArrayWrappingBytes(resultBytes.bytesArray);
   }
 
   /**
@@ -647,8 +843,7 @@ public class MutableBytes extends Bytes {
     return this;
   }
 
-  @Override
-  public Bytes slice(int offset, int length) {
+  public MutableBytes slice(int offset, int length) {
     checkArgument(length >= 0, "Invalid negative length");
     if (this.length > 0) {
       checkElementIndex(offset, this.length);
@@ -665,22 +860,11 @@ public class MutableBytes extends Bytes {
     return new MutableBytes(this.bytesArray, offset, length);
   }
 
-  @Override
-  public MutableBytes mutableCopy() {
-    return this;
-  }
-
-  @Override
-  public byte[] toArrayUnsafe() {
-    return bytesArray;
-  }
-
   /**
    * Provides the number of bytes this value represents.
    *
    * @return The number of bytes this value represents.
    */
-  @Override
   public int size() {
     return length;
   }
@@ -696,7 +880,13 @@ public class MutableBytes extends Bytes {
     bytesArray[offset + i] = b;
   }
 
-  @Override
+  /**
+   * Gets a byte at the given index.
+   *
+   * @param i The index of the byte to get.
+   * @throws IndexOutOfBoundsException if {@code i < 0} or {i >= size()}.
+   * @return The byte at the given index.
+   */
   public byte get(int i) {
     return bytesArray[offset + i];
   }
@@ -715,7 +905,7 @@ public class MutableBytes extends Bytes {
     if (obj == this) {
       return true;
     }
-    if (!(obj instanceof Bytes other)) {
+    if (!(obj instanceof MutableBytes other)) {
       return false;
     }
 
@@ -730,5 +920,23 @@ public class MutableBytes extends Bytes {
     }
 
     return true;
+  }
+
+  /**
+   * Extract the bytes of this value into a byte array.
+   *
+   * @return A byte array with the same content than this value.
+   */
+  public byte[] toArray() {
+    return bytesArray;
+  }
+
+  /**
+   * Turn these mutable bytes into an immutable reference.
+   *
+   * @return an instance of Bytes
+   */
+  public Bytes toBytes() {
+    return new ArrayWrappingBytes(bytesArray, offset, length);
   }
 }

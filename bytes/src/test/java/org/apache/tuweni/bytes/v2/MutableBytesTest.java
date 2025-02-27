@@ -19,45 +19,47 @@ class MutableBytesTest {
   @Test
   void testMutableBytesWrap() {
     MutableBytes b = MutableBytes.fromArray(Bytes.fromHexString("deadbeef").toArrayUnsafe(), 1, 3);
-    assertEquals(Bytes.fromHexString("adbeef"), b);
+    assertEquals(Bytes.fromHexString("adbeef").mutableCopy(), b);
   }
 
   @Test
   void testClear() {
-    MutableBytes b = MutableBytes.fromArray(Bytes.fromHexString("deadbeef").toArrayUnsafe());
-    assertEquals(Bytes.fromHexString("00000000"), b.clear());
+    Bytes b = Bytes.fromHexString("deadbeef");
+    assertEquals(Bytes.fromHexString("00000000"), MutableBytes.clear(b));
   }
 
   @Test
   void testFill() {
-    MutableBytes b = MutableBytes.create(2);
-    assertEquals(Bytes.fromHexString("0x2222"), b.fill((byte) 34));
+    Bytes b = Bytes.wrap(new byte[2]);
+    assertEquals(Bytes.fromHexString("0x2222"), MutableBytes.fill(b, (byte) 34));
   }
 
   @Test
   void testDecrementAndIncrement() {
-    MutableBytes b = MutableBytes.create(2);
-    assertEquals(Bytes.fromHexString("0x0001"), b.increment());
-    assertEquals(Bytes.fromHexString("0x0000"), b.decrement());
+    Bytes b = Bytes.wrap(new byte[2]);
+    MutableBytes mutable_b = b.mutableCopy();
+    assertEquals(Bytes.fromHexString("0x0001").mutableCopy(), mutable_b.increment());
+    assertEquals(Bytes.fromHexString("0x0000").mutableCopy(), mutable_b.decrement());
 
-    assertEquals(Bytes.fromHexString("0xFFFE"), b.fill((byte) 0xFF).decrement());
+    assertEquals(
+        Bytes.fromHexString("0xFFFE"), b.mutableCopy().fill((byte) 0xFF).decrement().toBytes());
 
-    b = MutableBytes.fromArray(Bytes.fromHexString("0x00FF").toArrayUnsafe());
-    assertEquals(Bytes.fromHexString("0x0100"), b.increment());
+    b = Bytes.fromHexString("0x00FF");
+    assertEquals(Bytes.fromHexString("0x0100"), MutableBytes.increment(b));
   }
 
   @Test
   void setLong() {
     MutableBytes b = MutableBytes.create(8);
     b.setLong(0, 256);
-    assertEquals(Bytes.fromHexString("0x0000000000000100"), b);
+    assertEquals(Bytes.fromHexString("0x0000000000000100"), b.toBytes());
   }
 
   @Test
   void setInt() {
     MutableBytes b = MutableBytes.create(4);
     b.setInt(0, 256);
-    assertEquals(Bytes.fromHexString("0x00000100"), b);
+    assertEquals(Bytes.fromHexString("0x00000100"), b.toBytes());
   }
 
   @Test
@@ -150,8 +152,8 @@ class MutableBytesTest {
     "0xAA55, 0x0552, 5",
   })
   void shiftRight(String bytesValue, String expected, int shiftBits) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
-    assertEquals(Bytes.fromHexString(expected), value.shiftRight(shiftBits));
+    Bytes value = Bytes.fromHexString(bytesValue);
+    assertEquals(Bytes.fromHexString(expected), MutableBytes.shiftRight(value, shiftBits));
   }
 
   @ParameterizedTest
@@ -177,8 +179,8 @@ class MutableBytesTest {
     "0xAA, 0x40, 5"
   })
   void shiftLeft(String bytesValue, String expected, int shiftBits) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
-    assertEquals(Bytes.fromHexString(expected), value.shiftLeft(shiftBits));
+    Bytes value = Bytes.fromHexString(bytesValue);
+    assertEquals(Bytes.fromHexString(expected), MutableBytes.shiftLeft(value, shiftBits));
   }
 
   @ParameterizedTest
@@ -196,8 +198,8 @@ class MutableBytesTest {
     "0x123456789ABCDEF0, 0x123456789ABCDEF0, 4"
   })
   void leftPad(String bytesValue, String expected, int size) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
-    assertEquals(Bytes.fromHexString(expected), value.leftPad(size));
+    Bytes value = Bytes.fromHexString(bytesValue);
+    assertEquals(Bytes.fromHexString(expected), MutableBytes.leftPad(value, size));
   }
 
   @ParameterizedTest
@@ -215,7 +217,7 @@ class MutableBytesTest {
     "0x123456789ABCDEF0, 0x123456789ABCDEF0, 4"
   })
   void rightPad(String bytesValue, String expected, int size) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
-    assertEquals(Bytes.fromHexString(expected), value.rightPad(size));
+    Bytes value = Bytes.fromHexString(bytesValue);
+    assertEquals(Bytes.fromHexString(expected), MutableBytes.rightPad(value, size));
   }
 }
