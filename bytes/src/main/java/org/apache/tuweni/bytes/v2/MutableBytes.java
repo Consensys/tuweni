@@ -523,7 +523,7 @@ public class MutableBytes {
    */
   public static Bytes reverse(Bytes b) {
     MutableBytes mutableBytes = b.mutableCopy();
-    mutableBytes.clear();
+    mutableBytes.reverse();
     return new ArrayWrappingBytes(mutableBytes.bytesArray);
   }
 
@@ -569,7 +569,7 @@ public class MutableBytes {
   public MutableBytes and(Bytes other) {
     checkNotNull(other);
     checkArgument(other.size() == length, "size %s does not match size %s", other.size(), length);
-    other.and(offset, bytesArray);
+    other.and(bytesArray, offset, length);
     return this;
   }
 
@@ -600,7 +600,7 @@ public class MutableBytes {
   public MutableBytes or(Bytes other) {
     checkNotNull(other);
     checkArgument(other.size() == length, "size %s does not match size %s", other.size(), length);
-    other.or(offset, bytesArray);
+    other.or(bytesArray, offset, length);
     return this;
   }
 
@@ -618,7 +618,7 @@ public class MutableBytes {
   public static Bytes xor(Bytes b1, Bytes b2) {
     MutableBytes resultBytes = b1.mutableCopy();
     resultBytes.xor(b2);
-    return new ArrayWrappingBytes(resultBytes.bytesArray);
+    return new ArrayWrappingBytes(resultBytes.bytesArray, resultBytes.offset, resultBytes.length);
   }
 
   /**
@@ -631,7 +631,7 @@ public class MutableBytes {
   public MutableBytes xor(Bytes other) {
     checkNotNull(other);
     checkArgument(other.size() == length, "size %s does not match size %s", other.size(), length);
-    other.xor(offset, bytesArray);
+    other.xor(bytesArray, offset, length);
     return this;
   }
 
@@ -938,5 +938,20 @@ public class MutableBytes {
    */
   public Bytes toBytes() {
     return new ArrayWrappingBytes(bytesArray, offset, length);
+  }
+
+  /**
+   * Parse a hexadecimal string into a {@link MutableBytes} value.
+   *
+   * <p>This method requires that {@code str} have an even length.
+   *
+   * @param str The hexadecimal string to parse, which may or may not start with "0x".
+   * @return The value corresponding to {@code str}.
+   * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
+   *     representation, or is of an odd length.
+   */
+  public static MutableBytes fromHexString(CharSequence str) {
+    checkNotNull(str);
+    return MutableBytes.fromArray(BytesValues.fromRawHexString(str, -1, false));
   }
 }

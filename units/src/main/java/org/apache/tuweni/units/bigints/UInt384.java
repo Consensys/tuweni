@@ -18,10 +18,10 @@ import java.util.Arrays;
 public final class UInt384 extends Bytes {
   private static final int MAX_CONSTANT = 64;
   private static final BigInteger BI_MAX_CONSTANT = BigInteger.valueOf(MAX_CONSTANT);
-  private static UInt384[] CONSTANTS = new UInt384[MAX_CONSTANT + 1];
+  private static final UInt384[] CONSTANTS = new UInt384[MAX_CONSTANT + 1];
 
   static {
-    CONSTANTS[0] = new UInt384(MutableBytes.create(48));
+    CONSTANTS[0] = new UInt384(Bytes48.ZERO);
     for (int i = 1; i <= MAX_CONSTANT; ++i) {
       CONSTANTS[i] = new UInt384(i);
     }
@@ -31,7 +31,7 @@ public final class UInt384 extends Bytes {
   public static final UInt384 MIN_VALUE = valueOf(0);
 
   /** The maximum value of a UInt384 */
-  public static final UInt384 MAX_VALUE = new UInt384(MutableBytes.create(48).not());
+  public static final UInt384 MAX_VALUE = new UInt384(MutableBytes.not(Bytes48.ZERO));
 
   /** The value 0 */
   public static final UInt384 ZERO = valueOf(0);
@@ -98,7 +98,7 @@ public final class UInt384 extends Bytes {
    * @throws IllegalArgumentException if {@code bytes.size() > 48}.
    */
   public static UInt384 fromBytes(Bytes bytes) {
-    return new UInt384(bytes.mutableCopy().leftPad(48));
+    return new UInt384(MutableBytes.leftPad(bytes, 48));
   }
 
   /**
@@ -611,12 +611,14 @@ public final class UInt384 extends Bytes {
 
   @Override
   public byte[] toArrayUnsafe() {
-    byte[] byteArray = new byte[INTS_SIZE];
+    byte[] byteArray = new byte[size()];
+    int j = 0;
     for (int i = 0; i < INTS_SIZE; i++) {
-      byteArray[i] = (byte) (ints[i] >> 24);
-      byteArray[i + 1] = (byte) (ints[i] >> 16);
-      byteArray[i + 2] = (byte) (ints[i] >> 8);
-      byteArray[i + 3] = (byte) ints[i];
+      byteArray[j] = (byte) (ints[i] >> 24);
+      byteArray[j + 1] = (byte) (ints[i] >> 16);
+      byteArray[j + 2] = (byte) (ints[i] >> 8);
+      byteArray[j + 3] = (byte) ints[i];
+      j += 4;
     }
     return byteArray;
   }
@@ -711,13 +713,25 @@ public final class UInt384 extends Bytes {
   }
 
   @Override
-  protected void and(int offset, byte[] bytesArray) {}
+  protected void and(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) & bytesArray[offset + i]);
+    }
+  }
 
   @Override
-  protected void or(int offset, byte[] bytesArray) {}
+  protected void or(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) | bytesArray[offset + i]);
+    }
+  }
 
   @Override
-  protected void xor(int offset, byte[] bytesArray) {}
+  protected void xor(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) ^ bytesArray[offset + i]);
+    }
+  }
 
   @Override
   public BigInteger toBigInteger() {
@@ -736,11 +750,7 @@ public final class UInt384 extends Bytes {
   }
 
   public Bytes toBytes() {
-    MutableBytes bytes = MutableBytes.create(48);
-    for (int i = 0, j = 0; i < INTS_SIZE; ++i, j += 4) {
-      bytes.setInt(j, this.ints[i]);
-    }
-    return bytes;
+    return Bytes.wrap(toArrayUnsafe());
   }
 
   public Bytes toMinimalBytes() {
@@ -772,7 +782,7 @@ public final class UInt384 extends Bytes {
     for (; i < INTS_SIZE; ++i, j += 4) {
       bytes.setInt(j, this.ints[i]);
     }
-    return bytes;
+    return bytes.toBytes();
   }
 
   @Override

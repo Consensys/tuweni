@@ -208,7 +208,7 @@ class EthereumNodeRecord(
       sigBytes.set(32, UInt256.valueOf(signature.s()))
 
       val completeEncoding = RLP.encodeList { writer ->
-        writer.writeValue(sigBytes)
+        writer.writeValue(sigBytes.toBytes())
         encode(signatureKeyPair, seq, ip, tcp, udp, data, listData, writer)
       }
       return completeEncoding

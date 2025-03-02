@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,6 @@ class HMACSHA512Test {
     Bytes authenticator = HMACSHA512.authenticate(Bytes.fromHexString("deadbeef"), key);
     assertFalse(
         HMACSHA512.verify(
-            authenticator.mutableCopy().reverse(), Bytes.fromHexString("deadbeef"), key));
+            MutableBytes.reverse(authenticator), Bytes.fromHexString("deadbeef"), key));
   }
 }

@@ -380,9 +380,9 @@ class BytesSSZWriterTest {
             "0x6C000000200000000000000000000000000000000000000000000000000000000000000000626F6220000000000000000000000000000000000000000000000000000000000000006A616E65200000000000000000000000000000000000000000000000000000000000006A616E6574"),
         SSZ.encodeBytesList(
             Arrays.asList(
-                Bytes.wrap("bob".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32),
-                Bytes.wrap("jane".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32),
-                Bytes.wrap("janet".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32))));
+                Bytes.wrap("bob".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32).toBytes(),
+                Bytes.wrap("jane".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32).toBytes(),
+                Bytes.wrap("janet".getBytes(Charsets.UTF_8)).mutableCopy().leftPad(32).toBytes())));
   }
 
   @Test

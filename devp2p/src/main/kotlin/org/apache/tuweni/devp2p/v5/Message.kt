@@ -3,6 +3,7 @@
 package org.apache.tuweni.devp2p.v5
 
 import org.apache.tuweni.bytes.v2.Bytes
+import org.apache.tuweni.bytes.v2.MutableBytes
 import org.apache.tuweni.crypto.Hash
 
 /**
@@ -27,12 +28,12 @@ internal interface Message {
 
     fun tag(src: Bytes, dest: Bytes): Bytes {
       val encodedDestKey = Hash.sha2_256(dest)
-      return encodedDestKey.mutableCopy().xor(src)
+      return MutableBytes.xor(encodedDestKey, src)
     }
 
     fun getSourceFromTag(tag: Bytes, dest: Bytes): Bytes {
       val encodedDestKey = Hash.sha2_256(dest)
-      return encodedDestKey.mutableCopy().xor(tag)
+      return MutableBytes.xor(encodedDestKey, tag)
     }
 
     fun requestId(): Bytes = Bytes.random(REQUEST_ID_LENGTH)
