@@ -178,17 +178,6 @@ public class DelegatingBytes extends Bytes {
     return delegate.slice(i);
   }
 
-  //  TODO: Finish MutableBytes
-  //  @Override
-  //  public void copyTo(MutableBytes destination) {
-  //    delegate.copyTo(destination);
-  //  }
-  //
-  //  @Override
-  //  public void copyTo(MutableBytes destination, int destinationOffset) {
-  //    delegate.copyTo(destination, destinationOffset);
-  //  }
-
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
     delegate.appendTo(byteBuffer);

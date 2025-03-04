@@ -89,30 +89,6 @@ class ArrayWrappingBytes extends Bytes {
     digest.update(bytes, offset, length);
   }
 
-  //  TODO: Finish MutableBytes
-  //  @Override
-  //  public void copyTo(MutableBytes destination, int destinationOffset) {
-  //    if (!(destination instanceof MutableArrayWrappingBytes d)) {
-  //      super.copyTo(destination, destinationOffset);
-  //      return;
-  //    }
-  //
-  //    int size = size();
-  //    if (size == 0) {
-  //      return;
-  //    }
-  //
-  //    checkElementIndex(destinationOffset, destination.size());
-  //    checkArgument(
-  //        destination.size() - destinationOffset >= size,
-  //        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-  //        size,
-  //        destination.size() - destinationOffset,
-  //        destinationOffset);
-  //
-  //      System.arraycopy(bytes, offset, d.bytes, d.offset + destinationOffset, size);
-  //  }
-
   @Override
   public void appendTo(ByteBuffer byteBuffer) {
     byteBuffer.put(bytes, offset, length);
