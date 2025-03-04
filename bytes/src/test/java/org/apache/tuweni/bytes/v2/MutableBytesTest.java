@@ -13,7 +13,6 @@ import io.vertx.core.buffer.Buffer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.Csv;
 
 class MutableBytesTest {
 
@@ -233,17 +232,18 @@ class MutableBytesTest {
 
   @ParameterizedTest
   @CsvSource({
-          "0x0F, 0xF0",
-          "0xA5, 0x5A",
-          "0xFF, 0x00",
-          "0xAA, 0x55",
-          "0x, 0x",
-          "0x123456, 0xEDCBA9",
-          "0xABCDEF, 0x543210",
-          "DEADBEEF, 21524110",
-          "0x000000, 0xFFFFFF",
-          "0x0100, 0xFEFF",
-          "0x01000001, 0xfefffffe"})
+    "0x0F, 0xF0",
+    "0xA5, 0x5A",
+    "0xFF, 0x00",
+    "0xAA, 0x55",
+    "0x, 0x",
+    "0x123456, 0xEDCBA9",
+    "0xABCDEF, 0x543210",
+    "DEADBEEF, 21524110",
+    "0x000000, 0xFFFFFF",
+    "0x0100, 0xFEFF",
+    "0x01000001, 0xfefffffe"
+  })
   void not(String bytesValue, String expectedBytes) {
     MutableBytes value = MutableBytes.fromHexString(bytesValue).not();
     assertEquals(MutableBytes.fromHexString(expectedBytes), value);
@@ -251,37 +251,32 @@ class MutableBytesTest {
 
   @ParameterizedTest
   @CsvSource({
-          "0x0F, 0xF0, 0x00",
-          "0xA5, 0x5A, 0x00",
-          "0xFF, 0xFF, 0xFF",
-          "0x00, 0x00, 0x00",
-          "0xAA, 0x55, 0x00",
-          "0x, 0x, 0x",
-          "0x123456, 0x654321, 0x000000",
-          "0xABCDEF, 0x123456, 0x020446",
-          "0xDEADBEEF, 0xCAFEBABE, 0xCAACBAAE",
-          "0x01000001, 0x01000000, 0x01000000"})
+    "0x0F, 0xF0, 0x00",
+    "0xA5, 0x5A, 0x00",
+    "0xFF, 0xFF, 0xFF",
+    "0x00, 0x00, 0x00",
+    "0xAA, 0x55, 0x00",
+    "0x, 0x, 0x",
+    "0x123456, 0x654321, 0x000000",
+    "0xABCDEF, 0x123456, 0x020446",
+    "0xDEADBEEF, 0xCAFEBABE, 0xCAACBAAE",
+    "0x01000001, 0x01000000, 0x01000000"
+  })
   void and(String bytes1, String bytes2, String expectedResult) {
     MutableBytes value = MutableBytes.fromHexString(bytes1).and(Bytes.fromHexString(bytes2));
     assertEquals(Bytes.fromHexString(expectedResult), value.toBytes());
   }
 
   @ParameterizedTest
-  @CsvSource({
-          "0x0F, 0xF0F0",
-          "0xF0F0, 0x0F",
-          "0xFF, 0x",
-          "0x, 0xFF"})
+  @CsvSource({"0x0F, 0xF0F0", "0xF0F0, 0x0F", "0xFF, 0x", "0x, 0xFF"})
   void andWithDifferentSize(String bytes1, String bytes2) {
-    assertThrows(IllegalArgumentException.class,
-            () -> MutableBytes.fromHexString(bytes1).and(Bytes.fromHexString(bytes2)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> MutableBytes.fromHexString(bytes1).and(Bytes.fromHexString(bytes2)));
   }
 
   @ParameterizedTest
-  @CsvSource({
-          "0x010FF001, 0x11, 0x01",
-          "0x0100F001, 0x11, 0x00",
-          "0x01ACF001, 0xFF, 0xAC"})
+  @CsvSource({"0x010FF001, 0x11, 0x01", "0x0100F001, 0x11, 0x00", "0x01ACF001, 0xFF, 0xAC"})
   void andWithOffset(String bytes1, String bytes2, String expectedResult) {
     MutableBytes bytesValue = MutableBytes.fromHexString(bytes1);
     Bytes bytes2Value = Bytes.fromHexString(bytes2);
@@ -291,37 +286,32 @@ class MutableBytesTest {
 
   @ParameterizedTest
   @CsvSource({
-          "0x0F, 0xF0, 0xFF",
-          "0xA5, 0x5A, 0xFF",
-          "0xFF, 0xFF, 0xFF",
-          "0x00, 0x00, 0x00",
-          "0xAA, 0x55, 0xFF",
-          "0x, 0x, 0x",
-          "0x123456, 0x654321, 0x777777",
-          "0xABCDEF, 0x123456, 0xBBFDFF",
-          "0xDEADBEEF, 0xCAFEBABE, 0xDEFFBEFF",
-          "0x01000001, 0x01000000, 0x01000001"})
+    "0x0F, 0xF0, 0xFF",
+    "0xA5, 0x5A, 0xFF",
+    "0xFF, 0xFF, 0xFF",
+    "0x00, 0x00, 0x00",
+    "0xAA, 0x55, 0xFF",
+    "0x, 0x, 0x",
+    "0x123456, 0x654321, 0x777777",
+    "0xABCDEF, 0x123456, 0xBBFDFF",
+    "0xDEADBEEF, 0xCAFEBABE, 0xDEFFBEFF",
+    "0x01000001, 0x01000000, 0x01000001"
+  })
   void or(String bytes1, String bytes2, String expectedResult) {
     MutableBytes value = MutableBytes.fromHexString(bytes1).or(Bytes.fromHexString(bytes2));
     assertEquals(Bytes.fromHexString(expectedResult), value.toBytes());
   }
 
   @ParameterizedTest
-  @CsvSource({
-          "0x0F, 0xF0F0",
-          "0xF0F0, 0x0F",
-          "0xFF, 0x",
-          "0x, 0xFF"})
+  @CsvSource({"0x0F, 0xF0F0", "0xF0F0, 0x0F", "0xFF, 0x", "0x, 0xFF"})
   void orWithDifferentSize(String bytes1, String bytes2) {
-    assertThrows(IllegalArgumentException.class,
-            () -> MutableBytes.fromHexString(bytes1).or(Bytes.fromHexString(bytes2)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> MutableBytes.fromHexString(bytes1).or(Bytes.fromHexString(bytes2)));
   }
 
   @ParameterizedTest
-  @CsvSource({
-          "0x010FF001, 0x11, 0x1F",
-          "0x0100F001, 0x11, 0x11",
-          "0x01ACF001, 0xFF, 0xFF"})
+  @CsvSource({"0x010FF001, 0x11, 0x1F", "0x0100F001, 0x11, 0x11", "0x01ACF001, 0xFF, 0xFF"})
   void orWithOffset(String bytes1, String bytes2, String expectedResult) {
     MutableBytes bytesValue = MutableBytes.fromHexString(bytes1);
     Bytes bytes2Value = Bytes.fromHexString(bytes2);
@@ -331,37 +321,32 @@ class MutableBytesTest {
 
   @ParameterizedTest
   @CsvSource({
-          "0x0F, 0xF0, 0xFF",
-          "0xA5, 0x5A, 0xFF",
-          "0xFF, 0xFF, 0x00",
-          "0x00, 0x00, 0x00",
-          "0xAA, 0x55, 0xFF",
-          "0x, 0x, 0x",
-          "0x123456, 0x654321, 0x777777",
-          "0xABCDEF, 0x123456, 0xB9F9B9",
-          "0xDEADBEEF, 0xCAFEBABE, 0x14530451",
-          "0x01000001, 0x01000000, 0x00000001"})
+    "0x0F, 0xF0, 0xFF",
+    "0xA5, 0x5A, 0xFF",
+    "0xFF, 0xFF, 0x00",
+    "0x00, 0x00, 0x00",
+    "0xAA, 0x55, 0xFF",
+    "0x, 0x, 0x",
+    "0x123456, 0x654321, 0x777777",
+    "0xABCDEF, 0x123456, 0xB9F9B9",
+    "0xDEADBEEF, 0xCAFEBABE, 0x14530451",
+    "0x01000001, 0x01000000, 0x00000001"
+  })
   void xor(String bytes1, String bytes2, String expectedResult) {
     MutableBytes value = MutableBytes.fromHexString(bytes1).xor(Bytes.fromHexString(bytes2));
     assertEquals(Bytes.fromHexString(expectedResult), value.toBytes());
   }
 
   @ParameterizedTest
-  @CsvSource({
-          "0x0F, 0xF0F0",
-          "0xF0F0, 0x0F",
-          "0xFF, 0x",
-          "0x, 0xFF"})
+  @CsvSource({"0x0F, 0xF0F0", "0xF0F0, 0x0F", "0xFF, 0x", "0x, 0xFF"})
   void xorWithDifferentSize(String bytes1, String bytes2) {
-    assertThrows(IllegalArgumentException.class,
-            () -> MutableBytes.fromHexString(bytes1).xor(Bytes.fromHexString(bytes2)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> MutableBytes.fromHexString(bytes1).xor(Bytes.fromHexString(bytes2)));
   }
 
   @ParameterizedTest
-  @CsvSource({
-          "0x010FF001, 0x11, 0x1E",
-          "0x0100F001, 0x11, 0x11",
-          "0x01ACF001, 0xFF, 0x53"})
+  @CsvSource({"0x010FF001, 0x11, 0x1E", "0x0100F001, 0x11, 0x11", "0x01ACF001, 0xFF, 0x53"})
   void xorWithOffset(String bytes1, String bytes2, String expectedResult) {
     MutableBytes bytesValue = MutableBytes.fromHexString(bytes1);
     Bytes bytes2Value = Bytes.fromHexString(bytes2);
