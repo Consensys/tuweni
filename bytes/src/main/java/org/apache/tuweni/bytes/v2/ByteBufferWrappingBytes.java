@@ -76,10 +76,9 @@ class ByteBufferWrappingBytes extends Bytes {
     return new ByteBufferWrappingBytes(byteBuffer, offset + i, length);
   }
 
-  //  TODO: Finish MutableBytes
   @Override
   public MutableBytes mutableCopy() {
-    return null;
+    return MutableBytes.fromByteBuffer(byteBuffer, offset, length);
   }
 
   @Override

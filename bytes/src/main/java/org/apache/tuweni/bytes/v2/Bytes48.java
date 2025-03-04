@@ -61,7 +61,7 @@ public final class Bytes48 extends DelegatingBytes {
    */
   public static Bytes48 wrap(byte[] bytes, int offset) {
     checkNotNull(bytes);
-    return new Bytes48(new ArrayWrappingBytes(bytes, offset, SIZE));
+    return new Bytes48(new ArrayWrappingBytes(bytes, offset, bytes.length));
   }
 
   /**
@@ -103,7 +103,7 @@ public final class Bytes48 extends DelegatingBytes {
     if (slice instanceof Bytes48 bytes48) {
       return bytes48;
     }
-    return new Bytes48(value.getImpl());
+    return new Bytes48(slice.getImpl());
   }
 
   /**

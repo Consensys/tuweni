@@ -854,8 +854,8 @@ public class MutableBytes {
         length,
         this.length - offset,
         offset);
-    if (length != this.length) {
-      offset += this.offset;
+    if (length == this.length) {
+      return this;
     }
     return new MutableBytes(this.bytesArray, offset, length);
   }
@@ -909,12 +909,12 @@ public class MutableBytes {
       return false;
     }
 
-    if (this.size() != other.size()) {
+    if (this.length != other.length) {
       return false;
     }
 
     for (int i = 0; i < length; i++) {
-      if (bytesArray[i + offset] != other.get(i)) {
+      if (bytesArray[i + offset] != other.bytesArray[i + offset]) {
         return false;
       }
     }

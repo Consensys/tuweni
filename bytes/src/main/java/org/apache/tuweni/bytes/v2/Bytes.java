@@ -33,7 +33,6 @@ import io.vertx.core.buffer.Buffer;
 public abstract class Bytes implements Comparable<Bytes> {
 
   public static final String HEX_CODE_AS_STRING = "0123456789abcdef";
-  public static final char[] HEX_CODE = HEX_CODE_AS_STRING.toCharArray();
 
   /** The empty value (with 0 bytes). */
   public static Bytes EMPTY = wrap(new byte[0]);
@@ -1005,61 +1004,6 @@ public abstract class Bytes implements Comparable<Bytes> {
    *     <b>not</b> modify this value.
    */
   public abstract MutableBytes mutableCopy();
-
-  //  /**
-  //   * Copy the bytes of this value to the provided mutable one, which must have the same size.
-  //   *
-  //   * @param destination The mutable value to which to copy the bytes to, which must have the
-  // same
-  //   *     size as this value. If you want to copy value where size differs, you should use {@link
-  //   *     #slice} and/or {@link MutableBytes#mutableSlice} and apply the copy to the result.
-  //   * @throws IllegalArgumentException if {@code this.size() != destination.size()}.
-  //   */
-  //  public void copyTo(MutableBytes destination) {
-  //    checkNotNull(destination);
-  //    checkArgument(
-  //        destination.size() == size(),
-  //        "Cannot copy %s bytes to destination of non-equal size %s",
-  //        size(),
-  //        destination.size());
-  //    copyTo(destination, 0);
-  //  }
-  //
-  //  /**
-  //   * Copy the bytes of this value to the provided mutable one from a particular offset.
-  //   *
-  //   * <p>This is a (potentially slightly more efficient) shortcut for {@code
-  //   * copyTo(destination.mutableSlice(destinationOffset, this.size()))}.
-  //   *
-  //   * @param destination The mutable value to which to copy the bytes to, which must have enough
-  //   *     bytes from {@code destinationOffset} for the copied value.
-  //   * @param destinationOffset The offset in {@code destination} at which the copy starts.
-  //   * @throws IllegalArgumentException if the destination doesn't have enough room, that is if
-  // {@code
-  //   *     this.size() > (destination.size() - destinationOffset)}.
-  //   */
-  //  public void copyTo(MutableBytes destination, int destinationOffset) {
-  //    checkNotNull(destination);
-  //
-  //    // Special casing an empty source or the following checks might throw (even though we have
-  //    // nothing to copy anyway) and this gets inconvenient for generic methods using copyTo() as
-  //    // they may have to special case empty values because of this. As an example,
-  //    // concatenate(EMPTY, EMPTY) would need to be special cased without this.
-  //    int size = size();
-  //    if (size == 0) {
-  //      return;
-  //    }
-  //
-  //    checkElementIndex(destinationOffset, destination.size());
-  //    checkArgument(
-  //        destination.size() - destinationOffset >= size,
-  //        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-  //        size,
-  //        destination.size() - destinationOffset,
-  //        destinationOffset);
-  //
-  //    destination.set(destinationOffset, this);
-  //  }
 
   /**
    * Append the bytes of this value to the {@link ByteBuffer}.
