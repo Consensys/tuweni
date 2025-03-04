@@ -4,7 +4,7 @@ package org.apache.tuweni.devp2p.v5
 
 import io.vertx.core.net.SocketAddress
 import kotlinx.coroutines.CoroutineScope
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.concurrent.AsyncResult
 import org.apache.tuweni.concurrent.CompletableAsyncResult
 import org.apache.tuweni.crypto.Hash
@@ -34,7 +34,7 @@ internal class HandshakeSession(
   private val connected: CompletableAsyncResult<SessionKey> = AsyncResult.incomplete()
   var receivedEnr: EthereumNodeRecord? = null
   val nodeId = EthereumNodeRecord.nodeId(keyPair.publicKey())
-  private val whoAreYouHeader = Hash.sha2_256(Bytes.concatenate(nodeId, Bytes.wrap("WHOAREYOU".toByteArray())))
+  private val whoAreYouHeader = Hash.sha2_256(Bytes.wrap(nodeId, Bytes.wrap("WHOAREYOU".toByteArray())))
 
   private val tokens = ArrayList<Bytes>()
 
@@ -47,7 +47,7 @@ internal class HandshakeSession(
     tokens.add(message.authTag)
     val tag = tag()
     val rlpAuthTag = RLP.encodeValue(message.authTag)
-    val content = Bytes.concatenate(tag, rlpAuthTag, message.toRLP())
+    val content = Bytes.wrap(tag, rlpAuthTag, message.toRLP())
     logger.trace("Sending random packet {} {}", address, content)
     sendFn(address, content)
     return connected
@@ -84,12 +84,12 @@ internal class HandshakeSession(
 
       // Derive keys
       val newSession = SessionKeyGenerator.generate(nodeId, destNodeId, secret, message.idNonce)
-      val signValue = Bytes.concatenate(DISCOVERY_ID_NONCE, message.idNonce, ephemeralKeyPair.publicKey().bytes())
+      val signValue = Bytes.wrap(DISCOVERY_ID_NONCE, message.idNonce, ephemeralKeyPair.publicKey().bytes())
       val signature = SECP256K1.signHashed(Hash.sha2_256(signValue), keyPair)
       val plain = RLP.encodeList { writer ->
         writer.writeInt(5)
         writer.writeValue(
-          Bytes.concatenate(
+          Bytes.wrap(
             UInt256.valueOf(signature.r()).toBytes(),
             UInt256.valueOf(signature.s()).toBytes(),
           ),
@@ -105,10 +105,10 @@ internal class HandshakeSession(
       val encryptedMessage = AES128GCM.encrypt(
         newSession.initiatorKey,
         authTag,
-        Bytes.concatenate(Bytes.of(MessageType.FINDNODE.byte()), findNode.toRLP()),
+        Bytes.wrap(Bytes.of(MessageType.FINDNODE.byte()), findNode.toRLP()),
         newTag,
       )
-      val response = Bytes.concatenate(
+      val response = Bytes.wrap(
         newTag,
         RLP.encodeList {
           it.writeValue(authTag)
@@ -160,7 +160,7 @@ internal class HandshakeSession(
         val peerNodeId = Message.getSourceFromTag(tag, nodeId)
         logger.trace("Found peerNodeId $peerNodeId")
         // Build a WHOAREYOU message with the tag of the random message.
-        val whoAreYouTag = Hash.sha2_256(Bytes.concatenate(peerNodeId, Bytes.wrap("WHOAREYOU".toByteArray())))
+        val whoAreYouTag = Hash.sha2_256(Bytes.wrap(peerNodeId, Bytes.wrap("WHOAREYOU".toByteArray())))
         val response = WhoAreYouMessage(whoAreYouTag, token, Message.idNonce(), enr().seq())
         this.tokens.add(token)
         logger.trace("Sending WHOAREYOU to {}", address)
@@ -181,7 +181,7 @@ internal class HandshakeSession(
       signatureBytes.slice(32).toUnsignedBigInteger(),
     )
 
-    val signValue = Bytes.concatenate(DISCOVERY_ID_NONCE, idNonce, ephemeralPublicKey.bytes())
+    val signValue = Bytes.wrap(DISCOVERY_ID_NONCE, idNonce, ephemeralPublicKey.bytes())
     val hashedSignValue = Hash.sha2_256(signValue)
     if (!SECP256K1.verifyHashed(hashedSignValue, signature, publicKey)) {
       val signature0 = SECP256K1.Signature.create(

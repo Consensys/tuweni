@@ -3,11 +3,10 @@
 package org.apache.tuweni.rlp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.tuweni.bytes.Bytes.fromHexString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 import org.apache.tuweni.units.bigints.UInt256;
 
 import java.math.BigInteger;
@@ -27,7 +26,7 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeInt(value));
     buffer.flip();
-    assertEquals(fromHexString(expectedHex), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString(expectedHex), Bytes.wrapByteBuffer(buffer));
   }
 
   @Test
@@ -35,7 +34,7 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeLong(100000L));
     buffer.flip();
-    assertEquals(fromHexString("830186a0"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString("830186a0"), Bytes.wrapByteBuffer(buffer));
   }
 
   @Test
@@ -43,7 +42,7 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeUInt256(UInt256.valueOf(100000L)));
     buffer.flip();
-    assertEquals(fromHexString("830186a0"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString("830186a0"), Bytes.wrapByteBuffer(buffer));
 
     buffer.clear();
     RLP.encodeTo(
@@ -54,7 +53,7 @@ class ByteBufferWriterTest {
                     "0x0400000000000000000000000000000000000000000000000000f100000000ab")));
     buffer.flip();
     assertEquals(
-        fromHexString("a00400000000000000000000000000000000000000000000000000f100000000ab"),
+        Bytes.fromHexString("a00400000000000000000000000000000000000000000000000000f100000000ab"),
         Bytes.wrapByteBuffer(buffer));
   }
 
@@ -63,12 +62,13 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeBigInteger(BigInteger.valueOf(100000)));
     buffer.flip();
-    assertEquals(fromHexString("830186a0"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString("830186a0"), Bytes.wrapByteBuffer(buffer));
 
     buffer.clear();
     RLP.encodeTo(buffer, writer -> writer.writeBigInteger(BigInteger.valueOf(127).pow(16)));
     buffer.flip();
-    assertEquals(fromHexString("8ee1ceefa5bbd9ed1c97f17a1df801"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(
+        Bytes.fromHexString("8ee1ceefa5bbd9ed1c97f17a1df801"), Bytes.wrapByteBuffer(buffer));
   }
 
   @Test
@@ -76,7 +76,7 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeString(""));
     buffer.flip();
-    assertEquals(fromHexString("80"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString("80"), Bytes.wrapByteBuffer(buffer));
   }
 
   @Test
@@ -84,7 +84,7 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeString("d"));
     buffer.flip();
-    assertEquals(fromHexString("64"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString("64"), Bytes.wrapByteBuffer(buffer));
   }
 
   @Test
@@ -92,7 +92,7 @@ class ByteBufferWriterTest {
     ByteBuffer buffer = ByteBuffer.allocate(64);
     RLP.encodeTo(buffer, writer -> writer.writeString("dog"));
     buffer.flip();
-    assertEquals(fromHexString("83646f67"), Bytes.wrapByteBuffer(buffer));
+    assertEquals(Bytes.fromHexString("83646f67"), Bytes.wrapByteBuffer(buffer));
   }
 
   @Test
@@ -106,7 +106,7 @@ class ByteBufferWriterTest {
     buffer.flip();
 
     assertEquals(
-        fromHexString(
+        Bytes.fromHexString(
             "f784617364668471776572847a78637684617364668471776572847a"
                 + "78637684617364668471776572847a78637684617364668471776572"),
         Bytes.wrapByteBuffer(buffer));

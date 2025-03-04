@@ -8,7 +8,7 @@ import io.vertx.core.net.SocketAddress
 import io.vertx.kotlin.coroutines.coAwait
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.concurrent.AsyncResult
 import org.apache.tuweni.concurrent.CompletableAsyncResult
 import org.apache.tuweni.concurrent.coroutines.await

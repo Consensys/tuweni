@@ -22,10 +22,6 @@ import java.nio.ByteOrder;
  *
  * <p>Where only a pure numerical 256-bit value is required, {@link UInt256} should be used.
  *
- * <p>It is strongly advised to extend {@link BaseUInt256Value} rather than implementing this
- * interface directly. Doing so provides type safety in that quantities of different units cannot be
- * mixed accidentally.
- *
  * @param <T> The concrete type of the value.
  */
 public interface UInt256Value<T extends UInt256Value<T>> extends Bytes32 {

@@ -13,7 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.concurrent.AsyncCompletion
 import org.apache.tuweni.concurrent.AsyncResult
 import org.apache.tuweni.concurrent.ExpiringMap
@@ -171,7 +171,7 @@ internal class DefaultDiscoveryV5Service(
   private val sessions = ConcurrentHashMap<SocketAddress, Session>()
   private val started = AtomicBoolean(false)
   private val nodeId = EthereumNodeRecord.nodeId(keyPair.publicKey())
-  private val whoAreYouHeader = Hash.sha2_256(Bytes.concatenate(nodeId, Bytes.wrap("WHOAREYOU".toByteArray())))
+  private val whoAreYouHeader = Hash.sha2_256(Bytes.wrap(nodeId, Bytes.wrap("WHOAREYOU".toByteArray())))
 
   private lateinit var receiveJob: Job
 

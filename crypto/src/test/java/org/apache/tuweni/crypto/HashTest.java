@@ -5,7 +5,7 @@ package org.apache.tuweni.crypto;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 import org.apache.tuweni.junit.BouncyCastleExtension;
 
 import java.security.Provider;
@@ -27,13 +27,13 @@ class HashTest {
     assertEquals(Bytes.fromHexString(horseSha2), resultHorse);
 
     byte[] resultHorse2 = Hash.sha2_256("horse".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(horseSha2).toArray(), resultHorse2);
+    assertArrayEquals(Bytes.fromHexString(horseSha2).toArrayUnsafe(), resultHorse2);
 
     Bytes resultCow = Hash.sha2_256(Bytes.wrap("cow".getBytes(UTF_8)));
     assertEquals(Bytes.fromHexString(cowSha2), resultCow);
 
     byte[] resultCow2 = Hash.sha2_256("cow".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(cowSha2).toArray(), resultCow2);
+    assertArrayEquals(Bytes.fromHexString(cowSha2).toArrayUnsafe(), resultCow2);
   }
 
   @Test
@@ -47,13 +47,13 @@ class HashTest {
       assertEquals(Bytes.fromHexString(horseSha2), resultHorse);
 
       byte[] resultHorse2 = Hash.sha2_256("horse".getBytes(UTF_8));
-      assertArrayEquals(Bytes.fromHexString(horseSha2).toArray(), resultHorse2);
+      assertArrayEquals(Bytes.fromHexString(horseSha2).toArrayUnsafe(), resultHorse2);
 
       Bytes resultCow = Hash.sha2_256(Bytes.wrap("cow".getBytes(UTF_8)));
       assertEquals(Bytes.fromHexString(cowSha2), resultCow);
 
       byte[] resultCow2 = Hash.sha2_256("cow".getBytes(UTF_8));
-      assertArrayEquals(Bytes.fromHexString(cowSha2).toArray(), resultCow2);
+      assertArrayEquals(Bytes.fromHexString(cowSha2).toArrayUnsafe(), resultCow2);
     } finally {
       Hash.USE_SODIUM = true;
     }
@@ -68,13 +68,13 @@ class HashTest {
     assertEquals(Bytes.fromHexString(horseSha2), resultHorse);
 
     byte[] resultHorse2 = Hash.sha2_512_256("horse".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(horseSha2).toArray(), resultHorse2);
+    assertArrayEquals(Bytes.fromHexString(horseSha2).toArrayUnsafe(), resultHorse2);
 
     Bytes resultCow = Hash.sha2_512_256(Bytes.wrap("cow".getBytes(UTF_8)));
     assertEquals(Bytes.fromHexString(cowSha2), resultCow);
 
     byte[] resultCow2 = Hash.sha2_512_256("cow".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(cowSha2).toArray(), resultCow2);
+    assertArrayEquals(Bytes.fromHexString(cowSha2).toArrayUnsafe(), resultCow2);
   }
 
   @Test
@@ -86,13 +86,13 @@ class HashTest {
     assertEquals(Bytes.fromHexString(horseKeccak256), resultHorse);
 
     byte[] resultHorse2 = Hash.keccak256("horse".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(horseKeccak256).toArray(), resultHorse2);
+    assertArrayEquals(Bytes.fromHexString(horseKeccak256).toArrayUnsafe(), resultHorse2);
 
     Bytes resultCow = Hash.keccak256(Bytes.wrap("cow".getBytes(UTF_8)));
     assertEquals(Bytes.fromHexString(cowKeccak256), resultCow);
 
     byte[] resultCow2 = Hash.keccak256("cow".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(cowKeccak256).toArray(), resultCow2);
+    assertArrayEquals(Bytes.fromHexString(cowKeccak256).toArrayUnsafe(), resultCow2);
   }
 
   @Test
@@ -104,13 +104,13 @@ class HashTest {
     assertEquals(Bytes.fromHexString(horseSha3), resultHorse);
 
     byte[] resultHorse2 = Hash.sha3_256("horse".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(horseSha3).toArray(), resultHorse2);
+    assertArrayEquals(Bytes.fromHexString(horseSha3).toArrayUnsafe(), resultHorse2);
 
     Bytes resultCow = Hash.sha3_256(Bytes.wrap("cow".getBytes(UTF_8)));
     assertEquals(Bytes.fromHexString(cowSha3), resultCow);
 
     byte[] resultCow2 = Hash.sha3_256("cow".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(cowSha3).toArray(), resultCow2);
+    assertArrayEquals(Bytes.fromHexString(cowSha3).toArrayUnsafe(), resultCow2);
   }
 
   @Test
@@ -124,13 +124,13 @@ class HashTest {
     assertEquals(Bytes.fromHexString(horseSha3), resultHorse);
 
     byte[] resultHorse2 = Hash.sha3_512("horse".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(horseSha3).toArray(), resultHorse2);
+    assertArrayEquals(Bytes.fromHexString(horseSha3).toArrayUnsafe(), resultHorse2);
 
     Bytes resultCow = Hash.sha3_512(Bytes.wrap("cow".getBytes(UTF_8)));
     assertEquals(Bytes.fromHexString(cowSha3), resultCow);
 
     byte[] resultCow2 = Hash.sha3_512("cow".getBytes(UTF_8));
-    assertArrayEquals(Bytes.fromHexString(cowSha3).toArray(), resultCow2);
+    assertArrayEquals(Bytes.fromHexString(cowSha3).toArrayUnsafe(), resultCow2);
   }
 
   @Test

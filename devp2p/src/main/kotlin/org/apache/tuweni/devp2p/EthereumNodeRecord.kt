@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p
 
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
-import org.apache.tuweni.bytes.MutableBytes
+import org.apache.tuweni.bytes.v2.Bytes
+import org.apache.tuweni.bytes.v2.MutableBytes
 import org.apache.tuweni.crypto.Hash
 import org.apache.tuweni.crypto.SECP256K1
 import org.apache.tuweni.rlp.RLP
@@ -40,11 +39,11 @@ class EthereumNodeRecord(
      * @return the hash of the public key
      * @throws IllegalArgumentException if the public key is not valid.
      */
-    fun nodeId(publicKey: SECP256K1.PublicKey): Bytes32 {
+    fun nodeId(publicKey: SECP256K1.PublicKey): Bytes {
       val pt = publicKey.asEcPoint()
       val xPart = UInt256.valueOf(pt.xCoord.toBigInteger()).toBytes()
       val yPart = UInt256.valueOf(pt.yCoord.toBigInteger()).toBytes()
-      return Hash.keccak256(Bytes.concatenate(xPart, yPart))
+      return Hash.keccak256(Bytes.wrap(xPart, yPart))
     }
 
     /**
@@ -205,11 +204,11 @@ class EthereumNodeRecord(
       }
       val signature = SECP256K1.sign(encoded, signatureKeyPair)
       val sigBytes = MutableBytes.create(64)
-      UInt256.valueOf(signature.r()).toBytes().copyTo(sigBytes, 0)
-      UInt256.valueOf(signature.s()).toBytes().copyTo(sigBytes, 32)
+      sigBytes.set(0, UInt256.valueOf(signature.r()))
+      sigBytes.set(32, UInt256.valueOf(signature.s()))
 
       val completeEncoding = RLP.encodeList { writer ->
-        writer.writeValue(sigBytes)
+        writer.writeValue(sigBytes.toBytes())
         encode(signatureKeyPair, seq, ip, tcp, udp, data, listData, writer)
       }
       return completeEncoding

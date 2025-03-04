@@ -19,10 +19,6 @@ import java.math.BigInteger;
  *
  * <p>Where only a pure numerical 384-bit value is required, {@link UInt384} should be used.
  *
- * <p>It is strongly advised to extend {@link BaseUInt384Value} rather than implementing this
- * interface directly. Doing so provides type safety in that quantities of different units cannot be
- * mixed accidentally.
- *
  * @param <T> The concrete type of the value.
  */
 public interface UInt384Value<T extends UInt384Value<T>> extends Comparable<T> {
