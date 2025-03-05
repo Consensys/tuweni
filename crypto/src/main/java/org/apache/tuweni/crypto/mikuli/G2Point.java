@@ -4,7 +4,7 @@ package org.apache.tuweni.crypto.mikuli;
 
 import org.apache.milagro.amcl.BLS381.BIG;
 import org.apache.milagro.amcl.BLS381.ECP2;
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import java.util.Objects;
 
@@ -62,10 +62,9 @@ final class G2Point implements Group<G2Point> {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof G2Point)) {
+    if (!(obj instanceof G2Point other)) {
       return false;
     }
-    G2Point other = (G2Point) obj;
     return point.equals(other.point);
   }
 

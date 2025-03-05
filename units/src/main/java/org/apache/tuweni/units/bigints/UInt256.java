@@ -14,8 +14,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * An unsigned 256-bit precision number.
  *
- * <p>This is a raw {@link UInt256Value} - a 256-bit precision unsigned number of no particular
- * unit.
+ * <p>This is a raw 256-bit precision unsigned number of no particular unit.
  */
 public final class UInt256 extends Bytes {
   private static final int MAX_CONSTANT = 64;

@@ -12,8 +12,7 @@ import java.util.Arrays;
 /**
  * An unsigned 384-bit precision number.
  *
- * <p>This is a raw {@link UInt384Value} - a 384-bit precision unsigned number of no particular
- * unit.
+ * <p>This is a 384-bit precision unsigned number of no particular unit.
  */
 public final class UInt384 extends Bytes {
   private static final int MAX_CONSTANT = 64;
