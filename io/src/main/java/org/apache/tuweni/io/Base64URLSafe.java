@@ -5,7 +5,7 @@ package org.apache.tuweni.io;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 /** Utility methods for encoding and decoding base64 URL safe strings. */
 public final class Base64URLSafe {

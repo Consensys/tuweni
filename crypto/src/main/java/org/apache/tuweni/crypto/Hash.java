@@ -4,8 +4,7 @@ package org.apache.tuweni.crypto;
 
 import static java.util.Objects.requireNonNull;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
 import org.apache.tuweni.crypto.sodium.SHA256Hash;
 import org.apache.tuweni.crypto.sodium.Sodium;
 
@@ -126,13 +125,13 @@ public final class Hash {
    * @param input The input bytes to produce the digest for.
    * @return A digest.
    */
-  public static Bytes32 sha2_256(Bytes input) {
+  public static Bytes sha2_256(Bytes input) {
     if (isSodiumAvailable()) {
       SHA256Hash.Input shaInput = SHA256Hash.Input.fromBytes(input);
       try {
         SHA256Hash.Hash result = SHA256Hash.hash(shaInput);
         try {
-          return (Bytes32) SHA256Hash.hash(shaInput).bytes();
+          return SHA256Hash.hash(shaInput).bytes();
         } finally {
           result.destroy();
         }
@@ -141,7 +140,7 @@ public final class Hash {
       }
     }
     try {
-      return (Bytes32) digestUsingAlgorithm(input, SHA2_256);
+      return digestUsingAlgorithm(input, SHA2_256);
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("Algorithm should be available but was not", e);
     }
@@ -175,9 +174,9 @@ public final class Hash {
    * @param input The value to encode.
    * @return A digest.
    */
-  public static Bytes32 sha2_512_256(Bytes input) {
+  public static Bytes sha2_512_256(Bytes input) {
     try {
-      return (Bytes32) digestUsingAlgorithm(input, SHA2_512_256);
+      return digestUsingAlgorithm(input, SHA2_512_256);
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("Algorithm should be available but was not", e);
     }
@@ -203,9 +202,9 @@ public final class Hash {
    * @param input The input bytes to produce the digest for.
    * @return A digest.
    */
-  public static Bytes32 keccak256(Bytes input) {
+  public static Bytes keccak256(Bytes input) {
     try {
-      return (Bytes32) digestUsingAlgorithm(input, KECCAK_256);
+      return digestUsingAlgorithm(input, KECCAK_256);
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("Algorithm should be available but was not", e);
     }
@@ -259,9 +258,9 @@ public final class Hash {
    * @param input The value to encode.
    * @return A digest.
    */
-  public static Bytes32 sha3_256(Bytes input) {
+  public static Bytes sha3_256(Bytes input) {
     try {
-      return (Bytes32) digestUsingAlgorithm(input, SHA3_256);
+      return digestUsingAlgorithm(input, SHA3_256);
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("Algorithm should be available but was not", e);
     }

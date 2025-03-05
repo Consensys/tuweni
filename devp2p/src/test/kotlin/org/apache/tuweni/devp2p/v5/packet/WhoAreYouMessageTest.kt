@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p.v5.packet
 
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.devp2p.v5.WhoAreYouMessage
 import org.apache.tuweni.junit.BouncyCastleExtension
 import org.junit.jupiter.api.Test

@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p
 
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.crypto.SECP256K1
 import org.apache.tuweni.junit.BouncyCastleExtension
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,7 +18,7 @@ internal class PongPacketTest {
   fun shouldEncodeThenDecodePacket() {
     val keyPair = SECP256K1.KeyPair.random()
     val to = Endpoint("10.0.0.54", 6543, 6543)
-    val pingHash = Bytes32.random()
+    val pingHash = Bytes.random(32)
     val now = System.currentTimeMillis()
     val pong = PongPacket.create(keyPair, now, to, pingHash, null)
 
@@ -38,7 +37,7 @@ internal class PongPacketTest {
   fun shouldEncodeThenDecodePacketWithSeq() {
     val keyPair = SECP256K1.KeyPair.random()
     val to = Endpoint("10.0.0.54", 6543, 6543)
-    val pingHash = Bytes32.random()
+    val pingHash = Bytes.random(32)
     val now = System.currentTimeMillis()
     val pong = PongPacket.create(keyPair, now, to, pingHash, 32)
 

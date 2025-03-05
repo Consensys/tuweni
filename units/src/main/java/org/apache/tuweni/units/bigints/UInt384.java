@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.units.bigints;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes48;
-import org.apache.tuweni.bytes.MutableBytes;
-import org.apache.tuweni.bytes.MutableBytes48;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes48;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -13,13 +12,12 @@ import java.util.Arrays;
 /**
  * An unsigned 384-bit precision number.
  *
- * <p>This is a raw {@link UInt384Value} - a 384-bit precision unsigned number of no particular
- * unit.
+ * <p>This is a 384-bit precision unsigned number of no particular unit.
  */
-public final class UInt384 implements UInt384Value<UInt384> {
+public final class UInt384 extends Bytes {
   private static final int MAX_CONSTANT = 64;
   private static final BigInteger BI_MAX_CONSTANT = BigInteger.valueOf(MAX_CONSTANT);
-  private static UInt384[] CONSTANTS = new UInt384[MAX_CONSTANT + 1];
+  private static final UInt384[] CONSTANTS = new UInt384[MAX_CONSTANT + 1];
 
   static {
     CONSTANTS[0] = new UInt384(Bytes48.ZERO);
@@ -32,7 +30,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
   public static final UInt384 MIN_VALUE = valueOf(0);
 
   /** The maximum value of a UInt384 */
-  public static final UInt384 MAX_VALUE = new UInt384(Bytes48.ZERO.not());
+  public static final UInt384 MAX_VALUE = new UInt384(MutableBytes.not(Bytes48.ZERO));
 
   /** The value 0 */
   public static final UInt384 ZERO = valueOf(0);
@@ -99,7 +97,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
    * @throws IllegalArgumentException if {@code bytes.size() > 48}.
    */
   public static UInt384 fromBytes(Bytes bytes) {
-    return new UInt384(Bytes48.leftPad(bytes));
+    return new UInt384(MutableBytes.leftPad(bytes, 48));
   }
 
   /**
@@ -116,7 +114,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return new UInt384(Bytes48.fromHexStringLenient(str));
   }
 
-  private UInt384(Bytes48 bytes) {
+  private UInt384(Bytes bytes) {
     this.ints = new int[INTS_SIZE];
     for (int i = 0, j = 0; i < INTS_SIZE; ++i, j += 4) {
       ints[i] = bytes.getInt(j);
@@ -147,7 +145,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return true;
   }
 
-  @Override
   public UInt384 add(UInt384 value) {
     if (value.isZero()) {
       return this;
@@ -173,7 +170,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return new UInt384(result);
   }
 
-  @Override
   public UInt384 add(long value) {
     if (value == 0) {
       return this;
@@ -203,7 +199,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return new UInt384(result);
   }
 
-  @Override
   public UInt384 addMod(UInt384 value, UInt384 modulus) {
     if (modulus.isZero()) {
       throw new ArithmeticException("addMod with zero modulus");
@@ -211,7 +206,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return UInt384.valueOf(toBigInteger().add(value.toBigInteger()).mod(modulus.toBigInteger()));
   }
 
-  @Override
   public UInt384 addMod(long value, UInt384 modulus) {
     if (modulus.isZero()) {
       throw new ArithmeticException("addMod with zero modulus");
@@ -220,7 +214,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
         toBigInteger().add(BigInteger.valueOf(value)).mod(modulus.toBigInteger()));
   }
 
-  @Override
   public UInt384 addMod(long value, long modulus) {
     if (modulus == 0) {
       throw new ArithmeticException("addMod with zero modulus");
@@ -232,7 +225,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
         toBigInteger().add(BigInteger.valueOf(value)).mod(BigInteger.valueOf(modulus)));
   }
 
-  @Override
   public UInt384 subtract(UInt384 value) {
     if (value.isZero()) {
       return this;
@@ -257,12 +249,10 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return new UInt384(result);
   }
 
-  @Override
   public UInt384 subtract(long value) {
     return add(-value);
   }
 
-  @Override
   public UInt384 multiply(UInt384 value) {
     if (isZero() || value.isZero()) {
       return ZERO;
@@ -307,7 +297,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return new UInt384(Arrays.copyOfRange(result, INTS_SIZE, INTS_SIZE + INTS_SIZE));
   }
 
-  @Override
   public UInt384 multiply(long value) {
     if (value == 0 || isZero()) {
       return ZERO;
@@ -322,7 +311,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return multiply(this.ints, other.ints);
   }
 
-  @Override
   public UInt384 multiplyMod(UInt384 value, UInt384 modulus) {
     if (modulus.isZero()) {
       throw new ArithmeticException("multiplyMod with zero modulus");
@@ -337,7 +325,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
         toBigInteger().multiply(value.toBigInteger()).mod(modulus.toBigInteger()));
   }
 
-  @Override
   public UInt384 multiplyMod(long value, UInt384 modulus) {
     if (modulus.isZero()) {
       throw new ArithmeticException("multiplyMod with zero modulus");
@@ -355,7 +342,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
         toBigInteger().multiply(BigInteger.valueOf(value)).mod(modulus.toBigInteger()));
   }
 
-  @Override
   public UInt384 multiplyMod(long value, long modulus) {
     if (modulus == 0) {
       throw new ArithmeticException("multiplyMod with zero modulus");
@@ -376,7 +362,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
         toBigInteger().multiply(BigInteger.valueOf(value)).mod(BigInteger.valueOf(modulus)));
   }
 
-  @Override
   public UInt384 divide(UInt384 value) {
     if (value.isZero()) {
       throw new ArithmeticException("divide by zero");
@@ -387,7 +372,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return UInt384.valueOf(toBigInteger().divide(value.toBigInteger()));
   }
 
-  @Override
   public UInt384 divide(long value) {
     if (value == 0) {
       throw new ArithmeticException("divide by zero");
@@ -404,17 +388,14 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return UInt384.valueOf(toBigInteger().divide(BigInteger.valueOf(value)));
   }
 
-  @Override
   public UInt384 pow(UInt384 exponent) {
     return UInt384.valueOf(toBigInteger().modPow(exponent.toBigInteger(), P_2_384));
   }
 
-  @Override
   public UInt384 pow(long exponent) {
     return UInt384.valueOf(toBigInteger().modPow(BigInteger.valueOf(exponent), P_2_384));
   }
 
-  @Override
   public UInt384 mod(UInt384 modulus) {
     if (modulus.isZero()) {
       throw new ArithmeticException("mod by zero");
@@ -422,7 +403,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return UInt384.valueOf(toBigInteger().mod(modulus.toBigInteger()));
   }
 
-  @Override
   public UInt384 mod(long modulus) {
     if (modulus == 0) {
       throw new ArithmeticException("mod by zero");
@@ -467,7 +447,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
    * @param bytes the bytes to perform the operation with
    * @return the result of a bit-wise AND
    */
-  public UInt384 and(Bytes48 bytes) {
+  public UInt384 and(Bytes bytes) {
     int[] result = new int[INTS_SIZE];
     for (int i = INTS_SIZE - 1, j = 28; i >= 0; --i, j -= 4) {
       int other = ((int) bytes.get(j) & 0xFF) << 24;
@@ -499,7 +479,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
    * @param bytes the bytes to perform the operation with
    * @return the result of a bit-wise OR
    */
-  public UInt384 or(Bytes48 bytes) {
+  public UInt384 or(Bytes bytes) {
     int[] result = new int[INTS_SIZE];
     for (int i = INTS_SIZE - 1, j = 28; i >= 0; --i, j -= 4) {
       result[i] = this.ints[i] | (((int) bytes.get(j) & 0xFF) << 24);
@@ -530,7 +510,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
    * @param bytes the bytes to perform the operation with
    * @return the result of a bit-wise XOR
    */
-  public UInt384 xor(Bytes48 bytes) {
+  public UInt384 xor(Bytes bytes) {
     int[] result = new int[INTS_SIZE];
     for (int i = INTS_SIZE - 1, j = 28; i >= 0; --i, j -= 4) {
       result[i] = this.ints[i] ^ (((int) bytes.get(j) & 0xFF) << 24);
@@ -619,6 +599,30 @@ public final class UInt384 implements UInt384Value<UInt384> {
   }
 
   @Override
+  public Bytes slice(int i, int length) {
+    return toBytes().slice(i, length);
+  }
+
+  @Override
+  public MutableBytes mutableCopy() {
+    return MutableBytes.fromArray(toArrayUnsafe());
+  }
+
+  @Override
+  public byte[] toArrayUnsafe() {
+    byte[] byteArray = new byte[size()];
+    int j = 0;
+    for (int i = 0; i < INTS_SIZE; i++) {
+      byteArray[j] = (byte) (ints[i] >> 24);
+      byteArray[j + 1] = (byte) (ints[i] >> 16);
+      byteArray[j + 2] = (byte) (ints[i] >> 8);
+      byteArray[j + 3] = (byte) ints[i];
+      j += 4;
+    }
+    return byteArray;
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (object == this) {
       return true;
@@ -644,7 +648,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return result;
   }
 
-  @Override
   public int compareTo(UInt384 other) {
     for (int i = 0; i < INTS_SIZE; ++i) {
       int cmp = Long.compare(((long) this.ints[i]) & LONG_MASK, ((long) other.ints[i]) & LONG_MASK);
@@ -655,7 +658,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return 0;
   }
 
-  @Override
   public boolean fitsInt() {
     for (int i = 0; i < INTS_SIZE - 1; i++) {
       if (this.ints[i] != 0) {
@@ -666,7 +668,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return this.ints[INTS_SIZE - 1] >= 0;
   }
 
-  @Override
   public int intValue() {
     if (!fitsInt()) {
       throw new ArithmeticException("Value does not fit a 4 byte int");
@@ -674,7 +675,6 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return this.ints[INTS_SIZE - 1];
   }
 
-  @Override
   public boolean fitsLong() {
     for (int i = 0; i < INTS_SIZE - 2; i++) {
       if (this.ints[i] != 0) {
@@ -683,6 +683,18 @@ public final class UInt384 implements UInt384Value<UInt384> {
     }
     // Lastly, the left-most byte of the int must not start with a 1.
     return this.ints[INTS_SIZE - 2] >= 0;
+  }
+
+  @Override
+  public int size() {
+    return 48;
+  }
+
+  @Override
+  public byte get(int i) {
+    int whichInt = i / 4;
+    int whichIndex = 3 - i % 4;
+    return (byte) ((this.ints[whichInt] >> (8 * whichIndex)));
   }
 
   @Override
@@ -700,6 +712,27 @@ public final class UInt384 implements UInt384Value<UInt384> {
   }
 
   @Override
+  protected void and(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) & bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  protected void or(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) | bytesArray[offset + i]);
+    }
+  }
+
+  @Override
+  protected void xor(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) ^ bytesArray[offset + i]);
+    }
+  }
+
+  @Override
   public BigInteger toBigInteger() {
     byte[] mag = new byte[48];
     for (int i = 0, j = 0; i < INTS_SIZE; ++i) {
@@ -711,21 +744,14 @@ public final class UInt384 implements UInt384Value<UInt384> {
     return new BigInteger(1, mag);
   }
 
-  @Override
   public UInt384 toUInt384() {
     return this;
   }
 
-  @Override
-  public Bytes48 toBytes() {
-    MutableBytes48 bytes = MutableBytes48.create();
-    for (int i = 0, j = 0; i < INTS_SIZE; ++i, j += 4) {
-      bytes.setInt(j, this.ints[i]);
-    }
-    return bytes;
+  public Bytes toBytes() {
+    return Bytes.wrap(toArrayUnsafe());
   }
 
-  @Override
   public Bytes toMinimalBytes() {
     int i = 0;
     while (i < INTS_SIZE && this.ints[i] == 0) {
@@ -755,7 +781,7 @@ public final class UInt384 implements UInt384Value<UInt384> {
     for (; i < INTS_SIZE; ++i, j += 4) {
       bytes.setInt(j, this.ints[i]);
     }
-    return bytes;
+    return bytes.toBytes();
   }
 
   @Override
@@ -788,5 +814,74 @@ public final class UInt384 implements UInt384Value<UInt384> {
   private static int log2(long v) {
     assert v > 0;
     return 63 - Long.numberOfLeadingZeros(v);
+  }
+
+  /**
+   * Returns a value that is {@code (this + value)}.
+   *
+   * @param value the amount to be added to this value
+   * @return {@code this + value}
+   * @throws ArithmeticException if the result of the addition overflows
+   */
+  public UInt384 addExact(UInt384 value) {
+    UInt384 result = add(value);
+    if (compareTo(result) > 0) {
+      throw new ArithmeticException("UInt384 overflow");
+    }
+    return result;
+  }
+
+  /**
+   * Returns a value that is {@code (this + value)}.
+   *
+   * @param value the amount to be added to this value
+   * @return {@code this + value}
+   * @throws ArithmeticException if the result of the addition overflows
+   */
+  public UInt384 addExact(long value) {
+    UInt384 result = add(value);
+    if ((value > 0 && compareTo(result) > 0) || (value < 0 && compareTo(result) < 0)) {
+      throw new ArithmeticException("UInt384 overflow");
+    }
+    return result;
+  }
+
+  /**
+   * Returns a value that is {@code (this - value)}.
+   *
+   * @param value the amount to be subtracted to this value
+   * @return {@code this - value}
+   * @throws ArithmeticException if the result of the addition overflows
+   */
+  public UInt384 subtractExact(UInt384 value) {
+    UInt384 result = subtract(value);
+    if (compareTo(result) < 0) {
+      throw new ArithmeticException("UInt384 overflow");
+    }
+    return result;
+  }
+
+  /**
+   * Returns a value that is {@code (this - value)}.
+   *
+   * @param value the amount to be subtracted to this value
+   * @return {@code this - value}
+   * @throws ArithmeticException if the result of the addition overflows
+   */
+  public UInt384 subtractExact(long value) {
+    UInt384 result = subtract(value);
+    if ((value > 0 && compareTo(result) < 0) || (value < 0 && compareTo(result) > 0)) {
+      throw new ArithmeticException("UInt384 overflow");
+    }
+    return result;
+  }
+
+  /**
+   * Returns the decimal representation of this value as a String.
+   *
+   * @return the decimal representation of this value as a String.
+   */
+  public String toDecimalString() {
+    return toBigInteger().toString(10);
   }
 }

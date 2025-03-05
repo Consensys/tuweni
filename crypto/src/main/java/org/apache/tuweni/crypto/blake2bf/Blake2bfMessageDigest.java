@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.crypto.blake2bf;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.MutableBytes;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import java.nio.ByteOrder;
 
@@ -117,7 +117,7 @@ public class Blake2bfMessageDigest extends BCMessageDigest implements Cloneable 
       MutableBytes mutable = MutableBytes.create(buffer.size() + value.size());
       mutable.set(0, buffer);
       mutable.set(buffer.size(), value);
-      buffer = mutable;
+      buffer = mutable.toBytes();
     }
 
     /**

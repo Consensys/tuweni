@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.crypto.sodium;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import java.util.Objects;
 import javax.security.auth.Destroyable;
@@ -72,10 +72,9 @@ public final class KeyExchange {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof PublicKey)) {
+      if (!(obj instanceof PublicKey other)) {
         return false;
       }
-      PublicKey other = (PublicKey) obj;
       return other.value.equals(value);
     }
 
@@ -167,10 +166,9 @@ public final class KeyExchange {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof SecretKey)) {
+      if (!(obj instanceof SecretKey other)) {
         return false;
       }
-      SecretKey other = (SecretKey) obj;
       return other.value.equals(value);
     }
 
@@ -266,10 +264,9 @@ public final class KeyExchange {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof Seed)) {
+      if (!(obj instanceof Seed other)) {
         return false;
       }
-      Seed other = (Seed) obj;
       return other.value.equals(value);
     }
 
@@ -428,10 +425,9 @@ public final class KeyExchange {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof KeyPair)) {
+      if (!(obj instanceof KeyPair other)) {
         return false;
       }
-      KeyPair other = (KeyPair) obj;
       return this.publicKey.equals(other.publicKey) && this.secretKey.equals(other.secretKey);
     }
 
@@ -511,13 +507,12 @@ public final class KeyExchange {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof SessionKey)) {
+      if (!(obj instanceof SessionKey other)) {
         return false;
       }
       if (this.ptr == null) {
         throw new IllegalStateException("SessionKey has been destroyed");
       }
-      SessionKey other = (SessionKey) obj;
       return other.ptr != null && Sodium.sodium_memcmp(this.ptr, other.ptr, length) == 0;
     }
 
@@ -595,10 +590,9 @@ public final class KeyExchange {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof SessionKeyPair)) {
+      if (!(obj instanceof SessionKeyPair other)) {
         return false;
       }
-      SessionKeyPair other = (SessionKeyPair) obj;
       return this.rxKey.equals(other.rxKey) && this.txKey.equals(other.txKey);
     }
 

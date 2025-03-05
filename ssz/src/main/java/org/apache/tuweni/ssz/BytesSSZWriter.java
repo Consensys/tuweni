@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.ssz;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;

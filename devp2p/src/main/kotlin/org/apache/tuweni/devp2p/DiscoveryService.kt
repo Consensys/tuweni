@@ -21,8 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.concurrent.AsyncCompletion
 import org.apache.tuweni.concurrent.AsyncResult
 import org.apache.tuweni.concurrent.coroutines.asyncCompletion
@@ -314,8 +313,8 @@ internal class CoroutineDiscoveryService(
     CacheBuilder.newBuilder().expireAfterAccess(PEER_VERIFICATION_RETRY_DELAY_MS, TimeUnit.MILLISECONDS).build()
   private val requestingENRs: Cache<SocketAddress, ENRRequest> =
     CacheBuilder.newBuilder().expireAfterAccess(ENR_REQUEST_RETRY_DELAY_MS, TimeUnit.MILLISECONDS).build()
-  private val awaitingPongs = ConcurrentHashMap<Bytes32, EndpointVerification>()
-  private val awaitingENRs = ConcurrentHashMap<Bytes32, ENRRequest>()
+  private val awaitingPongs = ConcurrentHashMap<Bytes, EndpointVerification>()
+  private val awaitingENRs = ConcurrentHashMap<Bytes, ENRRequest>()
   private val findNodeStates: Cache<SECP256K1.PublicKey, FindNodeState> =
     CacheBuilder.newBuilder().expireAfterAccess(FIND_NODES_CACHE_EXPIRY, TimeUnit.MILLISECONDS)
       .removalListener<SECP256K1.PublicKey, FindNodeState> { it.value?.close() }

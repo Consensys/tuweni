@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p.v5
 
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.devp2p.EthereumNodeRecord
 import org.apache.tuweni.rlp.RLP
 import java.net.InetAddress
@@ -166,7 +166,7 @@ internal class WhoAreYouMessage(
   override fun type(): MessageType = MessageType.WHOAREYOU
 
   override fun toRLP(): Bytes {
-    return Bytes.concatenate(
+    return Bytes.wrap(
       magic,
       RLP.encodeList { w ->
         w.writeValue(token)
@@ -269,7 +269,7 @@ internal class PongMessage(
       return RLP.decodeList(content) { reader ->
         val requestId = reader.readValue()
         val enrSeq = reader.readLong()
-        val address = InetAddress.getByAddress(reader.readValue().toArray())
+        val address = InetAddress.getByAddress(reader.readValue().toArrayUnsafe())
         val recipientPort = reader.readInt()
         return@decodeList PongMessage(requestId, enrSeq, address.hostAddress, recipientPort)
       }

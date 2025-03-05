@@ -8,8 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -67,7 +66,7 @@ class DiffieHelmanTest {
 
   @Test
   void testFromBoxPubKey() {
-    Bytes bytes = Bytes32.random();
+    Bytes bytes = Bytes.random(32);
     Box.PublicKey pkey = Box.PublicKey.fromBytes(bytes);
     DiffieHelman.PublicKey dpk = DiffieHelman.PublicKey.forBoxPublicKey(pkey);
     assertEquals(bytes, dpk.bytes());
@@ -76,7 +75,7 @@ class DiffieHelmanTest {
 
   @Test
   void testEqualsPublicKeyFromBytes() {
-    Bytes bytes = Bytes32.random();
+    Bytes bytes = Bytes.random(32);
     DiffieHelman.PublicKey pkey = DiffieHelman.PublicKey.fromBytes(bytes);
     DiffieHelman.PublicKey pkey2 = DiffieHelman.PublicKey.fromBytes(bytes);
     assertEquals(pkey, pkey2);

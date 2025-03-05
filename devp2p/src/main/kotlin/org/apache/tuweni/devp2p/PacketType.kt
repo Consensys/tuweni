@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p
 
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.crypto.SECP256K1
 
 /**
@@ -19,7 +18,7 @@ internal enum class PacketType(
   PING(0x01) {
     override fun decode(
       payload: Bytes,
-      hash: Bytes32,
+      hash: Bytes,
       publicKey: SECP256K1.PublicKey,
       signature: SECP256K1.Signature,
     ) = PingPacket.decode(payload, hash, publicKey, signature) as Packet
@@ -31,7 +30,7 @@ internal enum class PacketType(
   PONG(0x02) {
     override fun decode(
       payload: Bytes,
-      hash: Bytes32,
+      hash: Bytes,
       publicKey: SECP256K1.PublicKey,
       signature: SECP256K1.Signature,
     ) = PongPacket.decode(payload, hash, publicKey, signature) as Packet
@@ -43,7 +42,7 @@ internal enum class PacketType(
   FIND_NODE(0x03) {
     override fun decode(
       payload: Bytes,
-      hash: Bytes32,
+      hash: Bytes,
       publicKey: SECP256K1.PublicKey,
       signature: SECP256K1.Signature,
     ) = FindNodePacket.decode(payload, hash, publicKey, signature) as Packet
@@ -55,7 +54,7 @@ internal enum class PacketType(
   NEIGHBORS(0x04) {
     override fun decode(
       payload: Bytes,
-      hash: Bytes32,
+      hash: Bytes,
       publicKey: SECP256K1.PublicKey,
       signature: SECP256K1.Signature,
     ) = NeighborsPacket.decode(payload, hash, publicKey, signature) as Packet
@@ -67,7 +66,7 @@ internal enum class PacketType(
   ENRREQUEST(0x05) {
     override fun decode(
       payload: Bytes,
-      hash: Bytes32,
+      hash: Bytes,
       publicKey: SECP256K1.PublicKey,
       signature: SECP256K1.Signature,
     ) = ENRRequestPacket.decode(payload, hash, publicKey, signature) as Packet
@@ -79,7 +78,7 @@ internal enum class PacketType(
   ENRRESPONSE(0x06) {
     override fun decode(
       payload: Bytes,
-      hash: Bytes32,
+      hash: Bytes,
       publicKey: SECP256K1.PublicKey,
       signature: SECP256K1.Signature,
     ) = ENRResponsePacket.decode(payload, hash, publicKey, signature) as Packet
@@ -109,7 +108,7 @@ internal enum class PacketType(
 
   abstract fun decode(
     payload: Bytes,
-    hash: Bytes32,
+    hash: Bytes,
     publicKey: SECP256K1.PublicKey,
     signature: SECP256K1.Signature,
   ): Packet
