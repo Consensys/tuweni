@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.bytes.v2;
 
-import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
-import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
+import static org.apache.tuweni.bytes.v2.Utils.checkArgument;
+import static org.apache.tuweni.bytes.v2.Utils.checkElementIndex;
 
 import java.security.MessageDigest;
 import java.util.List;

@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import com.google.errorprone.annotations.FormatMethod;
 
-class Checks {
+public final class Utils {
 
   static void checkNotNull(@Nullable Object object) {
     if (object == null) {
@@ -14,7 +14,7 @@ class Checks {
     }
   }
 
-  static void checkElementIndex(int index, int size) {
+  public static void checkElementIndex(int index, int size) {
     if (index < 0 || index >= size) {
       throw new IndexOutOfBoundsException("index is out of bounds");
     }

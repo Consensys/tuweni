@@ -3,9 +3,9 @@
 package org.apache.tuweni.bytes.v2;
 
 import static java.lang.String.format;
-import static org.apache.tuweni.bytes.v2.Checks.checkArgument;
-import static org.apache.tuweni.bytes.v2.Checks.checkElementIndex;
-import static org.apache.tuweni.bytes.v2.Checks.checkNotNull;
+import static org.apache.tuweni.bytes.v2.Utils.checkArgument;
+import static org.apache.tuweni.bytes.v2.Utils.checkElementIndex;
+import static org.apache.tuweni.bytes.v2.Utils.checkNotNull;
 
 import java.nio.ByteBuffer;
 

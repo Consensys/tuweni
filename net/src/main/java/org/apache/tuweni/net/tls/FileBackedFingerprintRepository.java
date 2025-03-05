@@ -6,7 +6,7 @@ import static java.nio.file.Files.createDirectories;
 import static org.apache.tuweni.io.file.Files.atomicReplace;
 import static org.apache.tuweni.io.file.Files.createFileIfMissing;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import java.io.IOException;
 import java.nio.file.Files;

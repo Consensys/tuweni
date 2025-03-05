@@ -5,7 +5,7 @@ package org.apache.tuweni.crypto.mikuli;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.milagro.amcl.BLS381.FP12;
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import org.junit.jupiter.api.Test;
 
