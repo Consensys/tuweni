@@ -7,7 +7,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 import org.apache.tuweni.bytes.v2.Bytes;
-import org.apache.tuweni.bytes.v2.MutableBytes;
 import org.apache.tuweni.crypto.Hash;
 import org.apache.tuweni.units.bigints.UInt256;
 import org.apache.tuweni.units.bigints.UInt384;
@@ -43,11 +42,11 @@ public final class SSZ {
       if (bytes[0].size() > 32) {
         return Hash.keccak256(bytes[0]);
       } else {
-        return MutableBytes.rightPad(bytes[0], 32);
+        return bytes[0].mutableCopy().rightPad(32);
       }
     } else {
       Bytes hash = merkleHash(new ArrayList<>(Arrays.asList(bytes)));
-      return MutableBytes.rightPad(hash, 32);
+      return hash.mutableCopy().rightPad(32);
     }
   }
 
@@ -59,7 +58,7 @@ public final class SSZ {
    */
   static Bytes merkleHash(List<Bytes> values) {
     Bytes littleEndianLength = Bytes.ofUnsignedInt(values.size(), LITTLE_ENDIAN);
-    Bytes valuesLength = MutableBytes.rightPad(littleEndianLength, 32);
+    Bytes valuesLength = littleEndianLength.mutableCopy().rightPad(32);
 
     List<Bytes> chunks;
     if (values.isEmpty()) {
@@ -91,7 +90,7 @@ public final class SSZ {
       chunks = hashRound;
     }
 
-    return Hash.keccak256(Bytes.wrap(chunks.getFirst(), valuesLength));
+    return Hash.keccak256(Bytes.wrap(chunks.get(0), valuesLength));
   }
 
   // Encoding
@@ -450,7 +449,7 @@ public final class SSZ {
    * @return the SSZ encoding in a {@link Bytes} value
    */
   public static Bytes encodeUInt256(UInt256 value) {
-    return MutableBytes.reverse(value);
+    return value.mutableCopy().reverse();
   }
 
   /**
@@ -460,7 +459,7 @@ public final class SSZ {
    * @return the SSZ encoding in a {@link Bytes} value
    */
   public static Bytes encodeUInt384(UInt384 value) {
-    return MutableBytes.reverse(value);
+    return value.mutableCopy().reverse();
   }
 
   /**

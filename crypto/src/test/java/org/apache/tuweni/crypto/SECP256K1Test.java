@@ -93,8 +93,7 @@ class SECP256K1Test {
     assertThrows(
         NullPointerException.class,
         () ->
-            SECP256K1.KeyPair.create(
-                null, SECP256K1.PublicKey.fromBytes(MutableBytes.create(64).toBytes())));
+            SECP256K1.KeyPair.create(null, SECP256K1.PublicKey.fromBytes(MutableBytes.create(64))));
   }
 
   @Test

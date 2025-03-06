@@ -390,7 +390,7 @@ public final class SECP256K1 {
     ECDSASigner signer = new ECDSASigner();
     Bytes toDecode = Bytes.wrap(Bytes.of((byte) 4), publicKey.bytes());
     ECPublicKeyParameters params =
-        new ECPublicKeyParameters(Parameters.CURVE.getCurve().decodePoint(toDecode.mutableCopy().toArray()), Parameters.CURVE);
+        new ECPublicKeyParameters(Parameters.CURVE.getCurve().decodePoint(toDecode.mutableCopy().toArrayUnsafe()), Parameters.CURVE);
     signer.init(false, params);
     try {
       return signer.verifySignature(hash, signature.r, signature.s);
@@ -476,8 +476,8 @@ public final class SECP256K1 {
      * @param bytes The key bytes.
      * @return The private key.
      */
-    public static SecretKey fromBytes(MutableBytes bytes) {
-      return new SecretKey(bytes.toBytes());
+    public static SecretKey fromBytes(Bytes bytes) {
+      return new SecretKey(bytes.mutableCopy());
     }
 
     /**
@@ -509,7 +509,7 @@ public final class SECP256K1 {
           throw new InvalidSEC256K1SecretKeyStoreException();
         }
         charBuffer.flip();
-        return SecretKey.fromBytes(MutableBytes.fromHexString(charBuffer));
+        return SecretKey.fromBytes(Bytes.fromHexString(charBuffer));
       } catch (IllegalArgumentException ex) {
         throw new InvalidSEC256K1SecretKeyStoreException();
       } finally {
@@ -631,7 +631,7 @@ public final class SECP256K1 {
       } else {
         MutableBytes res = MutableBytes.create(BYTE_LENGTH);
         res.set(BYTE_LENGTH - backing.length, backing);
-        return res.toBytes();
+        return res;
       }
     }
 
@@ -1028,7 +1028,7 @@ public final class SECP256K1 {
       signature.set(0, UInt256.valueOf(r));
       signature.set(32, UInt256.valueOf(s));
       signature.set(64, v);
-      return signature.toBytes();
+      return signature;
     }
 
     @Override

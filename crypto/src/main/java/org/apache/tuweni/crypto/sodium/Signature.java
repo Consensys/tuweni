@@ -201,7 +201,7 @@ public final class Signature {
     }
 
     public static SecretKey fromSeed(Seed seed) {
-      return Sodium.dup(seed.bytes().mutableCopy().toArray(), SecretKey::new);
+      return Sodium.dup(seed.bytes().mutableCopy().toArrayUnsafe(), SecretKey::new);
     }
 
     /**

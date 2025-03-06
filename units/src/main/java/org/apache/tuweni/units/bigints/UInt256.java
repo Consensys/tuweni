@@ -19,20 +19,21 @@ import org.jetbrains.annotations.Nullable;
 public final class UInt256 extends Bytes {
   private static final int MAX_CONSTANT = 64;
   private static final BigInteger BI_MAX_CONSTANT = BigInteger.valueOf(MAX_CONSTANT);
-  private static final UInt256[] CONSTANTS = new UInt256[MAX_CONSTANT + 1];
+  private static UInt256[] CONSTANTS = new UInt256[MAX_CONSTANT + 1];
+
+  /** The maximum value of a UInt256 */
+  public static final UInt256 MAX_VALUE;
 
   static {
-    CONSTANTS[0] = new UInt256(Bytes32.ZERO);
+    CONSTANTS[0] = new UInt256(MutableBytes.create(32));
     for (int i = 1; i <= MAX_CONSTANT; ++i) {
       CONSTANTS[i] = new UInt256(i);
     }
+    MAX_VALUE = new UInt256(MutableBytes.create(32).not());
   }
 
   /** The minimum value of a UInt256 */
   public static final UInt256 MIN_VALUE = valueOf(0);
-
-  /** The maximum value of a UInt256 */
-  public static final UInt256 MAX_VALUE = new UInt256(MutableBytes.not(Bytes32.ZERO));
 
   /** The value 0 */
   public static final UInt256 ZERO = valueOf(0);
@@ -141,7 +142,7 @@ public final class UInt256 extends Bytes {
                 | (Byte.toUnsignedInt(array[31]))
           });
     } else {
-      return new UInt256(MutableBytes.leftPad(bytes, 32));
+      return new UInt256(bytes.mutableCopy().leftPad(32));
     }
   }
 
@@ -452,18 +453,16 @@ public final class UInt256 extends Bytes {
     if (divisor.isZero()) {
       return UInt256.ZERO;
     } else {
-      BigInteger result = this.toSignedBigInteger().divide(divisor.toSignedBigInteger());
+      BigInteger result = this.toBigInteger().divide(divisor.toBigInteger());
       Bytes resultBytes = Bytes.wrap(result.toByteArray());
       if (resultBytes.size() > 32) {
         resultBytes = resultBytes.slice(resultBytes.size() - 32, 32);
       }
       MutableBytes mutableBytes = resultBytes.mutableCopy().leftPad(32);
       if (result.signum() < 0) {
-        Bytes bytesFill =
-            MutableBytes.shiftLeft(Bytes.repeat((byte) 0xFF, 32), resultBytes.size() * 8);
-        mutableBytes.or(bytesFill);
+        mutableBytes.or(MutableBytes.create(32).not().shiftLeft(resultBytes.size() * 8));
       }
-      return UInt256.fromBytes(mutableBytes.toBytes());
+      return UInt256.fromBytes(mutableBytes);
     }
   }
 
@@ -532,8 +531,8 @@ public final class UInt256 extends Bytes {
       return UInt256.ZERO;
     }
 
-    BigInteger bi = this.toSignedBigInteger();
-    BigInteger result = bi.abs().mod(modulus.toSignedBigInteger().abs());
+    BigInteger bi = this.toBigInteger();
+    BigInteger result = bi.abs().mod(modulus.toBigInteger().abs());
 
     if (bi.signum() < 0) {
       result = result.negate();
@@ -546,11 +545,9 @@ public final class UInt256 extends Bytes {
 
     MutableBytes mutableBytes = resultBytes.mutableCopy().leftPad(32);
     if (result.signum() < 0) {
-      Bytes bytesFill =
-          MutableBytes.shiftLeft(Bytes.repeat((byte) 0xFF, 32), resultBytes.size() * 8);
-      mutableBytes.or(bytesFill);
+      mutableBytes.or(MutableBytes.create(32).not().shiftLeft(resultBytes.size() * 8));
     }
-    return UInt256.fromBytes(mutableBytes.toBytes());
+    return UInt256.fromBytes(mutableBytes);
   }
 
   public UInt256 mod0(long modulus) {
@@ -831,24 +828,28 @@ public final class UInt256 extends Bytes {
   }
 
   @Override
-  protected void and(byte[] bytesArray, int offset, int length) {
-    for (int i = 0; i < length; i++) {
+  protected void and(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
       bytesArray[offset + i] = (byte) (get(i) & bytesArray[offset + i]);
     }
   }
 
   @Override
-  protected void or(byte[] bytesArray, int offset, int length) {
-    for (int i = 0; i < length; i++) {
+  protected void or(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
       bytesArray[offset + i] = (byte) (get(i) | bytesArray[offset + i]);
     }
   }
 
   @Override
-  protected void xor(byte[] bytesArray, int offset, int length) {
-    for (int i = 0; i < length; i++) {
+  protected void xor(int offset, byte[] bytesArray) {
+    for (int i = 0; i < size(); i++) {
       bytesArray[offset + i] = (byte) (get(i) ^ bytesArray[offset + i]);
     }
+  }
+
+  public UInt256 toUInt256() {
+    return this;
   }
 
   @Override
@@ -932,7 +933,7 @@ public final class UInt256 extends Bytes {
     for (; i < INTS_SIZE; ++i, j += 4) {
       bytes.setInt(j, this.ints[i]);
     }
-    return bytes.toBytes();
+    return bytes;
   }
 
   @Override

@@ -117,7 +117,7 @@ public class Blake2bfMessageDigest extends BCMessageDigest implements Cloneable 
       MutableBytes mutable = MutableBytes.create(buffer.size() + value.size());
       mutable.set(0, buffer);
       mutable.set(buffer.size(), value);
-      buffer = mutable.toBytes();
+      buffer = mutable;
     }
 
     /**

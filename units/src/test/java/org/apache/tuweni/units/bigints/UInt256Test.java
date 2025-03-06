@@ -1149,7 +1149,7 @@ class UInt256Test {
   @Test
   void testEquals() {
     UInt256 value = UInt256.ZERO;
-    assertEquals(MutableBytes.create(32).toBytes(), value);
+    assertEquals(MutableBytes.create(32), value);
   }
 
   @SuppressWarnings("UnusedMethod")

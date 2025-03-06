@@ -59,18 +59,18 @@ public class DelegatingBytes extends Bytes {
   }
 
   @Override
-  protected void and(byte[] bytesArray, int offset, int length) {
-    delegate.and(bytesArray, offset, length);
+  protected void and(int offset, byte[] bytesArray) {
+    delegate.and(offset, bytesArray);
   }
 
   @Override
-  protected void or(byte[] bytesArray, int offset, int length) {
-    delegate.or(bytesArray, offset, length);
+  protected void or(int offset, byte[] bytesArray) {
+    delegate.or(offset, bytesArray);
   }
 
   @Override
-  protected void xor(byte[] bytesArray, int offset, int length) {
-    delegate.xor(bytesArray, offset, length);
+  protected void xor(int offset, byte[] bytesArray) {
+    delegate.xor(offset, bytesArray);
   }
 
   @Override
