@@ -54,7 +54,7 @@ public class DelegatingBytes extends Bytes {
   }
 
   @Override
-  Bytes getImpl() {
+  public Bytes getImpl() {
     return delegate.getImpl();
   }
 
