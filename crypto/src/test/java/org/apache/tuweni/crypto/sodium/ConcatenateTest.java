@@ -5,7 +5,7 @@ package org.apache.tuweni.crypto.sodium;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,6 +27,6 @@ class ConcatenateTest {
 
     Allocated result = concatenate.concatenate();
 
-    assertEquals(Bytes.concatenate(random, random), result.bytes());
+    assertEquals(Bytes.wrap(random, random), result.bytes());
   }
 }

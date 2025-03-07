@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.devp2p
 
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.crypto.SECP256K1
 import org.apache.tuweni.junit.BouncyCastleExtension
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,7 +18,7 @@ internal class ENRResponsePacketTest {
   fun shouldEncodeThenDecodePacket() {
     val keyPair = SECP256K1.KeyPair.random()
 
-    val requestHash = Bytes32.random()
+    val requestHash = Bytes.random(32)
     val enr = EthereumNodeRecord.toRLP(
       SECP256K1.KeyPair.random(),
       2,

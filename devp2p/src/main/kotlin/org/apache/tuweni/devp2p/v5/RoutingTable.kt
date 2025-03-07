@@ -3,7 +3,7 @@
 package org.apache.tuweni.devp2p.v5
 
 import com.google.common.math.IntMath
-import org.apache.tuweni.bytes.Bytes
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.devp2p.EthereumNodeRecord
 import org.apache.tuweni.kademlia.KademliaRoutingTable
 import org.apache.tuweni.kademlia.xorDist

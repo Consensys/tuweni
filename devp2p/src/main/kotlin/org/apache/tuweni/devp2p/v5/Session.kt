@@ -6,8 +6,7 @@ import io.vertx.core.net.SocketAddress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.apache.tuweni.bytes.Bytes
-import org.apache.tuweni.bytes.Bytes32
+import org.apache.tuweni.bytes.v2.Bytes
 import org.apache.tuweni.concurrent.AsyncCompletion
 import org.apache.tuweni.concurrent.AsyncResult
 import org.apache.tuweni.concurrent.CompletableAsyncCompletion
@@ -38,8 +37,8 @@ private const val SEND_REGTOPIC_DELAY_MS = 15 * 60 * 1000L // 15 min
 internal class Session(
   val enr: EthereumNodeRecord,
   private val keyPair: SECP256K1.KeyPair,
-  private val nodeId: Bytes32,
-  private val tag: Bytes32,
+  private val nodeId: Bytes,
+  private val tag: Bytes,
   private val sessionKey: SessionKey,
   private val address: SocketAddress,
   private val sendFn: (SocketAddress, Bytes) -> Unit,
@@ -233,10 +232,10 @@ internal class Session(
 
   private suspend fun send(message: Message) {
     logger.trace("Sending an encrypted message of type {}", message.type())
-    val messagePlain = Bytes.concatenate(Bytes.of(message.type().byte()), message.toRLP())
+    val messagePlain = Bytes.wrap(Bytes.of(message.type().byte()), message.toRLP())
     val authTag = Message.authTag()
     val encryptionResult = AES128GCM.encrypt(sessionKey.initiatorKey, authTag, messagePlain, tag)
-    sendFn(address, Bytes.concatenate(tag, RLP.encodeValue(authTag), encryptionResult))
+    sendFn(address, Bytes.wrap(tag, RLP.encodeValue(authTag), encryptionResult))
   }
 
   private suspend fun handleFindNode(message: FindNodeMessage) {

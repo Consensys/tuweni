@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.crypto.mikuli;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import java.util.List;
 import java.util.Objects;
@@ -93,10 +93,9 @@ public final class PublicKey {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof PublicKey)) {
+    if (!(obj instanceof PublicKey other)) {
       return false;
     }
-    PublicKey other = (PublicKey) obj;
     return point.equals(other.point);
   }
 }

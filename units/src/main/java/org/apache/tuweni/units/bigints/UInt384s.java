@@ -14,7 +14,7 @@ public final class UInt384s {
    * @return The maximum of {@code v1} and {@code v2}.
    * @param <T> The concrete type of the two values.
    */
-  public static <T extends UInt384Value<T>> T max(T v1, T v2) {
+  public static <T extends UInt384> T max(T v1, T v2) {
     return (v1.compareTo(v2)) >= 0 ? v1 : v2;
   }
 
@@ -26,7 +26,7 @@ public final class UInt384s {
    * @return The minimum of {@code v1} and {@code v2}.
    * @param <T> The concrete type of the two values.
    */
-  public static <T extends UInt384Value<T>> T min(T v1, T v2) {
+  public static <T extends UInt384> T min(T v1, T v2) {
     return (v1.compareTo(v2)) < 0 ? v1 : v2;
   }
 }

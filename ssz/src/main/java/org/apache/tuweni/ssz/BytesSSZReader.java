@@ -5,7 +5,7 @@ package org.apache.tuweni.ssz;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 import org.apache.tuweni.units.bigints.UInt256;
 import org.apache.tuweni.units.bigints.UInt384;
 
@@ -117,14 +117,14 @@ final class BytesSSZReader implements SSZReader {
   public UInt256 readUInt256() {
     ensureBytes(
         256 / 8, () -> "SSZ encoded data has insufficient length to read a 256-bit integer");
-    return UInt256.fromBytes(consumeBytes(256 / 8).reverse());
+    return UInt256.fromBytes(consumeBytes(256 / 8).mutableCopy().reverse());
   }
 
   @Override
   public UInt384 readUInt384() {
     ensureBytes(
         384 / 8, () -> "SSZ encoded data has insufficient length to read a 384-bit integer");
-    return UInt384.fromBytes(consumeBytes(384 / 8).reverse());
+    return UInt384.fromBytes(consumeBytes(384 / 8).mutableCopy().reverse());
   }
 
   @Override

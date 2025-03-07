@@ -6,8 +6,7 @@ import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
+import org.apache.tuweni.bytes.v2.Bytes;
 import org.apache.tuweni.crypto.Hash;
 import org.apache.tuweni.units.bigints.UInt256;
 import org.apache.tuweni.units.bigints.UInt384;
@@ -38,16 +37,16 @@ public final class SSZ {
    * @param bytes 1 value or a list of homogeneous values
    * @return the SSZ tree root hash of the values
    */
-  public static Bytes32 hashTreeRoot(Bytes... bytes) {
+  public static Bytes hashTreeRoot(Bytes... bytes) {
     if (bytes.length == 1) {
       if (bytes[0].size() > 32) {
         return Hash.keccak256(bytes[0]);
       } else {
-        return Bytes32.rightPad(bytes[0]);
+        return bytes[0].mutableCopy().rightPad(32);
       }
     } else {
       Bytes hash = merkleHash(new ArrayList<>(Arrays.asList(bytes)));
-      return Bytes32.rightPad(hash);
+      return hash.mutableCopy().rightPad(32);
     }
   }
 
@@ -59,7 +58,7 @@ public final class SSZ {
    */
   static Bytes merkleHash(List<Bytes> values) {
     Bytes littleEndianLength = Bytes.ofUnsignedInt(values.size(), LITTLE_ENDIAN);
-    Bytes32 valuesLength = Bytes32.rightPad(littleEndianLength);
+    Bytes valuesLength = littleEndianLength.mutableCopy().rightPad(32);
 
     List<Bytes> chunks;
     if (values.isEmpty()) {
@@ -74,7 +73,7 @@ public final class SSZ {
             values
                 .subList(i * itemsPerChunk, Math.min((i + 1) * itemsPerChunk, values.size()))
                 .toArray(new Bytes[0]);
-        chunks.add(Bytes.concatenate(chunkItems));
+        chunks.add(Bytes.wrap(chunkItems));
       }
     } else {
       chunks = values;
@@ -86,12 +85,12 @@ public final class SSZ {
       Iterator<Bytes> iterator = chunks.iterator();
       List<Bytes> hashRound = new ArrayList<>();
       while (iterator.hasNext()) {
-        hashRound.add(Hash.keccak256(Bytes.concatenate(iterator.next(), iterator.next())));
+        hashRound.add(Hash.keccak256(Bytes.wrap(iterator.next(), iterator.next())));
       }
       chunks = hashRound;
     }
 
-    return Hash.keccak256(Bytes.concatenate(chunks.get(0), valuesLength));
+    return Hash.keccak256(Bytes.wrap(chunks.getFirst(), valuesLength));
   }
 
   // Encoding
@@ -450,7 +449,7 @@ public final class SSZ {
    * @return the SSZ encoding in a {@link Bytes} value
    */
   public static Bytes encodeUInt256(UInt256 value) {
-    return value.reverse();
+    return value.mutableCopy().reverse();
   }
 
   /**
@@ -460,7 +459,7 @@ public final class SSZ {
    * @return the SSZ encoding in a {@link Bytes} value
    */
   public static Bytes encodeUInt384(UInt384 value) {
-    return value.toBytes().reverse();
+    return value.mutableCopy().reverse();
   }
 
   /**

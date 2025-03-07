@@ -5,7 +5,7 @@ package org.apache.tuweni.crypto.blake2bf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.apache.tuweni.bytes.Bytes;
+import org.apache.tuweni.bytes.v2.Bytes;
 
 import org.bouncycastle.util.Pack;
 import org.junit.jupiter.api.BeforeEach;

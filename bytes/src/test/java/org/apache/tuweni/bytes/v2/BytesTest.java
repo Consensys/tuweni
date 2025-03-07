@@ -1,6 +1,6 @@
 // Copyright The Tuweni Authors
 // SPDX-License-Identifier: Apache-2.0
-package org.apache.tuweni.bytes;
+package org.apache.tuweni.bytes.v2;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -9,7 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import io.netty.buffer.ByteBuf;
@@ -19,7 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class GuardedBytesTest extends CommonBytesTests {
+class BytesTest extends CommonBytesTests {
 
   @Override
   Bytes h(String hex) {
@@ -33,7 +36,7 @@ class GuardedBytesTest extends CommonBytesTests {
 
   @Override
   Bytes w(byte[] bytes) {
-    return Bytes.secure(bytes);
+    return Bytes.wrap(bytes);
   }
 
   @Override
@@ -49,20 +52,25 @@ class GuardedBytesTest extends CommonBytesTests {
 
   @ParameterizedTest
   @MethodSource("wrapProvider")
-  void wrap(Object arr) {
-    byte[] bytes = (byte[]) arr;
+  void wrap(List<Byte> arr) {
+    final byte[] bytes = new byte[arr.size()];
+    arr.forEach(byteValue -> bytes[arr.indexOf(byteValue)] = byteValue);
     Bytes value = Bytes.wrap(bytes);
     assertEquals(bytes.length, value.size());
-    assertArrayEquals(value.toArray(), bytes);
+    assertArrayEquals(value.toArrayUnsafe(), bytes);
   }
 
   @SuppressWarnings("UnusedMethod")
   private static Stream<Arguments> wrapProvider() {
     return Stream.of(
-        Arguments.of(new Object[] {new byte[10]}),
-        Arguments.of(new Object[] {new byte[] {1}}),
-        Arguments.of(new Object[] {new byte[] {1, 2, 3, 4}}),
-        Arguments.of(new Object[] {new byte[] {-1, 127, -128}}));
+        Arguments.of(new ArrayList<Byte>(10)),
+        Arguments.of(toList(new byte[] {1})),
+        Arguments.of(toList(new byte[] {1, 2, 3, 4})),
+        Arguments.of(toList(new byte[] {-1, 127, -128})));
+  }
+
+  private static List<Byte> toList(final byte[] array) {
+    return IntStream.range(0, array.length).mapToObj(i -> array[i]).toList();
   }
 
   @Test
@@ -77,13 +85,13 @@ class GuardedBytesTest extends CommonBytesTests {
     Bytes value = Bytes.wrap(bytes);
 
     assertEquals(bytes.length, value.size());
-    assertArrayEquals(value.toArray(), bytes);
+    assertArrayEquals(value.toArrayUnsafe(), bytes);
 
     bytes[1] = 127;
     bytes[3] = 127;
 
     assertEquals(bytes.length, value.size());
-    assertArrayEquals(value.toArray(), bytes);
+    assertArrayEquals(value.toArrayUnsafe(), bytes);
   }
 
   @Test
@@ -111,7 +119,7 @@ class GuardedBytesTest extends CommonBytesTests {
   private void assertWrapSlice(byte[] bytes, int offset, int length) {
     Bytes value = Bytes.wrap(bytes, offset, length);
     assertEquals(length, value.size());
-    assertArrayEquals(value.toArray(), Arrays.copyOfRange(bytes, offset, offset + length));
+    assertArrayEquals(value.toArrayUnsafe(), Arrays.copyOfRange(bytes, offset, offset + length));
   }
 
   @Test
@@ -162,7 +170,7 @@ class GuardedBytesTest extends CommonBytesTests {
     assertWrapSlice(bytes, 2, 2);
 
     Bytes wrapped = Bytes.wrap(bytes, 2, 2);
-    Bytes copy = wrapped.copy();
+    Bytes copy = wrapped.mutableCopy();
 
     // Modify the bytes outside of the wrapped slice and check this doesn't affect the value (that
     // it is still equal to the copy from before the updates)
@@ -177,19 +185,20 @@ class GuardedBytesTest extends CommonBytesTests {
 
   @Test
   void ofBytes() {
-    assertArrayEquals(Bytes.of().toArray(), new byte[] {});
-    assertArrayEquals(Bytes.of((byte) 1, (byte) 2).toArray(), new byte[] {1, 2});
+    assertArrayEquals(Bytes.of().toArrayUnsafe(), new byte[] {});
+    assertArrayEquals(Bytes.of((byte) 1, (byte) 2).toArrayUnsafe(), new byte[] {1, 2});
     assertArrayEquals(
-        Bytes.of((byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5).toArray(),
+        Bytes.of((byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5).toArrayUnsafe(),
         new byte[] {1, 2, 3, 4, 5});
-    assertArrayEquals(Bytes.of((byte) -1, (byte) 2, (byte) -3).toArray(), new byte[] {-1, 2, -3});
+    assertArrayEquals(
+        Bytes.of((byte) -1, (byte) 2, (byte) -3).toArrayUnsafe(), new byte[] {-1, 2, -3});
   }
 
   @Test
   void ofInts() {
-    assertArrayEquals(Bytes.of(1, 2).toArray(), new byte[] {1, 2});
-    assertArrayEquals(Bytes.of(1, 2, 3, 4, 5).toArray(), new byte[] {1, 2, 3, 4, 5});
-    assertArrayEquals(Bytes.of(0xff, 0x7f, 0x80).toArray(), new byte[] {-1, 127, -128});
+    assertArrayEquals(Bytes.of(1, 2).toArrayUnsafe(), new byte[] {1, 2});
+    assertArrayEquals(Bytes.of(1, 2, 3, 4, 5).toArrayUnsafe(), new byte[] {1, 2, 3, 4, 5});
+    assertArrayEquals(Bytes.of(0xff, 0x7f, 0x80).toArrayUnsafe(), new byte[] {-1, 127, -128});
   }
 
   @Test
@@ -306,6 +315,10 @@ class GuardedBytesTest extends CommonBytesTests {
     assertEquals(-1, Bytes.of(0x01).compareTo(Bytes.of(0x01, 0xff)));
     assertEquals(-1, Bytes.of(0x00, 0x00, 0x01).compareTo(Bytes.of(0x00, 0x02)));
     assertEquals(-1, Bytes.of(0x00, 0x01).compareTo(Bytes.of(0x00, 0x00, 0x05)));
+    assertEquals(0, Bytes.fromHexString("0x0000").compareTo(Bytes.fromHexString("0x00")));
+    assertEquals(0, Bytes.fromHexString("0x00").compareTo(Bytes.fromHexString("0x0000")));
+    assertEquals(0, Bytes.fromHexString("0x000000").compareTo(Bytes.fromHexString("0x000000")));
+    assertEquals(-1, Bytes.fromHexString("0x000001").compareTo(Bytes.fromHexString("0x0001")));
   }
 
   @Test
@@ -464,75 +477,13 @@ class GuardedBytesTest extends CommonBytesTests {
   }
 
   @Test
-  void reverseBytes() {
-    Bytes bytes = Bytes.fromHexString("0x000102030405");
-    assertEquals(Bytes.fromHexString("0x050403020100"), bytes.reverse());
-  }
-
-  @Test
-  void reverseBytesEmptyArray() {
-    Bytes bytes = Bytes.fromHexString("0x");
-    assertEquals(Bytes.fromHexString("0x"), bytes.reverse());
-  }
-
-  @Test
-  void mutableBytesIncrement() {
-    MutableBytes one = MutableBytes.of(1);
-    one.increment();
-    assertEquals(Bytes.of(2), one);
-  }
-
-  @Test
-  void mutableBytesIncrementMax() {
-    MutableBytes maxed = MutableBytes.of(1, 0xFF);
-    maxed.increment();
-    assertEquals(Bytes.of(2, 0), maxed);
-  }
-
-  @Test
-  void mutableBytesIncrementOverflow() {
-    MutableBytes maxed = MutableBytes.of(0xFF, 0xFF, 0xFF);
-    maxed.increment();
-    assertEquals(Bytes.of(0, 0, 0), maxed);
-  }
-
-  @Test
-  void mutableBytesDecrement() {
-    MutableBytes one = MutableBytes.of(2);
-    one.decrement();
-    assertEquals(Bytes.of(1), one);
-  }
-
-  @Test
-  void mutableBytesDecrementMax() {
-    MutableBytes maxed = MutableBytes.of(1, 0);
-    maxed.decrement();
-    assertEquals(Bytes.of(0, 0xFF), maxed);
-  }
-
-  @Test
-  void mutableBytesDecrementOverflow() {
-    MutableBytes maxed = MutableBytes.of(0x00, 0x00, 0x00);
-    maxed.decrement();
-    assertEquals(Bytes.of(0xFF, 0xFF, 0xFF), maxed);
-  }
-
-  @Test
-  void concatenation() {
-    MutableBytes value1 = MutableBytes.wrap(Bytes.fromHexString("deadbeef").toArrayUnsafe());
-    Bytes result = Bytes.concatenate(value1, value1);
-    assertEquals(Bytes.fromHexString("deadbeefdeadbeef"), result);
-    value1.set(0, (byte) 0);
-    assertEquals(Bytes.fromHexString("deadbeefdeadbeef"), result);
-  }
-
-  @Test
-  void wrap() {
-    MutableBytes value1 = MutableBytes.wrap(Bytes.fromHexString("deadbeef").toArrayUnsafe());
+  void wrapModifyNoChange() {
+    Bytes value1 = Bytes.fromHexString("deadbeef");
     Bytes result = Bytes.wrap(value1, value1);
     assertEquals(Bytes.fromHexString("deadbeefdeadbeef"), result);
-    value1.set(0, (byte) 0);
-    assertEquals(Bytes.fromHexString("0x00adbeef00adbeef"), result);
+    MutableBytes value1Mutable = value1.mutableCopy();
+    value1Mutable.set(0, (byte) 0);
+    assertEquals(Bytes.fromHexString("deadbeefdeadbeef"), result);
   }
 
   @Test
@@ -564,84 +515,6 @@ class GuardedBytesTest extends CommonBytesTests {
   void numberOfLeadingZeros() {
     Bytes value = Bytes.fromHexString("0x00000001");
     assertEquals(31, value.numberOfLeadingZeros());
-  }
-
-  @Test
-  void and() {
-    Bytes value = Bytes.fromHexString("0x01000001").and(Bytes.fromHexString("0x01000000"));
-    assertEquals(Bytes.fromHexString("0x01000000"), value);
-  }
-
-  @Test
-  void andResult() {
-    MutableBytes result = MutableBytes.create(4);
-    Bytes.fromHexString("0x01000001").and(Bytes.fromHexString("0x01000000"), result);
-    assertEquals(Bytes.fromHexString("0x01000000"), result);
-  }
-
-  @Test
-  void or() {
-    Bytes value = Bytes.fromHexString("0x01000001").or(Bytes.fromHexString("0x01000000"));
-    assertEquals(Bytes.fromHexString("0x01000001"), value);
-  }
-
-  @Test
-  void orResult() {
-    MutableBytes result = MutableBytes.create(4);
-    Bytes.fromHexString("0x01000001").or(Bytes.fromHexString("0x01000000"), result);
-    assertEquals(Bytes.fromHexString("0x01000001"), result);
-  }
-
-  @Test
-  void xor() {
-    Bytes value = Bytes.fromHexString("0x01000001").xor(Bytes.fromHexString("0x01000000"));
-    assertEquals(Bytes.fromHexString("0x00000001"), value);
-  }
-
-  @Test
-  void xorResult() {
-    MutableBytes result = MutableBytes.create(4);
-    Bytes.fromHexString("0x01000001").xor(Bytes.fromHexString("0x01000000"), result);
-    assertEquals(Bytes.fromHexString("0x00000001"), result);
-  }
-
-  @Test
-  void not() {
-    Bytes value = Bytes.fromHexString("0x01000001").not();
-    assertEquals(Bytes.fromHexString("0xfefffffe"), value);
-  }
-
-  @Test
-  void notResult() {
-    MutableBytes result = MutableBytes.create(4);
-    Bytes.fromHexString("0x01000001").not(result);
-    assertEquals(Bytes.fromHexString("0xfefffffe"), result);
-  }
-
-  @Test
-  void shiftRight() {
-    Bytes value = Bytes.fromHexString("0x01000001").shiftRight(2);
-    assertEquals(Bytes.fromHexString("0x00400000"), value);
-  }
-
-  @Test
-  void shiftRightResult() {
-    MutableBytes result = MutableBytes.create(4);
-    Bytes.fromHexString("0x01000001").shiftRight(2, result);
-    assertEquals(Bytes.fromHexString("0x00400000"), result);
-  }
-
-  @Test
-  void shiftLeft() {
-    Bytes value = Bytes.fromHexString("0x01000001").shiftLeft(2);
-    assertEquals(Bytes.fromHexString("0x04000004"), value);
-  }
-
-  @Test
-  void shiftLeftResult() {
-    MutableBytes result = MutableBytes.create(4);
-    Bytes.fromHexString("0x01000001").shiftLeft(2, result);
-    assertEquals(Bytes.fromHexString("0x04000004"), result);
   }
 
   @Test
@@ -680,5 +553,17 @@ class GuardedBytesTest extends CommonBytesTests {
   void testWrapByteBufReadableBytes() {
     ByteBuf buffer = Unpooled.buffer(20).writeByte(3);
     assertEquals(1, Bytes.wrapByteBuf(buffer, 0, buffer.readableBytes()).size());
+  }
+
+  @Test
+  void testTrimLeadingZeros() {
+    Bytes b = Bytes.fromHexString("0x000000f300567800");
+    assertEquals(Bytes.fromHexString("0xf300567800"), b.trimLeadingZeros());
+  }
+
+  @Test
+  void testTrimTrailingZeros() {
+    Bytes b = Bytes.fromHexString("0x000000f300567800");
+    assertEquals(Bytes.fromHexString("0x000000f3005678"), b.trimTrailingZeros());
   }
 }

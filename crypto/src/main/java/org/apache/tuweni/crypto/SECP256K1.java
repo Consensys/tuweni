@@ -23,9 +23,8 @@ import static org.apache.tuweni.crypto.SECP256K1.Parameters.CURVE;
 import static org.apache.tuweni.crypto.SECP256K1.Parameters.PARAMETER_SPEC;
 import static org.apache.tuweni.io.file.Files.atomicReplace;
 
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.bytes.Bytes32;
-import org.apache.tuweni.bytes.MutableBytes;
+import org.apache.tuweni.bytes.v2.Bytes;
+import org.apache.tuweni.bytes.v2.MutableBytes;
 import org.apache.tuweni.units.bigints.UInt256;
 
 import java.io.IOException;
@@ -58,9 +57,6 @@ import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
-import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
-import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
@@ -180,7 +176,7 @@ public final class SECP256K1 {
    * @return A ECKey containing only the public part, or {@code null} if recovery wasn't possible.
    */
   @Nullable
-  private static BigInteger recoverFromSignature(int v, BigInteger r, BigInteger s, Bytes32 messageHash) {
+  private static BigInteger recoverFromSignature(int v, BigInteger r, BigInteger s, Bytes messageHash) {
     assert (v == 0 || v == 1);
     assert (r.signum() >= 0);
     assert (s.signum() >= 0);
@@ -289,7 +285,7 @@ public final class SECP256K1 {
    * @return The signature.
    */
   public static Signature signHashed(byte[] hash, KeyPair keyPair) {
-    return signHashed(Bytes32.wrap(hash), keyPair);
+    return signHashed(Bytes.wrap(hash), keyPair);
   }
 
   /**
@@ -299,7 +295,7 @@ public final class SECP256K1 {
    * @param keyPair The keypair to sign using.
    * @return The signature.
    */
-  public static Signature signHashed(Bytes32 hash, KeyPair keyPair) {
+  public static Signature signHashed(Bytes hash, KeyPair keyPair) {
     ECDSASigner signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
 
     ECPrivateKeyParameters privKey =
@@ -378,7 +374,7 @@ public final class SECP256K1 {
    * @param publicKey The public key.
    * @return True if the verification is successful.
    */
-  public static boolean verifyHashed(Bytes32 hash, Signature signature, PublicKey publicKey) {
+  public static boolean verifyHashed(Bytes hash, Signature signature, PublicKey publicKey) {
     return verifyHashed(hash.toArrayUnsafe(), signature, publicKey);
   }
 
@@ -394,7 +390,7 @@ public final class SECP256K1 {
     ECDSASigner signer = new ECDSASigner();
     Bytes toDecode = Bytes.wrap(Bytes.of((byte) 4), publicKey.bytes());
     ECPublicKeyParameters params =
-        new ECPublicKeyParameters(Parameters.CURVE.getCurve().decodePoint(toDecode.toArray()), Parameters.CURVE);
+        new ECPublicKeyParameters(Parameters.CURVE.getCurve().decodePoint(toDecode.mutableCopy().toArray()), Parameters.CURVE);
     signer.init(false, params);
     try {
       return signer.verifySignature(hash, signature.r, signature.s);
@@ -413,7 +409,7 @@ public final class SECP256K1 {
    * @param theirPubKey the public key
    * @return shared secret as 32 bytes
    */
-  public static Bytes32 calculateKeyAgreement(SecretKey privKey, PublicKey theirPubKey) {
+  public static UInt256 calculateKeyAgreement(SecretKey privKey, PublicKey theirPubKey) {
     if (privKey == null) {
       throw new NullPointerException("missing private key");
     }
@@ -441,7 +437,7 @@ public final class SECP256K1 {
    */
   public static class SecretKey implements Destroyable {
 
-    private Bytes32 keyBytes;
+    private Bytes keyBytes;
 
     @Override
     public void destroy() {
@@ -468,10 +464,10 @@ public final class SECP256K1 {
       while (bytes[offset] == 0) {
         ++offset;
       }
-      if ((bytes.length - offset) > Bytes32.SIZE) {
+      if ((bytes.length - offset) > 32) {
         throw new IllegalArgumentException("key integer is too large");
       }
-      return fromBytes(Bytes32.leftPad(Bytes.wrap(bytes, offset, bytes.length - offset)));
+      return fromBytes(MutableBytes.fromArray(bytes, offset, bytes.length - offset).leftPad(32));
     }
 
     /**
@@ -480,8 +476,8 @@ public final class SECP256K1 {
      * @param bytes The key bytes.
      * @return The private key.
      */
-    public static SecretKey fromBytes(Bytes32 bytes) {
-      return new SecretKey(bytes.copy());
+    public static SecretKey fromBytes(Bytes bytes) {
+      return new SecretKey(bytes.mutableCopy());
     }
 
     /**
@@ -513,7 +509,7 @@ public final class SECP256K1 {
           throw new InvalidSEC256K1SecretKeyStoreException();
         }
         charBuffer.flip();
-        return SecretKey.fromBytes(Bytes32.fromHexString(charBuffer));
+        return SecretKey.fromBytes(Bytes.fromHexString(charBuffer));
       } catch (IllegalArgumentException ex) {
         throw new InvalidSEC256K1SecretKeyStoreException();
       } finally {
@@ -522,7 +518,7 @@ public final class SECP256K1 {
       }
     }
 
-    private SecretKey(Bytes32 bytes) {
+    private SecretKey(Bytes bytes) {
       if (bytes == null) {
         throw new NullPointerException("bytes cannot be null");
       }
@@ -578,7 +574,7 @@ public final class SECP256K1 {
      * Provides the bytes of the key.
      * @return The bytes of the key.
      */
-    public Bytes32 bytes() {
+    public Bytes bytes() {
       if (keyBytes == null) {
         throw new NullPointerException("SecretKey has been destroyed");
       }
@@ -634,7 +630,7 @@ public final class SECP256K1 {
         return Bytes.wrap(backing, backing.length - BYTE_LENGTH, BYTE_LENGTH);
       } else {
         MutableBytes res = MutableBytes.create(BYTE_LENGTH);
-        Bytes.wrap(backing).copyTo(res, BYTE_LENGTH - backing.length);
+        res.set(BYTE_LENGTH - backing.length, backing);
         return res;
       }
     }
@@ -705,7 +701,7 @@ public final class SECP256K1 {
      */
     @Nullable
     public static PublicKey recoverFromHashAndSignature(byte[] hash, Signature signature) {
-      return recoverFromHashAndSignature(Bytes32.wrap(hash), signature);
+      return recoverFromHashAndSignature(Bytes.wrap(hash), signature);
     }
 
     /**
@@ -716,7 +712,7 @@ public final class SECP256K1 {
      * @return The associated public key, or {@code null} if recovery wasn't possible.
      */
     @Nullable
-    public static PublicKey recoverFromHashAndSignature(Bytes32 hash, Signature signature) {
+    public static PublicKey recoverFromHashAndSignature(Bytes hash, Signature signature) {
       BigInteger publicKeyBI = SECP256K1.recoverFromSignature(signature.v(), signature.r(), signature.s(), hash);
       return (publicKeyBI != null) ? fromInteger(publicKeyBI) : null;
     }
@@ -770,7 +766,7 @@ public final class SECP256K1 {
      */
     public ECPoint asEcPoint() {
       // 0x04 is the prefix for uncompressed keys.
-      Bytes val = Bytes.concatenate(Bytes.of(0x04), keyBytes);
+      Bytes val = Bytes.wrap(Bytes.of(0x04), keyBytes);
       return CURVE.getCurve().decodePoint(val.toArrayUnsafe());
     }
 
@@ -1029,8 +1025,8 @@ public final class SECP256K1 {
      */
     public Bytes bytes() {
       MutableBytes signature = MutableBytes.create(65);
-      UInt256.valueOf(r).copyTo(signature, 0);
-      UInt256.valueOf(s).copyTo(signature, 32);
+      signature.set(0, UInt256.valueOf(r));
+      signature.set(32, UInt256.valueOf(s));
       signature.set(64, v);
       return signature;
     }
