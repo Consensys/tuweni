@@ -25,7 +25,7 @@ class Bytes48Test {
 
   @Test
   void rightPadAValueToBytes48() {
-    Bytes48 b48 = Bytes48.wrap(MutableBytes.rightPad(Bytes.of(1, 2, 3), 48));
+    Bytes48 b48 = Bytes48.wrap(Bytes.of(1, 2, 3).mutableCopy().rightPad(48));
     assertEquals(48, b48.size());
     for (int i = 3; i < 48; ++i) {
       assertEquals((byte) 0, b48.get(i));
@@ -37,7 +37,7 @@ class Bytes48Test {
 
   @Test
   void leftPadAValueToBytes48() {
-    Bytes48 b48 = Bytes48.wrap(MutableBytes.leftPad(Bytes.of(1, 2, 3), 48));
+    Bytes48 b48 = Bytes48.wrap(Bytes.of(1, 2, 3).mutableCopy().leftPad(48));
     assertEquals(48, b48.size());
     for (int i = 0; i < 28; ++i) {
       assertEquals((byte) 0, b48.get(i));
@@ -52,7 +52,7 @@ class Bytes48Test {
     Throwable exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Bytes48.wrap(MutableBytes.leftPad(Bytes.EMPTY, 49)));
+            () -> Bytes48.wrap(Bytes.EMPTY.mutableCopy().leftPad(49)));
     assertEquals("Expected 48 bytes but got 49", exception.getMessage());
   }
 
@@ -61,7 +61,7 @@ class Bytes48Test {
     Throwable exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Bytes48.wrap(MutableBytes.rightPad(Bytes.EMPTY, 49)));
+            () -> Bytes48.wrap(Bytes.EMPTY.mutableCopy().rightPad(49)));
     assertEquals("Expected 48 bytes but got 49", exception.getMessage());
   }
 
@@ -88,7 +88,7 @@ class Bytes48Test {
   @Test
   void padding() {
     Bytes48 source = Bytes48.random();
-    assertEquals(source, source.mutableCopy().leftPad(48).toBytes());
-    assertEquals(source, source.mutableCopy().rightPad(48).toBytes());
+    assertEquals(source, Bytes48.wrap(source.mutableCopy().leftPad(48)));
+    assertEquals(source, Bytes48.wrap(source.mutableCopy().rightPad(48)));
   }
 }

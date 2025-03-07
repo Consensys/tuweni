@@ -467,13 +467,13 @@ public class MutableBytes extends Bytes {
   public MutableBytes and(Bytes other) {
     checkNotNull(other);
     checkArgument(other.size() == length, "size %s does not match size %s", other.size(), length);
-    other.and(offset, bytesArray);
+    other.and(bytesArray, offset, length);
     return this;
   }
 
   @Override
-  protected void and(int offset, byte[] bytesArray) {
-    for (int i = 0; i < this.length; i++) {
+  protected void and(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] & bytesArray[offset + i]);
     }
@@ -489,13 +489,13 @@ public class MutableBytes extends Bytes {
   public MutableBytes or(Bytes other) {
     checkNotNull(other);
     checkArgument(other.size() == length, "size %s does not match size %s", other.size(), length);
-    other.or(offset, bytesArray);
+    other.or(bytesArray, offset, length);
     return this;
   }
 
   @Override
-  protected void or(int offset, byte[] bytesArray) {
-    for (int i = 0; i < this.length; i++) {
+  protected void or(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] | bytesArray[offset + i]);
     }
@@ -511,13 +511,13 @@ public class MutableBytes extends Bytes {
   public MutableBytes xor(Bytes other) {
     checkNotNull(other);
     checkArgument(other.size() == length, "size %s does not match size %s", other.size(), length);
-    other.xor(offset, bytesArray);
+    other.xor(bytesArray, offset, length);
     return this;
   }
 
   @Override
-  protected void xor(int offset, byte[] bytesArray) {
-    for (int i = 0; i < this.length; i++) {
+  protected void xor(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
       // TODO: Speed this up with SIMD
       bytesArray[offset + i] = (byte) (this.bytesArray[this.offset + i] ^ bytesArray[offset + i]);
     }
@@ -662,17 +662,21 @@ public class MutableBytes extends Bytes {
     if (length == this.length) {
       return this;
     }
-    return new MutableBytes(this.bytesArray, offset, length);
+    return new ArrayWrappingBytes(this.bytesArray, offset, length);
   }
 
   @Override
   public MutableBytes mutableCopy() {
-    return this;
+    return new MutableBytes(bytesArray, offset, length);
   }
 
   @Override
   public byte[] toArrayUnsafe() {
     return bytesArray;
+  }
+
+  public byte[] toArray() {
+    return toArrayUnsafe();
   }
 
   /**
@@ -719,16 +723,31 @@ public class MutableBytes extends Bytes {
       return false;
     }
 
-    if (this.length != other.length) {
+    if (this.length != other.size()) {
       return false;
     }
 
     for (int i = 0; i < length; i++) {
-      if (bytesArray[i + offset] != other.bytesArray[i + offset]) {
+      if (bytesArray[i + offset] != other.get(i)) {
         return false;
       }
     }
 
     return true;
+  }
+
+  /**
+   * Parse a hexadecimal string into a {@link MutableBytes} value.
+   *
+   * <p>This method requires that {@code str} have an even length.
+   *
+   * @param str The hexadecimal string to parse, which may or may not start with "0x".
+   * @return The value corresponding to {@code str}.
+   * @throws IllegalArgumentException if {@code str} does not correspond to a valid hexadecimal
+   *     representation, or is of an odd length.
+   */
+  public static MutableBytes fromHexString(CharSequence str) {
+    checkNotNull(str);
+    return MutableBytes.fromArray(BytesValues.fromRawHexString(str, -1, false));
   }
 }

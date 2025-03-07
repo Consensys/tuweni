@@ -48,7 +48,7 @@ abstract class CommonBytesTests {
     MutableBytes v = m(13);
     v.set(0, (byte) 16);
     v.setLong(v.size() - 8, Long.MAX_VALUE);
-    assertEquals(expected, v.toBytes().toUnsignedBigInteger());
+    assertEquals(expected, v.toUnsignedBigInteger());
   }
 
   @Test
@@ -64,7 +64,7 @@ abstract class CommonBytesTests {
     MutableBytes v = m(13);
     v.set(0, (byte) 16);
     v.setLong(v.size() - 8, Long.MAX_VALUE);
-    assertEquals(expected, v.toBytes().toBigInteger());
+    assertEquals(expected, v.toBigInteger());
 
     // And for a large negative one, we use -(2^100 + Long.MAX_VALUE), which is:
     //  2^100 + Long.MAX_VALUE = 0x10(4 bytes of 0)7F(  7 bytes of 1)
@@ -79,7 +79,7 @@ abstract class CommonBytesTests {
     v.set(5, (byte) 0x80);
     // 6 bytes of 0
     v.set(12, (byte) 1);
-    assertEquals(expected, v.toBytes().toBigInteger());
+    assertEquals(expected, v.toBigInteger());
   }
 
   @Test
@@ -257,30 +257,30 @@ abstract class CommonBytesTests {
     MutableBytes dest = v.mutableCopy();
 
     // Initially, copy must be equal.
-    assertEquals(dest.toBytes(), v);
+    assertEquals(dest, v);
 
     // Upon modification, original should not have been modified.
     dest.set(0, (byte) -1);
-    assertNotEquals(dest.toBytes(), v);
+    assertNotEquals(dest, v);
     assertEquals(h("0x012345"), v);
-    assertEquals(h("0xFF2345"), dest.toBytes());
+    assertEquals(h("0xFF2345"), dest);
 
     // The follow does nothing, but simply making sure it doesn't throw.
     dest = Bytes.EMPTY.mutableCopy();
-    assertEquals(Bytes.EMPTY, dest.toBytes());
+    assertEquals(Bytes.EMPTY, dest);
 
     dest = of(1).mutableCopy();
-    assertEquals(h("0x01"), dest.toBytes());
+    assertEquals(h("0x01"), dest);
 
     dest = of(10).mutableCopy();
-    assertEquals(h("0x0A"), dest.toBytes());
+    assertEquals(h("0x0A"), dest);
 
     dest = of(0xff, 0x03).mutableCopy();
-    assertEquals(h("0xFF03"), dest.toBytes());
+    assertEquals(h("0xFF03"), dest);
 
     dest = of(0xff, 0x03).mutableCopy();
-    dest = dest.slice(1, 1);
-    assertEquals(h("0x03"), dest.toBytes());
+    Bytes destView = dest.slice(1, 1);
+    assertEquals(h("0x03"), destView);
   }
 
   @Test
@@ -433,7 +433,7 @@ abstract class CommonBytesTests {
     wrapped.update(md2);
     byte[] digest2 = md2.digest();
 
-    wrapped.mutableCopy().toBytes().update(md3);
+    wrapped.mutableCopy().update(md3);
     byte[] digest3 = md3.digest();
 
     for (int i = 0; i < wrapped.size(); i++) md4.update(wrapped.get(i));

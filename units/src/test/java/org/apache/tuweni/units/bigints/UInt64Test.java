@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.tuweni.bytes.v2.Bytes;
-import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import java.math.BigInteger;
 import java.util.stream.Stream;
@@ -508,7 +507,7 @@ class UInt64Test {
   @ParameterizedTest
   @MethodSource("andProvider")
   void and(UInt64 v1, Bytes v2, UInt64 expected) {
-    assertValueEquals(expected, UInt64.fromBytes(MutableBytes.and(v1, v2)));
+    assertValueEquals(expected, UInt64.fromBytes(v1.mutableCopy().and(v2)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -522,7 +521,7 @@ class UInt64Test {
   @ParameterizedTest
   @MethodSource("orProvider")
   void or(UInt64 v1, Bytes v2, UInt64 expected) {
-    assertValueEquals(expected, UInt64.fromBytes(MutableBytes.or(v1, v2)));
+    assertValueEquals(expected, UInt64.fromBytes(v1.mutableCopy().or(v2)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -537,7 +536,7 @@ class UInt64Test {
   @ParameterizedTest
   @MethodSource("xorProvider")
   void xor(UInt64 v1, Bytes v2, UInt64 expected) {
-    assertValueEquals(expected, UInt64.fromBytes(MutableBytes.xor(v1, v2)));
+    assertValueEquals(expected, UInt64.fromBytes(v1.mutableCopy().xor(v2)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -552,7 +551,7 @@ class UInt64Test {
   @ParameterizedTest
   @MethodSource("notProvider")
   void not(UInt64 value, UInt64 expected) {
-    assertValueEquals(expected, UInt64.fromBytes(MutableBytes.not(value)));
+    assertValueEquals(expected, UInt64.fromBytes(value.mutableCopy().not()));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -566,7 +565,7 @@ class UInt64Test {
   @ParameterizedTest
   @MethodSource("shiftLeftProvider")
   void shiftLeft(UInt64 value, int distance, UInt64 expected) {
-    assertValueEquals(expected, UInt64.fromBytes(MutableBytes.shiftLeft(value, distance)));
+    assertValueEquals(expected, UInt64.fromBytes(value.mutableCopy().shiftLeft(distance)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -589,7 +588,7 @@ class UInt64Test {
   @ParameterizedTest
   @MethodSource("shiftRightProvider")
   void shiftRight(UInt64 value, int distance, UInt64 expected) {
-    assertValueEquals(expected, UInt64.fromBytes(MutableBytes.shiftRight(value, distance)));
+    assertValueEquals(expected, UInt64.fromBytes(value.mutableCopy().shiftRight(distance)));
   }
 
   @SuppressWarnings("UnusedMethod")

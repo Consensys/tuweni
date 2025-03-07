@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.tuweni.bytes.v2.Bytes;
-import org.apache.tuweni.bytes.v2.MutableBytes;
 
 import java.math.BigInteger;
 import java.util.stream.Stream;
@@ -513,7 +512,7 @@ class UInt32Test {
   @ParameterizedTest
   @MethodSource("andProvider")
   void and(UInt32 v1, Bytes v2, UInt32 expected) {
-    assertValueEquals(expected, UInt32.fromBytes(MutableBytes.and(v1, v2)));
+    assertValueEquals(expected, UInt32.fromBytes(v1.mutableCopy().and(v2)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -528,7 +527,7 @@ class UInt32Test {
   @ParameterizedTest
   @MethodSource("orProvider")
   void or(UInt32 v1, Bytes v2, UInt32 expected) {
-    assertValueEquals(expected, UInt32.fromBytes(MutableBytes.or(v1, v2)));
+    assertValueEquals(expected, UInt32.fromBytes(v1.mutableCopy().or(v2)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -545,7 +544,7 @@ class UInt32Test {
   @ParameterizedTest
   @MethodSource("xorProvider")
   void xor(UInt32 v1, Bytes v2, UInt32 expected) {
-    assertValueEquals(expected, UInt32.fromBytes(MutableBytes.xor(v1, v2)));
+    assertValueEquals(expected, UInt32.fromBytes(v1.mutableCopy().xor(v2)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -562,7 +561,7 @@ class UInt32Test {
   @ParameterizedTest
   @MethodSource("notProvider")
   void not(UInt32 value, UInt32 expected) {
-    assertValueEquals(expected, UInt32.fromBytes(MutableBytes.not(value)));
+    assertValueEquals(expected, UInt32.fromBytes(value.mutableCopy().not()));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -576,7 +575,7 @@ class UInt32Test {
   @ParameterizedTest
   @MethodSource("shiftLeftProvider")
   void shiftLeft(UInt32 value, int distance, UInt32 expected) {
-    assertValueEquals(expected, UInt32.fromBytes(MutableBytes.shiftLeft(value, distance)));
+    assertValueEquals(expected, UInt32.fromBytes(value.mutableCopy().shiftLeft(distance)));
   }
 
   @SuppressWarnings("UnusedMethod")
@@ -600,7 +599,7 @@ class UInt32Test {
   @ParameterizedTest
   @MethodSource("shiftRightProvider")
   void shiftRight(UInt32 value, int distance, UInt32 expected) {
-    assertValueEquals(expected, UInt32.fromBytes(MutableBytes.shiftRight(value, distance)));
+    assertValueEquals(expected, UInt32.fromBytes(value.mutableCopy().shiftRight(distance)));
   }
 
   @SuppressWarnings("UnusedMethod")

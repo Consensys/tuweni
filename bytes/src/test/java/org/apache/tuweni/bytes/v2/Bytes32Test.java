@@ -37,7 +37,7 @@ class Bytes32Test {
     MutableBytes mutableBytes = bytes.mutableCopy();
     assertEquals(
         "0x112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00",
-        Bytes32.wrap(mutableBytes.toBytes(), 1).toHexString());
+        Bytes32.wrap(mutableBytes, 1).toHexString());
   }
 
   @Test
@@ -69,7 +69,7 @@ class Bytes32Test {
 
   @Test
   void leftPadAValueToBytes32() {
-    Bytes32 b32 = Bytes32.wrap(MutableBytes.leftPad(Bytes.of(1, 2, 3), 32));
+    Bytes32 b32 = Bytes32.wrap(Bytes.of(1, 2, 3).mutableCopy().leftPad(32));
     assertEquals(32, b32.size());
     for (int i = 0; i < 28; ++i) {
       assertEquals((byte) 0, b32.get(i));
@@ -81,7 +81,7 @@ class Bytes32Test {
 
   @Test
   void rightPadAValueToBytes32() {
-    Bytes32 b32 = Bytes32.wrap(MutableBytes.rightPad(Bytes.of(1, 2, 3), 32));
+    Bytes32 b32 = Bytes32.wrap(Bytes.of(1, 2, 3).mutableCopy().rightPad(32));
     assertEquals(32, b32.size());
     for (int i = 3; i < 32; ++i) {
       assertEquals((byte) 0, b32.get(i));
@@ -96,7 +96,7 @@ class Bytes32Test {
     Throwable exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Bytes32.wrap(MutableBytes.leftPad(Bytes.EMPTY, 33)));
+            () -> Bytes32.wrap(Bytes.EMPTY.mutableCopy().leftPad(33)));
     assertEquals("Expected 32 bytes but got 33", exception.getMessage());
   }
 
@@ -105,7 +105,7 @@ class Bytes32Test {
     Throwable exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> Bytes32.wrap(MutableBytes.rightPad(Bytes.EMPTY, 33)));
+            () -> Bytes32.wrap(Bytes.EMPTY.mutableCopy().rightPad(33)));
     assertEquals("Expected 32 bytes but got 33", exception.getMessage());
   }
 

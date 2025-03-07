@@ -106,7 +106,7 @@ final class ConcatenatedBytes extends Bytes {
         Bytes[] subvalues = ((ConcatenatedBytes) value).values;
         System.arraycopy(subvalues, 0, concatenated, i, subvalues.length);
         i += subvalues.length;
-      } else if (value.size() != 0) {
+      } else if (!value.isEmpty()) {
         concatenated[i++] = value;
       }
     }
@@ -179,6 +179,10 @@ final class ConcatenatedBytes extends Bytes {
       remaining -= vSize;
     }
 
+    if (firstValue.size() >= length) {
+      return firstValue;
+    }
+
     Bytes[] combined = new Bytes[j - firstOffset + 1];
     combined[0] = firstValue;
     if (remaining > 0) {
@@ -196,34 +200,6 @@ final class ConcatenatedBytes extends Bytes {
   public MutableBytes mutableCopy() {
     return MutableBytes.fromArray(toArrayUnsafe());
   }
-
-  //  TODO: Finish MutableBytes
-  //  @Override
-  //  public MutableBytes mutableCopy() {
-  //    if (size == 0) {
-  //      return MutableBytes.EMPTY;
-  //    }
-  //    MutableBytes result = MutableBytes.create(size);
-  //    copyToUnchecked(result, 0);
-  //    return result;
-  //  }
-  //
-  //  @Override
-  //  public void copyTo(MutableBytes destination, int destinationOffset) {
-  //    if (size == 0) {
-  //      return;
-  //    }
-  //
-  //    checkElementIndex(destinationOffset, destination.size());
-  //    checkArgument(
-  //        destination.size() - destinationOffset >= size,
-  //        "Cannot copy %s bytes, destination has only %s bytes from index %s",
-  //        size,
-  //        destination.size() - destinationOffset,
-  //        destinationOffset);
-  //
-  //    copyToUnchecked(destination, destinationOffset);
-  //  }
 
   @Override
   public void update(MessageDigest digest) {
@@ -243,60 +219,38 @@ final class ConcatenatedBytes extends Bytes {
     return bytesArray;
   }
 
-  //  TODO: Finish MutableBytes
-  //  @Override
-  //  public byte[] toArray() {
-  //    if (size == 0) {
-  //      return new byte[0];
-  //    }
-  //
-  //    MutableBytes result = MutableBytes.create(size);
-  //    copyToUnchecked(result, 0);
-  //    return result.toArrayUnsafe();
-  //  }
-  //
-  //  private void copyToUnchecked(MutableBytes destination, int destinationOffset) {
-  //    int offset = 0;
-  //    for (Bytes value : values) {
-  //      int vSize = value.size();
-  //      if ((offset + vSize) > size) {
-  //        throw new IllegalStateException("element sizes do not match total size");
-  //      }
-  //      value.copyTo(destination, destinationOffset);
-  //      offset += vSize;
-  //      destinationOffset += vSize;
-  //    }
-  //  }
-
   @Override
-  protected void and(int offset, byte[] bytesArray) {
-    for (int i = 0; i < size(); i++) {
-      for (Bytes bytes : values) {
-        for (int j = 0; j < bytes.size(); j++) {
-          bytesArray[offset + i] = (byte) (bytes.get(j) & bytesArray[offset + i]);
-        }
+  protected void and(byte[] bytesArray, int offset, int length) {
+    int resultOffset = offset;
+    for (Bytes value : values) {
+      value.and(bytesArray, resultOffset, value.size());
+      resultOffset += value.size();
+      if (resultOffset >= length) {
+        return;
       }
     }
   }
 
   @Override
-  protected void or(int offset, byte[] bytesArray) {
-    for (int i = 0; i < size(); i++) {
-      for (Bytes bytes : values) {
-        for (int j = 0; j < bytes.size(); j++) {
-          bytesArray[offset + i] = (byte) (bytes.get(j) | bytesArray[offset + i]);
-        }
+  protected void or(byte[] bytesArray, int offset, int length) {
+    int resultOffset = offset;
+    for (Bytes value : values) {
+      value.or(bytesArray, resultOffset, value.size());
+      resultOffset += value.size();
+      if (resultOffset >= length) {
+        return;
       }
     }
   }
 
   @Override
-  protected void xor(int offset, byte[] bytesArray) {
-    for (int i = 0; i < size(); i++) {
-      for (Bytes bytes : values) {
-        for (int j = 0; j < bytes.size(); j++) {
-          bytesArray[offset + i] = (byte) (bytes.get(j) ^ bytesArray[offset + i]);
-        }
+  protected void xor(byte[] bytesArray, int offset, int length) {
+    int resultOffset = offset;
+    for (Bytes value : values) {
+      value.xor(bytesArray, resultOffset, value.size());
+      resultOffset += value.size();
+      if (resultOffset >= length) {
+        return;
       }
     }
   }

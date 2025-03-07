@@ -278,7 +278,7 @@ public final class UInt64 extends Bytes {
       return this;
     }
     if (isPowerOf2(value)) {
-      return fromBytes(MutableBytes.shiftRight(this, log2(value)));
+      return fromBytes(mutableCopy().shiftRight(log2(value)));
     }
     return create(toBigInteger().divide(BigInteger.valueOf(value)).longValue());
   }
@@ -396,7 +396,7 @@ public final class UInt64 extends Bytes {
   public Bytes toBytes() {
     MutableBytes bytes = MutableBytes.create(8);
     bytes.setLong(0, this.value);
-    return bytes.toBytes();
+    return bytes;
   }
 
   public Bytes toMinimalBytes() {
@@ -428,7 +428,7 @@ public final class UInt64 extends Bytes {
       case 1:
         bytes.set(j, (byte) (this.value & 0xFF));
     }
-    return bytes.toBytes();
+    return bytes;
   }
 
   @Override

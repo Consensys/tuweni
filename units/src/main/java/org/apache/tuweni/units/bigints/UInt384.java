@@ -610,12 +610,14 @@ public final class UInt384 extends Bytes {
 
   @Override
   public byte[] toArrayUnsafe() {
-    byte[] byteArray = new byte[INTS_SIZE];
+    byte[] byteArray = new byte[size()];
+    int j = 0;
     for (int i = 0; i < INTS_SIZE; i++) {
-      byteArray[i] = (byte) (ints[i] >> 24);
-      byteArray[i + 1] = (byte) (ints[i] >> 16);
-      byteArray[i + 2] = (byte) (ints[i] >> 8);
-      byteArray[i + 3] = (byte) ints[i];
+      byteArray[j] = (byte) (ints[i] >> 24);
+      byteArray[j + 1] = (byte) (ints[i] >> 16);
+      byteArray[j + 2] = (byte) (ints[i] >> 8);
+      byteArray[j + 3] = (byte) ints[i];
+      j += 4;
     }
     return byteArray;
   }
@@ -625,10 +627,9 @@ public final class UInt384 extends Bytes {
     if (object == this) {
       return true;
     }
-    if (!(object instanceof UInt384)) {
+    if (!(object instanceof UInt384 other)) {
       return false;
     }
-    UInt384 other = (UInt384) object;
     for (int i = 0; i < INTS_SIZE; ++i) {
       if (this.ints[i] != other.ints[i]) {
         return false;
@@ -710,13 +711,25 @@ public final class UInt384 extends Bytes {
   }
 
   @Override
-  protected void and(int offset, byte[] bytesArray) {}
+  protected void and(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) & bytesArray[offset + i]);
+    }
+  }
 
   @Override
-  protected void or(int offset, byte[] bytesArray) {}
+  protected void or(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) | bytesArray[offset + i]);
+    }
+  }
 
   @Override
-  protected void xor(int offset, byte[] bytesArray) {}
+  protected void xor(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
+      bytesArray[offset + i] = (byte) (get(i) ^ bytesArray[offset + i]);
+    }
+  }
 
   @Override
   public BigInteger toBigInteger() {
@@ -735,11 +748,7 @@ public final class UInt384 extends Bytes {
   }
 
   public Bytes toBytes() {
-    MutableBytes bytes = MutableBytes.create(48);
-    for (int i = 0, j = 0; i < INTS_SIZE; ++i, j += 4) {
-      bytes.setInt(j, this.ints[i]);
-    }
-    return bytes;
+    return Bytes.wrap(toArrayUnsafe());
   }
 
   public Bytes toMinimalBytes() {

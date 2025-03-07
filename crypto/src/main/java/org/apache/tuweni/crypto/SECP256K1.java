@@ -390,7 +390,7 @@ public final class SECP256K1 {
     ECDSASigner signer = new ECDSASigner();
     Bytes toDecode = Bytes.wrap(Bytes.of((byte) 4), publicKey.bytes());
     ECPublicKeyParameters params =
-        new ECPublicKeyParameters(Parameters.CURVE.getCurve().decodePoint(toDecode.mutableCopy().toArrayUnsafe()), Parameters.CURVE);
+        new ECPublicKeyParameters(Parameters.CURVE.getCurve().decodePoint(toDecode.mutableCopy().toArray()), Parameters.CURVE);
     signer.init(false, params);
     try {
       return signer.verifySignature(hash, signature.r, signature.s);

@@ -95,13 +95,13 @@ class ConcatenatedBytesTest {
   @Test
   void testMutableCopy() {
     Bytes bytes = Bytes.wrap(Bytes.fromHexString("0x01234567"), Bytes.fromHexString("0x89ABCDEF"));
-    assertEquals(bytes, bytes.mutableCopy().toBytes());
+    assertEquals(bytes, bytes.mutableCopy());
   }
 
   @Test
   void testHashcodeUpdates() {
     MutableBytes dest = MutableBytes.create(32);
-    Bytes bytes = Bytes.wrap(dest.toBytes(), Bytes.fromHexString("0x4567"));
+    Bytes bytes = Bytes.wrap(dest, Bytes.fromHexString("0x4567"));
     int hashCode = bytes.hashCode();
     dest.set(1, (byte) 123);
     assertEquals(hashCode, bytes.hashCode());

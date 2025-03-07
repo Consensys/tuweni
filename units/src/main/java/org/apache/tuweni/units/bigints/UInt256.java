@@ -453,7 +453,7 @@ public final class UInt256 extends Bytes {
     if (divisor.isZero()) {
       return UInt256.ZERO;
     } else {
-      BigInteger result = this.toBigInteger().divide(divisor.toBigInteger());
+      BigInteger result = this.toSignedBigInteger().divide(divisor.toSignedBigInteger());
       Bytes resultBytes = Bytes.wrap(result.toByteArray());
       if (resultBytes.size() > 32) {
         resultBytes = resultBytes.slice(resultBytes.size() - 32, 32);
@@ -531,8 +531,8 @@ public final class UInt256 extends Bytes {
       return UInt256.ZERO;
     }
 
-    BigInteger bi = this.toBigInteger();
-    BigInteger result = bi.abs().mod(modulus.toBigInteger().abs());
+    BigInteger bi = this.toSignedBigInteger();
+    BigInteger result = bi.abs().mod(modulus.toSignedBigInteger().abs());
 
     if (bi.signum() < 0) {
       result = result.negate();
@@ -828,22 +828,22 @@ public final class UInt256 extends Bytes {
   }
 
   @Override
-  protected void and(int offset, byte[] bytesArray) {
-    for (int i = 0; i < size(); i++) {
+  protected void and(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
       bytesArray[offset + i] = (byte) (get(i) & bytesArray[offset + i]);
     }
   }
 
   @Override
-  protected void or(int offset, byte[] bytesArray) {
-    for (int i = 0; i < size(); i++) {
+  protected void or(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
       bytesArray[offset + i] = (byte) (get(i) | bytesArray[offset + i]);
     }
   }
 
   @Override
-  protected void xor(int offset, byte[] bytesArray) {
-    for (int i = 0; i < size(); i++) {
+  protected void xor(byte[] bytesArray, int offset, int length) {
+    for (int i = 0; i < length; i++) {
       bytesArray[offset + i] = (byte) (get(i) ^ bytesArray[offset + i]);
     }
   }

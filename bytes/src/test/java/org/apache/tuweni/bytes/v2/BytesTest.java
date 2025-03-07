@@ -170,7 +170,7 @@ class BytesTest extends CommonBytesTests {
     assertWrapSlice(bytes, 2, 2);
 
     Bytes wrapped = Bytes.wrap(bytes, 2, 2);
-    Bytes copy = wrapped.mutableCopy().toBytes();
+    Bytes copy = wrapped.mutableCopy();
 
     // Modify the bytes outside of the wrapped slice and check this doesn't affect the value (that
     // it is still equal to the copy from before the updates)

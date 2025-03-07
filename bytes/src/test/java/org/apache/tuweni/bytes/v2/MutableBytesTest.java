@@ -24,7 +24,7 @@ class MutableBytesTest {
 
   @Test
   void testClear() {
-    MutableBytes b = MutableBytes.fromArray(Bytes.fromHexString("deadbeef").toArrayUnsafe());
+    MutableBytes b = MutableBytes.fromHexString("deadbeef");
     assertEquals(Bytes.fromHexString("00000000"), b.clear());
   }
 
@@ -42,7 +42,7 @@ class MutableBytesTest {
 
     assertEquals(Bytes.fromHexString("0xFFFE"), b.fill((byte) 0xFF).decrement());
 
-    b = MutableBytes.fromArray(Bytes.fromHexString("0x00FF").toArrayUnsafe());
+    b = MutableBytes.fromHexString("0x00FF");
     assertEquals(Bytes.fromHexString("0x0100"), b.increment());
   }
 
@@ -135,7 +135,7 @@ class MutableBytesTest {
     "0x01000001, 0x00400000, 2"
   })
   void shiftRight(String bytesValue, String expected, int shiftBits) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
+    MutableBytes value = MutableBytes.fromHexString(bytesValue);
     assertEquals(Bytes.fromHexString(expected), value.shiftRight(shiftBits));
   }
 
@@ -163,7 +163,7 @@ class MutableBytesTest {
     "0x01000001, 0x04000004, 2"
   })
   void shiftLeft(String bytesValue, String expected, int shiftBits) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
+    MutableBytes value = MutableBytes.fromHexString(bytesValue);
     assertEquals(Bytes.fromHexString(expected), value.shiftLeft(shiftBits));
   }
 
@@ -182,7 +182,7 @@ class MutableBytesTest {
     "0x123456789ABCDEF0, 0x123456789ABCDEF0, 4"
   })
   void leftPad(String bytesValue, String expected, int size) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
+    MutableBytes value = MutableBytes.fromHexString(bytesValue);
     assertEquals(Bytes.fromHexString(expected), value.leftPad(size));
   }
 
@@ -201,7 +201,7 @@ class MutableBytesTest {
     "0x123456789ABCDEF0, 0x123456789ABCDEF0, 4"
   })
   void rightPad(String bytesValue, String expected, int size) {
-    MutableBytes value = Bytes.fromHexString(bytesValue).mutableCopy();
+    MutableBytes value = MutableBytes.fromHexString(bytesValue);
     assertEquals(Bytes.fromHexString(expected), value.rightPad(size));
   }
 
@@ -262,7 +262,7 @@ class MutableBytesTest {
   })
   void and(String bytes1, String bytes2, String expectedResult) {
     MutableBytes value = MutableBytes.fromHexString(bytes1).and(Bytes.fromHexString(bytes2));
-    assertEquals(Bytes.fromHexString(expectedResult), value.toBytes());
+    assertEquals(Bytes.fromHexString(expectedResult), value);
   }
 
   @ParameterizedTest
@@ -276,10 +276,10 @@ class MutableBytesTest {
   @ParameterizedTest
   @CsvSource({"0x010FF001, 0x11, 0x01", "0x0100F001, 0x11, 0x00", "0x01ACF001, 0xFF, 0xAC"})
   void andWithOffset(String bytes1, String bytes2, String expectedResult) {
-    MutableBytes bytesValue = MutableBytes.fromHexString(bytes1);
+    Bytes bytesValue = Bytes.fromHexString(bytes1);
     Bytes bytes2Value = Bytes.fromHexString(bytes2);
     bytesValue = bytesValue.slice(bytesValue.size() / 4, bytes2Value.size());
-    assertEquals(Bytes.fromHexString(expectedResult), bytesValue.and(bytes2Value).toBytes());
+    assertEquals(Bytes.fromHexString(expectedResult), bytesValue.mutableCopy().and(bytes2Value));
   }
 
   @ParameterizedTest
@@ -297,7 +297,7 @@ class MutableBytesTest {
   })
   void or(String bytes1, String bytes2, String expectedResult) {
     MutableBytes value = MutableBytes.fromHexString(bytes1).or(Bytes.fromHexString(bytes2));
-    assertEquals(Bytes.fromHexString(expectedResult), value.toBytes());
+    assertEquals(Bytes.fromHexString(expectedResult), value);
   }
 
   @ParameterizedTest
@@ -311,10 +311,10 @@ class MutableBytesTest {
   @ParameterizedTest
   @CsvSource({"0x010FF001, 0x11, 0x1F", "0x0100F001, 0x11, 0x11", "0x01ACF001, 0xFF, 0xFF"})
   void orWithOffset(String bytes1, String bytes2, String expectedResult) {
-    MutableBytes bytesValue = MutableBytes.fromHexString(bytes1);
+    Bytes bytesValue = Bytes.fromHexString(bytes1);
     Bytes bytes2Value = Bytes.fromHexString(bytes2);
     bytesValue = bytesValue.slice(bytesValue.size() / 4, bytes2Value.size());
-    assertEquals(Bytes.fromHexString(expectedResult), bytesValue.or(bytes2Value).toBytes());
+    assertEquals(Bytes.fromHexString(expectedResult), bytesValue.mutableCopy().or(bytes2Value));
   }
 
   @ParameterizedTest
@@ -332,7 +332,7 @@ class MutableBytesTest {
   })
   void xor(String bytes1, String bytes2, String expectedResult) {
     MutableBytes value = MutableBytes.fromHexString(bytes1).xor(Bytes.fromHexString(bytes2));
-    assertEquals(Bytes.fromHexString(expectedResult), value.toBytes());
+    assertEquals(Bytes.fromHexString(expectedResult), value);
   }
 
   @ParameterizedTest
@@ -346,9 +346,9 @@ class MutableBytesTest {
   @ParameterizedTest
   @CsvSource({"0x010FF001, 0x11, 0x1E", "0x0100F001, 0x11, 0x11", "0x01ACF001, 0xFF, 0x53"})
   void xorWithOffset(String bytes1, String bytes2, String expectedResult) {
-    MutableBytes bytesValue = MutableBytes.fromHexString(bytes1);
+    Bytes bytesValue = Bytes.fromHexString(bytes1);
     Bytes bytes2Value = Bytes.fromHexString(bytes2);
     bytesValue = bytesValue.slice(bytesValue.size() / 4, bytes2Value.size());
-    assertEquals(Bytes.fromHexString(expectedResult), bytesValue.xor(bytes2Value).toBytes());
+    assertEquals(Bytes.fromHexString(expectedResult), bytesValue.mutableCopy().xor(bytes2Value));
   }
 }

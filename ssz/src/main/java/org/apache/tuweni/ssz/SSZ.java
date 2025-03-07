@@ -90,7 +90,7 @@ public final class SSZ {
       chunks = hashRound;
     }
 
-    return Hash.keccak256(Bytes.wrap(chunks.get(0), valuesLength));
+    return Hash.keccak256(Bytes.wrap(chunks.getFirst(), valuesLength));
   }
 
   // Encoding

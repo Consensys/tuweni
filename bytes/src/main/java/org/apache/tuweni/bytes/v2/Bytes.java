@@ -785,6 +785,31 @@ public abstract class Bytes implements Comparable<Bytes> {
    * @return A {@link BigInteger} corresponding to interpreting these bytes as a two's-complement
    *     signed integer.
    */
+  public BigInteger toSignedBigInteger() {
+    return toSignedBigInteger(BIG_ENDIAN);
+  }
+
+  /**
+   * The BigInteger corresponding to interpreting these bytes as a two's-complement signed integer.
+   *
+   * @param order The byte-order for decoding the integer.
+   * @return A {@link BigInteger} corresponding to interpreting these bytes as a two's-complement
+   *     signed integer.
+   */
+  public BigInteger toSignedBigInteger(ByteOrder order) {
+    if (size() == 0) {
+      return BigInteger.ZERO;
+    }
+    return new BigInteger(
+        (order == BIG_ENDIAN) ? toArrayUnsafe() : mutableCopy().reverse().toArray());
+  }
+
+  /**
+   * The BigInteger corresponding to interpreting these bytes as a two's-complement signed integer.
+   *
+   * @return A {@link BigInteger} corresponding to interpreting these bytes as a two's-complement
+   *     signed integer.
+   */
   public BigInteger toBigInteger() {
     return toBigInteger(BIG_ENDIAN);
   }
@@ -800,15 +825,8 @@ public abstract class Bytes implements Comparable<Bytes> {
     if (size() == 0) {
       return BigInteger.ZERO;
     }
-    byte[] array;
-    if (order == BIG_ENDIAN) {
-      array = toArrayUnsafe();
-    } else {
-      MutableBytes mutableBytes = mutableCopy();
-      mutableBytes.reverse();
-      array = mutableBytes.toArrayUnsafe();
-    }
-    return new BigInteger(array);
+    return new BigInteger(
+        (order == BIG_ENDIAN) ? toArrayUnsafe() : mutableCopy().reverse().toArray());
   }
 
   /**
@@ -829,15 +847,11 @@ public abstract class Bytes implements Comparable<Bytes> {
    *     unsigned integer.
    */
   public BigInteger toUnsignedBigInteger(ByteOrder order) {
-    byte[] array;
-    if (order == BIG_ENDIAN) {
-      array = toArrayUnsafe();
-    } else {
-      MutableBytes mutableBytes = mutableCopy();
-      mutableBytes.reverse();
-      array = mutableBytes.toArrayUnsafe();
+    if(size() == 0) {
+      return BigInteger.ZERO;
     }
-    return new BigInteger(1, array);
+    return new BigInteger(1,
+            (order == BIG_ENDIAN) ? toArrayUnsafe() : mutableCopy().reverse().toArray());
   }
 
   /**
@@ -1299,9 +1313,9 @@ public abstract class Bytes implements Comparable<Bytes> {
     return this;
   }
 
-  protected abstract void and(int offset, byte[] bytesArray);
+  protected abstract void and(byte[] bytesArray, int offset, int length);
 
-  protected abstract void or(int offset, byte[] bytesArray);
+  protected abstract void or(byte[] bytesArray, int offset, int length);
 
-  protected abstract void xor(int offset, byte[] bytesArray);
+  protected abstract void xor(byte[] bytesArray, int offset, int length);
 }

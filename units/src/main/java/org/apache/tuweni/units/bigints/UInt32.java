@@ -97,7 +97,7 @@ public final class UInt32 extends Bytes {
     if (bytes.size() > 4) {
       throw new IllegalArgumentException("Argument is greater than 4 bytes");
     }
-    return create(byteOrder == ByteOrder.LITTLE_ENDIAN ? MutableBytes.reverse(bytes) : bytes);
+    return create(byteOrder == ByteOrder.LITTLE_ENDIAN ? bytes.mutableCopy().reverse() : bytes);
   }
 
   /**
@@ -279,7 +279,7 @@ public final class UInt32 extends Bytes {
       return this;
     }
     if (isPowerOf2(value)) {
-      return fromBytes(MutableBytes.shiftRight(this, log2(value)));
+      return fromBytes(mutableCopy().shiftRight(log2(value)));
     }
     return create(toBigInteger().divide(BigInteger.valueOf(value)).intValue());
   }
