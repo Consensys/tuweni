@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.tuweni.bytes.Bytes32;
 import org.apache.tuweni.units.bigints.UInt256;
 
 import java.math.BigInteger;
@@ -78,5 +79,11 @@ class WeiTest {
   @Test
   void toBigIntegerIsPositive() {
     assertEquals(1, Wei.valueOf(UInt256.MAX_VALUE).toBigInteger().signum());
+  }
+
+  @Test
+  void compareWeiWithBytes32() {
+    assertEquals(Bytes32.ZERO, org.apache.tuweni.units.ethereum.Wei.valueOf(0));
+    assertEquals(org.apache.tuweni.units.ethereum.Wei.valueOf(0), Bytes32.ZERO);
   }
 }

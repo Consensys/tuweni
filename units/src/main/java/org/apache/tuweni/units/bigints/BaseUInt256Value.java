@@ -338,11 +338,12 @@ public abstract class BaseUInt256Value<T extends UInt256Value<T>> implements UIn
     if (obj == this) {
       return true;
     }
-    if (!(obj instanceof UInt256Value)) {
-      return false;
+    if (obj instanceof Bytes) {
+      final Bytes other = (Bytes) obj;
+      return this.value.equals(other);
     }
-    UInt256Value<?> other = (UInt256Value<?>) obj;
-    return this.value.equals(other.toUInt256());
+
+    return false;
   }
 
   @Override
