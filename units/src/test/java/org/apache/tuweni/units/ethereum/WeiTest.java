@@ -83,7 +83,7 @@ class WeiTest {
 
   @Test
   void compareWeiWithBytes32() {
-    assertEquals(Bytes32.ZERO, org.apache.tuweni.units.ethereum.Wei.valueOf(0));
-    assertEquals(org.apache.tuweni.units.ethereum.Wei.valueOf(0), Bytes32.ZERO);
+    assertEquals(Bytes32.ZERO, Wei.valueOf(0));
+    assertEquals(Wei.valueOf(0), Bytes32.ZERO);
   }
 }
