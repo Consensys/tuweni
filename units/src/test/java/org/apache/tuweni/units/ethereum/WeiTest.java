@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.tuweni.bytes.Bytes;
 import org.apache.tuweni.bytes.Bytes32;
 import org.apache.tuweni.units.bigints.UInt256;
 
@@ -83,7 +84,11 @@ class WeiTest {
 
   @Test
   void compareWeiWithBytes32() {
-    assertEquals(Bytes32.ZERO, Wei.valueOf(0));
-    assertEquals(Wei.valueOf(0), Bytes32.ZERO);
+    assertEquals(Bytes32.ZERO, Wei.ZERO);
+    assertEquals(Wei.ZERO, Bytes32.ZERO);
+    assertEquals(Bytes32.leftPad(Bytes.of(1)), Wei.valueOf(1));
+    assertEquals(Wei.valueOf(1), Bytes32.leftPad(Bytes.of(1)));
+    assertEquals(Wei.valueOf(UInt256.MAX_VALUE), Bytes32.repeat((byte) 0xff));
+    assertEquals(Bytes32.repeat((byte) 0xff), Wei.valueOf(UInt256.MAX_VALUE));
   }
 }
