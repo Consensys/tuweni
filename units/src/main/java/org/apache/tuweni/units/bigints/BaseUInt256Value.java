@@ -335,15 +335,7 @@ public abstract class BaseUInt256Value<T extends UInt256Value<T>> implements UIn
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (!(obj instanceof Bytes32)) {
-      return false;
-    }
-
-    Bytes32 other = (Bytes32) obj;
-    return this.value.equals(other);
+    return this.value.equals(obj);
   }
 
   @Override
