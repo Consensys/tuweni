@@ -10,6 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
+plugins {
+  id 'me.champeau.jmh' version '0.7.2'
+}
+
 description = 'Classes and utilities for working with byte arrays.'
 
 dependencies {
@@ -23,6 +27,31 @@ dependencies {
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
   testImplementation 'org.junit.jupiter:junit-jupiter-params'
   testImplementation 'org.mockito:mockito-junit-jupiter'
+  testImplementation 'org.assertj:assertj-core'
+  jmhImplementation 'tools.profiler:async-profiler:3.0'
 
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+  jmhAnnotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.37'
+}
+
+// to pass compilation as the compiler doesn't like what jmh tool is doing
+compileJmhJava {
+    options.compilerArgs << '-Xlint:none'
+}
+
+jmh {
+  jmhVersion = '1.37'
+  if (project.hasProperty('jmh.includes')) {
+    includes = [project.property('jmh.includes')]
+  }
+
+  jvmArgs = ['-XX:LoopUnrollLimit=1',
+             '-XX:-TieredCompilation',
+             '-XX:+UnlockDiagnosticVMOptions',
+           //   '-XX:+TraceDeoptimization',
+           //   '-XX:+PrintCompilation',
+           //   '-XX:+PrintInlining',
+           //   '-XX:-Inline'
+            ]
 }
