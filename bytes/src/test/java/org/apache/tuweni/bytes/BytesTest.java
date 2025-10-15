@@ -726,7 +726,7 @@ class BytesTest extends CommonBytesTests {
   }
 
   @Test
-  void toLong() {
+  void toLongTest() {
     final Bytes sandwich = Bytes.fromHexString("0x000000000000001100000000000000");
     final Bytes leadingZeros = Bytes.fromHexString("0x0000000000000011");
     final Bytes trailingZeros = Bytes.fromHexString("0x1100000000000000");
@@ -742,18 +742,18 @@ class BytesTest extends CommonBytesTests {
   }
 
   @Test
-  void toInt() {
+  void toIntTest() {
     final Bytes sandwich = Bytes.fromHexString("0x00000011000000");
     final Bytes leadingZeros = Bytes.fromHexString("0x00000011");
     final Bytes trailingZeros = Bytes.fromHexString("0x11000000");
     final Bytes noZeros = Bytes.fromHexString("0x11");
-    assertEquals(285212672, sandwich.toLong());
-    assertEquals(17, leadingZeros.toLong());
-    assertEquals(285212672, trailingZeros.toLong());
-    assertEquals(17, noZeros.toLong());
-    assertEquals(285212672, sandwich.toLong(LITTLE_ENDIAN));
-    assertEquals(285212672, leadingZeros.toLong(LITTLE_ENDIAN));
-    assertEquals(17, trailingZeros.toLong(LITTLE_ENDIAN));
-    assertEquals(17, noZeros.toLong(LITTLE_ENDIAN));
+    assertEquals(285212672, sandwich.toInt());
+    assertEquals(17, leadingZeros.toInt());
+    assertEquals(285212672, trailingZeros.toInt());
+    assertEquals(17, noZeros.toInt());
+    assertEquals(285212672, sandwich.toInt(LITTLE_ENDIAN));
+    assertEquals(285212672, leadingZeros.toInt(LITTLE_ENDIAN));
+    assertEquals(17, trailingZeros.toInt(LITTLE_ENDIAN));
+    assertEquals(17, noZeros.toInt(LITTLE_ENDIAN));
   }
 }
