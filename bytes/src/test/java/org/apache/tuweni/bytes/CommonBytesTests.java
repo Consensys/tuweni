@@ -163,7 +163,7 @@ abstract class CommonBytesTests {
   void testAsIntTooManyBytes() {
     Throwable exception =
         assertThrows(IllegalArgumentException.class, () -> w(new byte[] {1, 2, 3, 4, 5}).toInt());
-    assertEquals("Value of size 5 has more than 4 bytes", exception.getMessage());
+    assertEquals("Trimmed value of size 5 has more than 4 bytes", exception.getMessage());
   }
 
   @Test
@@ -217,7 +217,7 @@ abstract class CommonBytesTests {
         assertThrows(
             IllegalArgumentException.class,
             () -> w(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9}).toLong());
-    assertEquals("Value of size 9 has more than 8 bytes", exception.getMessage());
+    assertEquals("Trimmed value of size 9 has more than 8 bytes", exception.getMessage());
   }
 
   @Test
