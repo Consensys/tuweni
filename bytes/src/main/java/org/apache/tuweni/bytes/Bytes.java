@@ -697,41 +697,42 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code size() > 4}.
    */
   default int toInt(ByteOrder order) {
-    int size = size();
-    checkArgument(size <= 4, "Value of size %s has more than 4 bytes", size());
+    final Bytes trmBytes = order == BIG_ENDIAN ? trimLeadingZeros() : trimTrailingZeros();
+    final int size = trmBytes.size();
+    checkArgument(size <= 4, "Trimmed value of size %s has more than 4 bytes", size);
     if (size == 0) {
       return 0;
     }
     if (order == BIG_ENDIAN) {
       int i = size;
-      int value = ((int) get(--i) & 0xFF);
+      int value = ((int) trmBytes.get(--i) & 0xFF);
       if (i == 0) {
         return value;
       }
-      value |= ((int) get(--i) & 0xFF) << 8;
+      value |= ((int) trmBytes.get(--i) & 0xFF) << 8;
       if (i == 0) {
         return value;
       }
-      value |= ((int) get(--i) & 0xFF) << 16;
+      value |= ((int) trmBytes.get(--i) & 0xFF) << 16;
       if (i == 0) {
         return value;
       }
-      return value | ((int) get(--i) & 0xFF) << 24;
+      return value | ((int) trmBytes.get(--i) & 0xFF) << 24;
     } else {
       int i = 0;
-      int value = ((int) get(i) & 0xFF);
+      int value = ((int) trmBytes.get(i) & 0xFF);
       if (++i == size) {
         return value;
       }
-      value |= ((int) get(i++) & 0xFF) << 8;
+      value |= ((int) trmBytes.get(i++) & 0xFF) << 8;
       if (i == size) {
         return value;
       }
-      value |= ((int) get(i++) & 0xFF) << 16;
+      value |= ((int) trmBytes.get(i++) & 0xFF) << 16;
       if (i == size) {
         return value;
       }
-      return value | ((int) get(i) & 0xFF) << 24;
+      return value | ((int) trmBytes.get(i) & 0xFF) << 24;
     }
   }
 
@@ -816,73 +817,74 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code size() > 8}.
    */
   default long toLong(ByteOrder order) {
-    int size = size();
-    checkArgument(size <= 8, "Value of size %s has more than 8 bytes", size());
+    final Bytes trmBytes = order == BIG_ENDIAN ? trimLeadingZeros() : trimTrailingZeros();
+    final int size = trmBytes.size();
+    checkArgument(size <= 8, "Trimmed value of size %s has more than 8 bytes", size);
     if (size == 0) {
       return 0;
     }
     if (order == BIG_ENDIAN) {
       int i = size;
-      long value = ((long) get(--i) & 0xFF);
+      long value = ((long) trmBytes.get(--i) & 0xFF);
       if (i == 0) {
         return value;
       }
-      value |= ((long) get(--i) & 0xFF) << 8;
+      value |= ((long) trmBytes.get(--i) & 0xFF) << 8;
       if (i == 0) {
         return value;
       }
-      value |= ((long) get(--i) & 0xFF) << 16;
+      value |= ((long) trmBytes.get(--i) & 0xFF) << 16;
       if (i == 0) {
         return value;
       }
-      value |= ((long) get(--i) & 0xFF) << 24;
+      value |= ((long) trmBytes.get(--i) & 0xFF) << 24;
       if (i == 0) {
         return value;
       }
-      value |= ((long) get(--i) & 0xFF) << 32;
+      value |= ((long) trmBytes.get(--i) & 0xFF) << 32;
       if (i == 0) {
         return value;
       }
-      value |= ((long) get(--i) & 0xFF) << 40;
+      value |= ((long) trmBytes.get(--i) & 0xFF) << 40;
       if (i == 0) {
         return value;
       }
-      value |= ((long) get(--i) & 0xFF) << 48;
+      value |= ((long) trmBytes.get(--i) & 0xFF) << 48;
       if (i == 0) {
         return value;
       }
-      return value | ((long) get(--i) & 0xFF) << 56;
+      return value | ((long) trmBytes.get(--i) & 0xFF) << 56;
     } else {
       int i = 0;
-      long value = ((long) get(i) & 0xFF);
+      long value = ((long) trmBytes.get(i) & 0xFF);
       if (++i == size) {
         return value;
       }
-      value |= ((long) get(i) & 0xFF) << 8;
+      value |= ((long) trmBytes.get(i) & 0xFF) << 8;
       if (++i == size) {
         return value;
       }
-      value |= ((long) get(i) & 0xFF) << 16;
+      value |= ((long) trmBytes.get(i) & 0xFF) << 16;
       if (++i == size) {
         return value;
       }
-      value |= ((long) get(i) & 0xFF) << 24;
+      value |= ((long) trmBytes.get(i) & 0xFF) << 24;
       if (++i == size) {
         return value;
       }
-      value |= ((long) get(i) & 0xFF) << 32;
+      value |= ((long) trmBytes.get(i) & 0xFF) << 32;
       if (++i == size) {
         return value;
       }
-      value |= ((long) get(i) & 0xFF) << 40;
+      value |= ((long) trmBytes.get(i) & 0xFF) << 40;
       if (++i == size) {
         return value;
       }
-      value |= ((long) get(i) & 0xFF) << 48;
+      value |= ((long) trmBytes.get(i) & 0xFF) << 48;
       if (++i == size) {
         return value;
       }
-      return value | ((long) get(i) & 0xFF) << 56;
+      return value | ((long) trmBytes.get(i) & 0xFF) << 56;
     }
   }
 

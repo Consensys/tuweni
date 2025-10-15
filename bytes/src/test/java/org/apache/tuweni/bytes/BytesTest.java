@@ -724,4 +724,36 @@ class BytesTest extends CommonBytesTests {
     Bytes b = Bytes.fromHexString("0x000000f300567800");
     assertEquals(Bytes.fromHexString("0x000000f3005678"), b.trimTrailingZeros());
   }
+
+  @Test
+  void toLong() {
+    final Bytes sandwich = Bytes.fromHexString("0x000000000000001100000000000000");
+    final Bytes leadingZeros = Bytes.fromHexString("0x0000000000000011");
+    final Bytes trailingZeros = Bytes.fromHexString("0x1100000000000000");
+    final Bytes noZeros = Bytes.fromHexString("0x11");
+    assertEquals(1224979098644774912L, sandwich.toLong());
+    assertEquals(17L, leadingZeros.toLong());
+    assertEquals(1224979098644774912L, trailingZeros.toLong());
+    assertEquals(17L, noZeros.toLong());
+    assertEquals(1224979098644774912L, sandwich.toLong(LITTLE_ENDIAN));
+    assertEquals(1224979098644774912L, leadingZeros.toLong(LITTLE_ENDIAN));
+    assertEquals(17L, trailingZeros.toLong(LITTLE_ENDIAN));
+    assertEquals(17L, noZeros.toLong(LITTLE_ENDIAN));
+  }
+
+  @Test
+  void toInt() {
+    final Bytes sandwich = Bytes.fromHexString("0x00000011000000");
+    final Bytes leadingZeros = Bytes.fromHexString("0x00000011");
+    final Bytes trailingZeros = Bytes.fromHexString("0x11000000");
+    final Bytes noZeros = Bytes.fromHexString("0x11");
+    assertEquals(285212672, sandwich.toLong());
+    assertEquals(17, leadingZeros.toLong());
+    assertEquals(285212672, trailingZeros.toLong());
+    assertEquals(17, noZeros.toLong());
+    assertEquals(285212672, sandwich.toLong(LITTLE_ENDIAN));
+    assertEquals(285212672, leadingZeros.toLong(LITTLE_ENDIAN));
+    assertEquals(17, trailingZeros.toLong(LITTLE_ENDIAN));
+    assertEquals(17, noZeros.toLong(LITTLE_ENDIAN));
+  }
 }
