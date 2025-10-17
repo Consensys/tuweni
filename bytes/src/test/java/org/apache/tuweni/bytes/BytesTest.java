@@ -756,4 +756,17 @@ class BytesTest extends CommonBytesTests {
     assertEquals(17, trailingZeros.toInt(LITTLE_ENDIAN));
     assertEquals(17, noZeros.toInt(LITTLE_ENDIAN));
   }
+
+  @Test
+  void trimmedSizeTest() {
+    final Bytes zeros = Bytes.fromHexString("0x0000000000000000");
+    assertEquals(zeros.trimmedSize(), zeros.trimLeadingZeros().size());
+    assertEquals(zeros.trimmedSize(LITTLE_ENDIAN), zeros.trimTrailingZeros().size());
+    final Bytes sandwich = Bytes.fromHexString("0x00000011000000");
+    assertEquals(sandwich.trimmedSize(), sandwich.trimLeadingZeros().size());
+    assertEquals(sandwich.trimmedSize(LITTLE_ENDIAN), sandwich.trimTrailingZeros().size());
+    final Bytes noTrim = Bytes.fromHexString("0x11");
+    assertEquals(noTrim.trimmedSize(), noTrim.trimLeadingZeros().size());
+    assertEquals(noTrim.trimmedSize(LITTLE_ENDIAN), noTrim.trimTrailingZeros().size());
+  }
 }

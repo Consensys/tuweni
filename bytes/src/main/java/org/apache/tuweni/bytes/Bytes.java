@@ -1017,6 +1017,20 @@ public interface Bytes extends Comparable<Bytes> {
     return size;
   }
 
+  default int trimmedSize() {
+    return trimmedSize(BIG_ENDIAN);
+  }
+
+  /**
+   * Provides the size of the trimmed value.
+   *
+   * @return The size of the trimmed value.
+   */
+  default int trimmedSize(ByteOrder order) {
+    return size()
+        - (order == BIG_ENDIAN ? numberOfLeadingZeroBytes() : numberOfTrailingZeroBytes());
+  }
+
   /**
    * Provides the number of bits following and including the highest-order ("leftmost") one-bit, or
    * zero if all bits are zero.
