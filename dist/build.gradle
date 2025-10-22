@@ -23,7 +23,7 @@ apply plugin: 'distribution'
 jar { enabled = false }
 
 task createBinaryLicense {
-  description "Create a LICENSE file with all dependencies"
+  description = "Create a LICENSE file with all dependencies"
 
   doLast {
     new File("$project.buildDir/license").mkdirs()
@@ -34,7 +34,7 @@ task createBinaryLicense {
 }
 
 task createBinaryNotice {
-  description "Create a NOTICE file with all dependencies"
+  description = "Create a NOTICE file with all dependencies"
 
   doLast {
     new File("$project.buildDir/notice").mkdirs()
