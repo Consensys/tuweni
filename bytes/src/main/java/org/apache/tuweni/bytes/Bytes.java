@@ -726,12 +726,12 @@ public interface Bytes extends Comparable<Bytes> {
       if (++i == trmSize) {
         return value;
       }
-      value |= ((int) get(i++) & 0xFF) << 8;
-      if (i == trmSize) {
+      value |= ((int) get(i) & 0xFF) << 8;
+      if (++i == trmSize) {
         return value;
       }
-      value |= ((int) get(i++) & 0xFF) << 16;
-      if (i == trmSize) {
+      value |= ((int) get(i) & 0xFF) << 16;
+      if (++i == trmSize) {
         return value;
       }
       return value | ((int) get(i) & 0xFF) << 24;
@@ -854,7 +854,7 @@ public interface Bytes extends Comparable<Bytes> {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 48;
-      if (i == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       return value | ((long) get(--i) & 0xFF) << 56;
