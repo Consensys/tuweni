@@ -697,26 +697,26 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code size() > 4}.
    */
   default int toInt(ByteOrder order) {
-    final int numberZeros =
+    final int numberOfZeroBytes =
         order == BIG_ENDIAN ? numberOfLeadingZeroBytes() : numberOfTrailingZeroBytes();
     final int size = size();
-    final int trmSize = size - numberZeros;
-    checkArgument(trmSize <= 4, "Value of size %s has more than 4 bytes", trmSize);
-    if (trmSize == 0) {
+    if (numberOfZeroBytes == size) {
       return 0;
     }
+    final int trmSize = size - numberOfZeroBytes;
+    checkArgument(trmSize <= 4, "Value of size %s has more than 4 bytes", trmSize);
     if (order == BIG_ENDIAN) {
       int i = size;
       int value = ((int) get(--i) & 0xFF);
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((int) get(--i) & 0xFF) << 8;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((int) get(--i) & 0xFF) << 16;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       return value | ((int) get(--i) & 0xFF) << 24;
@@ -726,12 +726,12 @@ public interface Bytes extends Comparable<Bytes> {
       if (++i == trmSize) {
         return value;
       }
-      value |= ((int) get(i++) & 0xFF) << 8;
-      if (i == trmSize) {
+      value |= ((int) get(i) & 0xFF) << 8;
+      if (++i == trmSize) {
         return value;
       }
-      value |= ((int) get(i++) & 0xFF) << 16;
-      if (i == trmSize) {
+      value |= ((int) get(i) & 0xFF) << 16;
+      if (++i == trmSize) {
         return value;
       }
       return value | ((int) get(i) & 0xFF) << 24;
@@ -819,42 +819,42 @@ public interface Bytes extends Comparable<Bytes> {
    * @throws IllegalArgumentException if {@code size() > 8}.
    */
   default long toLong(ByteOrder order) {
-    final int numberZeros =
+    final int numberOfZeroBytes =
         order == BIG_ENDIAN ? numberOfLeadingZeroBytes() : numberOfTrailingZeroBytes();
     final int size = size();
-    final int trmSize = size - numberZeros;
-    checkArgument(trmSize <= 8, "Value of size %s has more than 8 bytes", trmSize);
-    if (trmSize == 0) {
+    if (numberOfZeroBytes == size) {
       return 0;
     }
+    final int trmSize = size - numberOfZeroBytes;
+    checkArgument(trmSize <= 8, "Value of size %s has more than 8 bytes", trmSize);
     if (order == BIG_ENDIAN) {
       int i = size;
       long value = ((long) get(--i) & 0xFF);
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 8;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 16;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 24;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 32;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 40;
-      if (i - numberZeros == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       value |= ((long) get(--i) & 0xFF) << 48;
-      if (i == 0) {
+      if (i == numberOfZeroBytes) {
         return value;
       }
       return value | ((long) get(--i) & 0xFF) << 56;

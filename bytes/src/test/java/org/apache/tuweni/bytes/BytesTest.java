@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.apache.tuweni.bytes;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -739,6 +740,7 @@ class BytesTest extends CommonBytesTests {
     assertEquals(1224979098644774912L, leadingZeros.toLong(LITTLE_ENDIAN));
     assertEquals(17L, trailingZeros.toLong(LITTLE_ENDIAN));
     assertEquals(17L, noZeros.toLong(LITTLE_ENDIAN));
+    assertEquals(9890257989415474L, Bytes.fromHexString("0x0023232322323232").toLong(BIG_ENDIAN));
   }
 
   @Test
