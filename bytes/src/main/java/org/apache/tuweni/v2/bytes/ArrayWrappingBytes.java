@@ -14,8 +14,12 @@ import io.vertx.core.buffer.Buffer;
 
 class ArrayWrappingBytes extends Bytes {
 
-  protected final byte[] bytes;
+  protected byte[] bytes;
   protected final int offset;
+
+  ArrayWrappingBytes(byte[] bytes) {
+    this(bytes, 0, bytes.length);
+  }
 
   ArrayWrappingBytes(byte[] bytes, int offset, int length) {
     super(length);
