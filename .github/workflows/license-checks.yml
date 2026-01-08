@@ -21,6 +21,9 @@ on:
     paths:
       - 'dependency-versions.gradle'
 
+permissions:
+  contents: read
+
 jobs:
   license-checks:
     timeout-minutes: 30

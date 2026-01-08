@@ -21,6 +21,9 @@ on:
     - cron: "27 3 * * 1-5" # Run at an arbitrary time on weekdays.
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   mark-issues-as-stale:
     runs-on: ubuntu-latest
