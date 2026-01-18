@@ -22,7 +22,7 @@ dependencyManagement {
     dependency('com.google.guava:guava:32.1.2-jre')
     dependency('com.squareup.okhttp3:okhttp:5.0.0-alpha.11')
 
-    dependencySet(group: 'io.vertx', version: '4.5.22') {
+    dependencySet(group: 'io.vertx', version: '4.5.24') { // https://github.com/advisories/GHSA-cphf-4846-3xx9
       entry 'vertx-core'
       entry 'vertx-lang-kotlin-coroutines'
     }
