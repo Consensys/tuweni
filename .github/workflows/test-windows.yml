@@ -24,6 +24,9 @@ on:
     types: [opened, synchronize, reopened, labeled, unlabeled]
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   test-windows:
     timeout-minutes: 30
