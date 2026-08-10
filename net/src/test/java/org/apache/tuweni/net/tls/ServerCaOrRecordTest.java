@@ -36,6 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(VertxExtension.class)
+@SuppressWarnings("removal")
 class ServerCaOrRecordTest {
 
   private static HttpClient caClient;
@@ -109,7 +110,7 @@ class ServerCaOrRecordTest {
     options
         .setSsl(true)
         .setClientAuth(ClientAuth.REQUIRED)
-        .setPemKeyCertOptions(serverCert.keyCertOptions())
+        .setKeyCertOptions(serverCert.keyCertOptions())
         .setTrustOptions(VertxTrustOptions.recordClientFingerprints(knownClientsFile))
         .setIdleTimeout(1500)
         .setReuseAddress(true)

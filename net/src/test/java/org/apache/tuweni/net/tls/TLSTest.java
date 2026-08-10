@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(BouncyCastleExtension.class)
+@SuppressWarnings("removal")
 class TLSTest {
 
   @Test

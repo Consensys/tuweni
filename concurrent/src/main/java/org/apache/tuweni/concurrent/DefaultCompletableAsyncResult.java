@@ -217,19 +217,21 @@ final class DefaultCompletableAsyncResult<T> implements CompletableAsyncResult<T
         (t, ex1) -> {
           if (ex1 == null) {
             try {
-              vertx.executeBlocking(
-                  vertxFuture -> {
-                    runnable.run();
-                    vertxFuture.complete(null);
-                  },
-                  false,
-                  res -> {
-                    if (res.succeeded()) {
-                      completion.complete();
-                    } else {
-                      completion.completeExceptionally(res.cause());
-                    }
-                  });
+              vertx
+                  .executeBlocking(
+                      () -> {
+                        runnable.run();
+                        return null;
+                      },
+                      false)
+                  .onComplete(
+                      res -> {
+                        if (res.succeeded()) {
+                          completion.complete();
+                        } else {
+                          completion.completeExceptionally(res.cause());
+                        }
+                      });
             } catch (Throwable ex2) {
               completion.completeExceptionally(ex2);
             }
@@ -249,19 +251,21 @@ final class DefaultCompletableAsyncResult<T> implements CompletableAsyncResult<T
         (t, ex1) -> {
           if (ex1 == null) {
             try {
-              executor.executeBlocking(
-                  vertxFuture -> {
-                    runnable.run();
-                    vertxFuture.complete(null);
-                  },
-                  false,
-                  res -> {
-                    if (res.succeeded()) {
-                      completion.complete();
-                    } else {
-                      completion.completeExceptionally(res.cause());
-                    }
-                  });
+              executor
+                  .executeBlocking(
+                      () -> {
+                        runnable.run();
+                        return null;
+                      },
+                      false)
+                  .onComplete(
+                      res -> {
+                        if (res.succeeded()) {
+                          completion.complete();
+                        } else {
+                          completion.completeExceptionally(res.cause());
+                        }
+                      });
             } catch (Throwable ex2) {
               completion.completeExceptionally(ex2);
             }
@@ -315,16 +319,16 @@ final class DefaultCompletableAsyncResult<T> implements CompletableAsyncResult<T
         (t, ex1) -> {
           if (ex1 == null) {
             try {
-              vertx.<U>executeBlocking(
-                  vertxFuture -> vertxFuture.complete(fn.apply(t)),
-                  false,
-                  res -> {
-                    if (res.succeeded()) {
-                      asyncResult.complete(res.result());
-                    } else {
-                      asyncResult.completeExceptionally(res.cause());
-                    }
-                  });
+              vertx
+                  .<U>executeBlocking(() -> fn.apply(t), false)
+                  .onComplete(
+                      res -> {
+                        if (res.succeeded()) {
+                          asyncResult.complete(res.result());
+                        } else {
+                          asyncResult.completeExceptionally(res.cause());
+                        }
+                      });
             } catch (Throwable ex2) {
               asyncResult.completeExceptionally(ex2);
             }
@@ -345,16 +349,16 @@ final class DefaultCompletableAsyncResult<T> implements CompletableAsyncResult<T
         (t, ex1) -> {
           if (ex1 == null) {
             try {
-              executor.<U>executeBlocking(
-                  vertxFuture -> vertxFuture.complete(fn.apply(t)),
-                  false,
-                  res -> {
-                    if (res.succeeded()) {
-                      asyncResult.complete(res.result());
-                    } else {
-                      asyncResult.completeExceptionally(res.cause());
-                    }
-                  });
+              executor
+                  .<U>executeBlocking(() -> fn.apply(t), false)
+                  .onComplete(
+                      res -> {
+                        if (res.succeeded()) {
+                          asyncResult.complete(res.result());
+                        } else {
+                          asyncResult.completeExceptionally(res.cause());
+                        }
+                      });
             } catch (Throwable ex2) {
               asyncResult.completeExceptionally(ex2);
             }

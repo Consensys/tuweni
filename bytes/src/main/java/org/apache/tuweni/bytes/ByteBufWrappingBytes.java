@@ -7,6 +7,7 @@ import static org.apache.tuweni.bytes.Checks.checkElementIndex;
 
 import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.internal.buffer.BufferInternal;
 
 class ByteBufWrappingBytes extends AbstractBytes {
 
@@ -90,7 +91,7 @@ class ByteBufWrappingBytes extends AbstractBytes {
 
   @Override
   public void appendTo(Buffer buffer) {
-    buffer.appendBuffer(Buffer.buffer(this.byteBuf));
+    buffer.appendBuffer(BufferInternal.buffer(this.byteBuf));
   }
 
   @Override

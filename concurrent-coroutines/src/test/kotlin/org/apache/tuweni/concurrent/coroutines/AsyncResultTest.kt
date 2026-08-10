@@ -113,10 +113,10 @@ class AsyncResultTest {
           throw IllegalArgumentException("foo")
         }.asAsyncResult()
 
-        result!!.await()
+        result.await()
       }
     }
     assertTrue(result!!.isDone)
-    assertTrue(result!!.isCompletedExceptionally)
+    assertTrue(result.isCompletedExceptionally)
   }
 }

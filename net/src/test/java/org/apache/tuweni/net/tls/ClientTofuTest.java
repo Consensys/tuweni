@@ -40,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(VertxExtension.class)
+@SuppressWarnings("removal")
 class ClientTofuTest {
 
   private static String caValidFingerprint;
@@ -64,7 +65,7 @@ class ClientTofuTest {
             .createHttpServer(
                 new HttpServerOptions()
                     .setSsl(true)
-                    .setPemKeyCertOptions(caSignedCert.keyCertOptions()))
+                    .setKeyCertOptions(caSignedCert.keyCertOptions()))
             .requestHandler(context -> context.response().end("OK"));
     startServer(caValidServer);
 
@@ -73,7 +74,7 @@ class ClientTofuTest {
     fooServer =
         vertx
             .createHttpServer(
-                new HttpServerOptions().setSsl(true).setPemKeyCertOptions(fooCert.keyCertOptions()))
+                new HttpServerOptions().setSsl(true).setKeyCertOptions(fooCert.keyCertOptions()))
             .requestHandler(context -> context.response().end("OK"));
     startServer(fooServer);
 
@@ -83,9 +84,7 @@ class ClientTofuTest {
     foobarServer =
         vertx
             .createHttpServer(
-                new HttpServerOptions()
-                    .setSsl(true)
-                    .setPemKeyCertOptions(foobarCert.keyCertOptions()))
+                new HttpServerOptions().setSsl(true).setKeyCertOptions(foobarCert.keyCertOptions()))
             .requestHandler(context -> context.response().end("OK"));
     startServer(foobarServer);
   }

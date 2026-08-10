@@ -111,10 +111,10 @@ class AsyncCompletionTest {
           throw IllegalArgumentException("foo")
         }.asAsyncCompletion()
 
-        completion!!.await()
+        completion.await()
       }
     }
     assertTrue(completion!!.isDone)
-    assertTrue(completion!!.isCompletedExceptionally)
+    assertTrue(completion.isCompletedExceptionally)
   }
 }

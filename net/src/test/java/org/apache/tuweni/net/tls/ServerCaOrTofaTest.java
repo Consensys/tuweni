@@ -39,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(VertxExtension.class)
+@SuppressWarnings("removal")
 class ServerCaOrTofaTest {
 
   private static HttpClient caClient;
@@ -95,7 +96,7 @@ class ServerCaOrTofaTest {
     options
         .setSsl(true)
         .setClientAuth(ClientAuth.REQUIRED)
-        .setPemKeyCertOptions(serverCert.keyCertOptions())
+        .setKeyCertOptions(serverCert.keyCertOptions())
         .setTrustOptions(VertxTrustOptions.trustClientOnFirstAccess(knownClientsFile))
         .setIdleTimeout(1500)
         .setReuseAddress(true)
