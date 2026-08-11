@@ -212,19 +212,21 @@ final class DefaultCompletableAsyncCompletion implements CompletableAsyncComplet
         (t, ex1) -> {
           if (ex1 == null) {
             try {
-              vertx.executeBlocking(
-                  vertxFuture -> {
-                    runnable.run();
-                    vertxFuture.complete(null);
-                  },
-                  false,
-                  res -> {
-                    if (res.succeeded()) {
-                      completion.complete();
-                    } else {
-                      completion.completeExceptionally(res.cause());
-                    }
-                  });
+              vertx
+                  .executeBlocking(
+                      () -> {
+                        runnable.run();
+                        return null;
+                      },
+                      false)
+                  .onComplete(
+                      res -> {
+                        if (res.succeeded()) {
+                          completion.complete();
+                        } else {
+                          completion.completeExceptionally(res.cause());
+                        }
+                      });
             } catch (Throwable ex2) {
               completion.completeExceptionally(ex2);
             }
@@ -244,19 +246,21 @@ final class DefaultCompletableAsyncCompletion implements CompletableAsyncComplet
         (t, ex1) -> {
           if (ex1 == null) {
             try {
-              executor.executeBlocking(
-                  vertxFuture -> {
-                    runnable.run();
-                    vertxFuture.complete(null);
-                  },
-                  false,
-                  res -> {
-                    if (res.succeeded()) {
-                      completion.complete();
-                    } else {
-                      completion.completeExceptionally(res.cause());
-                    }
-                  });
+              executor
+                  .executeBlocking(
+                      () -> {
+                        runnable.run();
+                        return null;
+                      },
+                      false)
+                  .onComplete(
+                      res -> {
+                        if (res.succeeded()) {
+                          completion.complete();
+                        } else {
+                          completion.completeExceptionally(res.cause());
+                        }
+                      });
             } catch (Throwable ex2) {
               completion.completeExceptionally(ex2);
             }

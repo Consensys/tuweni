@@ -38,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(VertxExtension.class)
+@SuppressWarnings("removal")
 class ServerAllowlistTest {
 
   private static HttpClient caClient;
@@ -94,7 +95,7 @@ class ServerAllowlistTest {
     options
         .setSsl(true)
         .setClientAuth(ClientAuth.REQUIRED)
-        .setPemKeyCertOptions(serverCert.keyCertOptions())
+        .setKeyCertOptions(serverCert.keyCertOptions())
         .setTrustOptions(VertxTrustOptions.allowlistClients(knownClientsFile, false))
         .setIdleTimeout(1500)
         .setReuseAddress(true)

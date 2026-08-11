@@ -22,7 +22,7 @@ dependencyManagement {
     dependency('com.google.guava:guava:32.1.2-jre')
     dependency('com.squareup.okhttp3:okhttp:5.0.0-alpha.11')
 
-    dependencySet(group: 'io.vertx', version: '4.5.22') {
+    dependencySet(group: 'io.vertx', version: '5.1.6') {
       entry 'vertx-core'
       entry 'vertx-lang-kotlin-coroutines'
     }
@@ -46,11 +46,11 @@ dependencyManagement {
     }
 
     dependency('org.jetbrains:annotations:26.0.1')
-    dependencySet(group: 'org.jetbrains.kotlin', version: '2.1.0') {
+    dependencySet(group: 'org.jetbrains.kotlin', version: '2.3.0') {
       entry 'kotlin-reflect'
       entry 'kotlin-stdlib'
     }
-    dependencySet(group: 'org.jetbrains.kotlinx', version: '1.9.0') {
+    dependencySet(group: 'org.jetbrains.kotlinx', version: '1.10.2') {
       entry 'kotlinx-coroutines-core'
     }
     dependency('org.miracl.milagro.amcl:milagro-crypto-java:0.4.0')

@@ -227,19 +227,21 @@ public interface AsyncCompletion {
   static AsyncCompletion executeBlocking(Vertx vertx, Runnable action) {
     requireNonNull(action);
     CompletableAsyncCompletion completion = AsyncCompletion.incomplete();
-    vertx.executeBlocking(
-        future -> {
-          action.run();
-          future.complete();
-        },
-        false,
-        res -> {
-          if (res.succeeded()) {
-            completion.complete();
-          } else {
-            completion.completeExceptionally(res.cause());
-          }
-        });
+    vertx
+        .executeBlocking(
+            () -> {
+              action.run();
+              return null;
+            },
+            false)
+        .onComplete(
+            res -> {
+              if (res.succeeded()) {
+                completion.complete();
+              } else {
+                completion.completeExceptionally(res.cause());
+              }
+            });
     return completion;
   }
 
@@ -254,19 +256,21 @@ public interface AsyncCompletion {
   static AsyncCompletion executeBlocking(WorkerExecutor executor, Runnable action) {
     requireNonNull(action);
     CompletableAsyncCompletion completion = AsyncCompletion.incomplete();
-    executor.executeBlocking(
-        future -> {
-          action.run();
-          future.complete();
-        },
-        false,
-        res -> {
-          if (res.succeeded()) {
-            completion.complete();
-          } else {
-            completion.completeExceptionally(res.cause());
-          }
-        });
+    executor
+        .executeBlocking(
+            () -> {
+              action.run();
+              return null;
+            },
+            false)
+        .onComplete(
+            res -> {
+              if (res.succeeded()) {
+                completion.complete();
+              } else {
+                completion.completeExceptionally(res.cause());
+              }
+            });
     return completion;
   }
 

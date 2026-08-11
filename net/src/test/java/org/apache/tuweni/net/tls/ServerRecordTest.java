@@ -36,6 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(VertxExtension.class)
+@SuppressWarnings("removal")
 class ServerRecordTest {
 
   private static String caFingerprint;
@@ -112,7 +113,7 @@ class ServerRecordTest {
     options
         .setSsl(true)
         .setClientAuth(ClientAuth.REQUIRED)
-        .setPemKeyCertOptions(serverCert.keyCertOptions())
+        .setKeyCertOptions(serverCert.keyCertOptions())
         .setTrustOptions(VertxTrustOptions.recordClientFingerprints(knownClientsFile, false))
         .setIdleTimeout(1500)
         .setReuseAddress(true)

@@ -27,7 +27,6 @@ import javax.net.ssl.SSLException;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -41,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TempDirectoryExtension.class)
 @ExtendWith(VertxExtension.class)
+@SuppressWarnings("removal")
 class ClientCaOrTofuTest {
 
   private static String caValidFingerprint;
@@ -65,7 +65,7 @@ class ClientCaOrTofuTest {
             .createHttpServer(
                 new HttpServerOptions()
                     .setSsl(true)
-                    .setPemKeyCertOptions(caSignedCert.keyCertOptions()))
+                    .setKeyCertOptions(caSignedCert.keyCertOptions()))
             .requestHandler(context -> context.response().end("OK"));
     startServer(caValidServer);
 
@@ -74,7 +74,7 @@ class ClientCaOrTofuTest {
     fooServer =
         vertx
             .createHttpServer(
-                new HttpServerOptions().setSsl(true).setPemKeyCertOptions(fooCert.keyCertOptions()))
+                new HttpServerOptions().setSsl(true).setKeyCertOptions(fooCert.keyCertOptions()))
             .requestHandler(context -> context.response().end("OK"));
     startServer(fooServer);
 
@@ -84,9 +84,7 @@ class ClientCaOrTofuTest {
     foobarServer =
         vertx
             .createHttpServer(
-                new HttpServerOptions()
-                    .setSsl(true)
-                    .setPemKeyCertOptions(foobarCert.keyCertOptions()))
+                new HttpServerOptions().setSsl(true).setKeyCertOptions(foobarCert.keyCertOptions()))
             .requestHandler(context -> context.response().end("OK"));
     startServer(foobarServer);
   }
@@ -143,17 +141,11 @@ class ClientCaOrTofuTest {
   @Test
   void shouldFallbackToTOFUForInvalidName() throws Exception {
     CompletableFuture<Integer> statusCode = new CompletableFuture<>();
-    client.request(
-        HttpMethod.POST,
-        caValidServer.actualPort(),
-        "127.0.0.1",
-        "/sample",
-        request -> {
-          HttpClientRequest req = request.result();
-          req.send()
-              .onSuccess((response) -> statusCode.complete(response.statusCode()))
-              .onFailure(statusCode::completeExceptionally);
-        });
+    client
+        .request(HttpMethod.POST, caValidServer.actualPort(), "127.0.0.1", "/sample")
+        .onSuccess(
+            (req) -> req.send().onSuccess((response) -> statusCode.complete(response.statusCode())))
+        .onFailure(statusCode::completeExceptionally);
     assertEquals((Integer) 200, statusCode.join());
 
     List<String> knownServers = Files.readAllLines(knownServersFile);

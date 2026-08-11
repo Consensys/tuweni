@@ -244,16 +244,16 @@ public interface AsyncResult<T> {
   static <T> AsyncResult<T> executeBlocking(Vertx vertx, Supplier<T> fn) {
     requireNonNull(fn);
     CompletableAsyncResult<T> asyncResult = AsyncResult.incomplete();
-    vertx.<T>executeBlocking(
-        future -> future.complete(fn.get()),
-        false,
-        res -> {
-          if (res.succeeded()) {
-            asyncResult.complete(res.result());
-          } else {
-            asyncResult.completeExceptionally(res.cause());
-          }
-        });
+    vertx
+        .<T>executeBlocking(fn::get, false)
+        .onComplete(
+            res -> {
+              if (res.succeeded()) {
+                asyncResult.complete(res.result());
+              } else {
+                asyncResult.completeExceptionally(res.cause());
+              }
+            });
     return asyncResult;
   }
 
@@ -270,16 +270,16 @@ public interface AsyncResult<T> {
   static <T> AsyncResult<T> executeBlocking(WorkerExecutor executor, Supplier<T> fn) {
     requireNonNull(fn);
     CompletableAsyncResult<T> asyncResult = AsyncResult.incomplete();
-    executor.<T>executeBlocking(
-        future -> future.complete(fn.get()),
-        false,
-        res -> {
-          if (res.succeeded()) {
-            asyncResult.complete(res.result());
-          } else {
-            asyncResult.completeExceptionally(res.cause());
-          }
-        });
+    executor
+        .<T>executeBlocking(fn::get, false)
+        .onComplete(
+            res -> {
+              if (res.succeeded()) {
+                asyncResult.complete(res.result());
+              } else {
+                asyncResult.completeExceptionally(res.cause());
+              }
+            });
     return asyncResult;
   }
 

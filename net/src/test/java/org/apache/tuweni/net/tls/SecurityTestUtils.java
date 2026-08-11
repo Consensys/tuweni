@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.net.SelfSignedCertificate;
 
+@SuppressWarnings("removal")
 class SecurityTestUtils {
   private SecurityTestUtils() {}
 
@@ -61,15 +62,10 @@ class SecurityTestUtils {
 
   static void startServer(HttpServer server) {
     CompletableFuture<Boolean> future = new CompletableFuture<>();
-    server.listen(
-        0,
-        result -> {
-          if (result.succeeded()) {
-            future.complete(true);
-          } else {
-            future.completeExceptionally(result.cause());
-          }
-        });
+    server
+        .listen(0)
+        .onSuccess(result -> future.complete(true))
+        .onFailure(future::completeExceptionally);
     future.join();
   }
 }
